@@ -1,19 +1,12 @@
 import os
-from dotenv import load_dotenv
 import telebot
 from telebot import types
-import telebot.apihelper
 
-load_dotenv()
+# Токен берется из переменных окружения (Bothost)
 TOKEN = os.getenv("BOT_TOKEN")
 
 if not TOKEN:
-    raise SystemExit("Не найден BOT_TOKEN")
-
-# =========================================================
-# ПРИНУДИТЕЛЬНОЕ ПОДКЛЮЧЕНИЕ ПО IP (в обход DNS-блокировки)
-# =========================================================
-telebot.apihelper.API_URL = "https://149.154.167.220/bot{0}/{1}"
+    raise SystemExit("Не найден BOT_TOKEN. Проверь переменные в Bothost.")
 
 bot = telebot.TeleBot(TOKEN)
 
