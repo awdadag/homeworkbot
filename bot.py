@@ -2,12 +2,11 @@ import os
 import sqlite3
 import telebot
 from telebot import types
-from datetime import datetime
 
 # Токен берется из переменных окружения (Bothost)
 TOKEN = os.getenv("BOT_TOKEN")
-# ID админа (вставь сюда свои цифры от @userinfobot)
-ADMIN_ID = 123456789  # <--- ЗАМЕНИ ЭТО ЧИСЛО НА СВОЕ!
+# Твой ID для уведомлений
+ADMIN_ID = 6984430179
 
 if not TOKEN:
     raise SystemExit("Не найден BOT_TOKEN. Проверь переменные в Bothost.")
@@ -65,7 +64,6 @@ def start_booking(message):
 
 @bot.message_handler(func=lambda m: m.text in ["💇 Стрижка", "💅 Маникюр", "🦷 Стоматология"])
 def choose_service(message):
-    # Сохраняем выбранную услугу во временную переменную пользователя
     bot.send_message(message.chat.id, f"Ты выбрал: {message.text}.\nТеперь напиши свое имя:", reply_markup=types.ReplyKeyboardRemove())
     bot.register_next_step_handler(message, get_name, message.text)
 
