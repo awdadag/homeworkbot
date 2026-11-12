@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = 6984430179
 
+# --- НАСТРОЙКИ БИЗНЕСА (МЕНЯЙ ЗДЕСЬ) ---
+SITE_URL = "https://example.com"  # Ссылка на сайт
+PHONE_NUMBER = "+7 (999) 123-45-67"  # Твой телефон
+
 if not TOKEN:
     raise SystemExit("Не найден BOT_TOKEN.")
 
@@ -40,7 +44,8 @@ WORK_TIMES = ["10:00", "12:00", "14:00", "16:00", "18:00"]
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("📝 Записаться"), types.KeyboardButton("📋 Мои записи"))
-    markup.add(types.KeyboardButton("📞 Контакты"), types.KeyboardButton("❓ Помощь"))
+    markup.add(types.KeyboardButton("🌐 Наш сайт"), types.KeyboardButton("📞 Контакты"))
+    markup.add(types.KeyboardButton("❓ Помощь"))
     return markup
 
 def services_menu():
@@ -73,7 +78,14 @@ def cmd_help(message):
 
 @bot.message_handler(func=lambda m: m.text == "📞 Контакты")
 def cmd_contacts(message):
-    bot.send_message(message.chat.id, "Наш телефон: +7 (999) 123-45-67")
+    bot.send_message(message.chat.id, f"Наш телефон: {PHONE_NUMBER}\nНаш адрес: г. Москва, ул. Пушкина, д. 10\n\nЕсли у вас есть вопросы, звоните!")
+
+@bot.message_handler(func=lambda m: m.text == "🌐 Наш сайт")
+def cmd_site(message):
+    # Создаем кнопку со ссылкой под сообщением
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("Перейти на сайт", url=SITE_URL))
+    bot.send_message(message.chat.id, "Нажми на кнопку ниже, чтобы перейти на наш сайт:", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: m.text == "📝 Записаться")
 def start_booking(message):
@@ -103,7 +115,6 @@ def get_date(message, service, user_name):
         bot.register_next_step_handler(message, get_date, service, user_name)
         return
 
-    # Блокировка времени глобально для этой услуги
     cursor.execute("SELECT time FROM bookings WHERE date = ? AND service = ?", (date, service))
     busy_times = [row[0] for row in cursor.fetchall()]
     free_times = [t for t in WORK_TIMES if t not in busy_times]
@@ -139,16 +150,21 @@ def save_booking(message, service, user_name, date):
                    (message.from_user.id, user_name, service, date, time))
     conn.commit()
     
-    bot.send_message(message.chat.id, f"✅ Запись создана!\nУслуга: {service}\nИмя: {user_name}\nДата: {date}\nВремя: {time}\n\nМы вас ждем!", reply_markup=main_menu())
+    # Текст с подтверждением и телефоном
+    confirm_text = (f"✅ Запись создана!\n\n"
+                    f"Услуга: {service}\n"
+                    f"Имя: {user_name}\n"
+                    f"Дата: {date}\n"
+                    f"Время: {time}\n\n"
+                    f"Мы вас ждем! Если у вас есть вопросы, звоните: {PHONE_NUMBER}")
+    
+    bot.send_message(message.chat.id, confirm_text, reply_markup=main_menu())
     
     try:
         bot.send_message(ADMIN_ID, f"🔔 НОВАЯ ЗАПИСЬ!\nКлиент: {user_name}\nУслуга: {service}\nДата: {date}\nВремя: {time}")
     except Exception:
         pass
 
-# ==========================================
-# МОИ ЗАПИСИ И ОТМЕНА КЛИЕНТОМ
-# ==========================================
 @bot.message_handler(func=lambda m: m.text == "📋 Мои записи")
 def show_bookings(message):
     cursor.execute("SELECT id, service, date, time FROM bookings WHERE user_id = ?", (message.from_user.id,))
@@ -160,7 +176,6 @@ def show_bookings(message):
     
     markup = types.InlineKeyboardMarkup(row_width=1)
     for row in rows:
-        # row[0] - id, row[1] - service, row[2] - date, row[3] - time
         text = f"❌ Отменить: {row[1]} {row[2]} в {row[3]}"
         markup.add(types.InlineKeyboardButton(text, callback_data=f"userdel_{row[0]}"))
     
@@ -169,22 +184,17 @@ def show_bookings(message):
 @bot.callback_query_handler(func=lambda call: call.data.startswith('userdel_'))
 def user_cancel_booking(call):
     booking_id = call.data.split('_')[1]
-    
-    # Получаем данные записи перед удалением
     cursor.execute("SELECT user_id, username, service, date, time FROM bookings WHERE id = ?", (booking_id,))
     row = cursor.fetchone()
     
-    # Проверяем, что клиент отменяет именно СВОЮ запись
     if row and row[0] == call.from_user.id:
         username, service, date, time = row[1], row[2], row[3], row[4]
-        
         cursor.execute("DELETE FROM bookings WHERE id = ?", (booking_id,))
         conn.commit()
         
         bot.answer_callback_query(call.id, "Запись отменена!")
         bot.edit_message_text(f"✅ Ты отменил запись:\n{service} на {date} в {time}.", call.message.chat.id, call.message.message_id)
         
-        # УВЕДОМЛЕНИЕ АДМИНУ ОБ ОТМЕНЕ
         try:
             bot.send_message(ADMIN_ID, f"⚠️ КЛИЕНТ ОТМЕНИЛ ЗАПИСЬ!\nКлиент: {username}\nУслуга: {service}\nДата: {date}\nВремя: {time}")
         except Exception:
