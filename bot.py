@@ -49,11 +49,10 @@ def services_menu():
     markup.add(types.KeyboardButton("🦷 Стоматология"), types.KeyboardButton("🔙 Назад"))
     return markup
 
-# Функция для генерации кнопок с датами на 7 дней вперед
 def dates_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
     buttons = []
-    for i in range(1, 8): # 7 дней
+    for i in range(1, 8):
         date = datetime.now() + timedelta(days=i)
         date_str = date.strftime("%d.%m")
         buttons.append(types.KeyboardButton(date_str))
@@ -87,6 +86,9 @@ def choose_service(message):
 
 def get_name(message, service):
     user_name = message.text
+    if user_name == "🔙 Назад":
+        start_booking(message)
+        return
     bot.send_message(message.chat.id, "Отлично! Выбери дату из списка ниже:", reply_markup=dates_menu())
     bot.register_next_step_handler(message, get_date, service, user_name)
 
@@ -95,6 +97,13 @@ def get_date(message, service, user_name):
     
     if date == "🔙 Назад":
         start_booking(message)
+        return
+
+    # ПРОВЕРКА: Пользователь ввел текст вместо даты?
+    # Если длина больше 5 символов или нет точки - это не дата
+    if len(date) > 5 or "." not in date:
+        bot.send_message(message.chat.id, "❌ Пожалуйста, выбери дату именно из кнопок ниже (например, 25.10):", reply_markup=dates_menu())
+        bot.register_next_step_handler(message, get_date, service, user_name)
         return
 
     # Ищем занятое время на эту дату
@@ -125,8 +134,15 @@ def save_booking(message, service, user_name, date):
         return
 
     if time not in WORK_TIMES:
-        bot.send_message(message.chat.id, "Пожалуйста, выбери время из предложенных кнопок.")
-        get_date(message, service, user_name) 
+        bot.send_message(message.chat.id, "❌ Пожалуйста, выбери время из предложенных кнопок.")
+        get_date(message, service, user_name)
+        return
+        
+    # Еще одна проверка на случай, если два человека нажали одновременно
+    cursor.execute("SELECT id FROM bookings WHERE date = ? AND time = ?", (date, time))
+    if cursor.fetchone():
+        bot.send_message(message.chat.id, "❌ Упс! Это время только что заняли. Выбери другое.", reply_markup=dates_menu())
+        get_date(message, service, user_name)
         return
     
     # Сохраняем в базу
