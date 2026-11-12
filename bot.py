@@ -2,6 +2,7 @@ import os
 import sqlite3
 import telebot
 from telebot import types
+from datetime import datetime, timedelta
 
 # Токен и ID админа
 TOKEN = os.getenv("BOT_TOKEN")
@@ -29,7 +30,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS bookings (
 conn.commit()
 
 # ==========================================
-# НАСТРОЙКИ РАБОЧЕГО ВРЕМЕНИ (Можно менять)
+# НАСТРОЙКИ РАБОЧЕГО ВРЕМЕНИ
 # ==========================================
 WORK_TIMES = ["10:00", "12:00", "14:00", "16:00", "18:00"]
 
@@ -48,6 +49,18 @@ def services_menu():
     markup.add(types.KeyboardButton("🦷 Стоматология"), types.KeyboardButton("🔙 Назад"))
     return markup
 
+# Функция для генерации кнопок с датами на 7 дней вперед
+def dates_menu():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+    buttons = []
+    for i in range(1, 8): # 7 дней
+        date = datetime.now() + timedelta(days=i)
+        date_str = date.strftime("%d.%m")
+        buttons.append(types.KeyboardButton(date_str))
+    markup.add(*buttons)
+    markup.add(types.KeyboardButton("🔙 Назад"))
+    return markup
+
 # ==========================================
 # ОСНОВНЫЕ ФУНКЦИИ
 # ==========================================
@@ -57,7 +70,7 @@ def cmd_start(message):
 
 @bot.message_handler(func=lambda m: m.text == "❓ Помощь")
 def cmd_help(message):
-    bot.send_message(message.chat.id, "Этот бот помогает записаться на услуги.\n\nНажми «📝 Записаться», выбери услугу, введи имя и дату, а затем выбери свободное время.")
+    bot.send_message(message.chat.id, "Этот бот помогает записаться на услуги.\n\nНажми «📝 Записаться», выбери услугу, введи имя, выбери дату и время из кнопок.")
 
 @bot.message_handler(func=lambda m: m.text == "📞 Контакты")
 def cmd_contacts(message):
@@ -74,12 +87,16 @@ def choose_service(message):
 
 def get_name(message, service):
     user_name = message.text
-    bot.send_message(message.chat.id, "Отлично! На какую дату хочешь записаться? (Напиши в формате ДД.ММ, например: 25.10)")
+    bot.send_message(message.chat.id, "Отлично! Выбери дату из списка ниже:", reply_markup=dates_menu())
     bot.register_next_step_handler(message, get_date, service, user_name)
 
 def get_date(message, service, user_name):
     date = message.text
     
+    if date == "🔙 Назад":
+        start_booking(message)
+        return
+
     # Ищем занятое время на эту дату
     cursor.execute("SELECT time FROM bookings WHERE date = ?", (date,))
     busy_times = [row[0] for row in cursor.fetchall()]
@@ -88,8 +105,8 @@ def get_date(message, service, user_name):
     free_times = [t for t in WORK_TIMES if t not in busy_times]
     
     if not free_times:
-        bot.send_message(message.chat.id, f"❌ К сожалению, на {date} все места заняты. Попробуй выбрать другую дату.")
-        start_booking(message)
+        bot.send_message(message.chat.id, f"❌ К сожалению, на {date} все места заняты. Попробуй выбрать другую дату.", reply_markup=dates_menu())
+        bot.register_next_step_handler(message, get_date, service, user_name)
         return
     
     # Создаем кнопки с доступным временем
@@ -103,9 +120,13 @@ def get_date(message, service, user_name):
 def save_booking(message, service, user_name, date):
     time = message.text
     
+    if time == "🔙 Назад":
+        start_booking(message)
+        return
+
     if time not in WORK_TIMES:
         bot.send_message(message.chat.id, "Пожалуйста, выбери время из предложенных кнопок.")
-        get_date(message, service, user_name) # Возвращаем в меню выбора
+        get_date(message, service, user_name) 
         return
     
     # Сохраняем в базу
