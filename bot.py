@@ -3,18 +3,17 @@ import sqlite3
 import telebot
 from telebot import types
 
-# Токен берется из переменных окружения (Bothost)
+# Токен и ID админа
 TOKEN = os.getenv("BOT_TOKEN")
-# Твой ID для уведомлений
 ADMIN_ID = 6984430179
 
 if not TOKEN:
-    raise SystemExit("Не найден BOT_TOKEN. Проверь переменные в Bothost.")
+    raise SystemExit("Не найден BOT_TOKEN.")
 
 bot = telebot.TeleBot(TOKEN)
 
 # ==========================================
-# БАЗА ДАННЫХ (SQLite)
+# БАЗА ДАННЫХ
 # ==========================================
 conn = sqlite3.connect('booking.db', check_same_thread=False)
 cursor = conn.cursor()
@@ -24,9 +23,15 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS bookings (
     user_id INTEGER,
     username TEXT,
     service TEXT,
-    date_time TEXT
+    date TEXT,
+    time TEXT
 )''')
 conn.commit()
+
+# ==========================================
+# НАСТРОЙКИ РАБОЧЕГО ВРЕМЕНИ (Можно менять)
+# ==========================================
+WORK_TIMES = ["10:00", "12:00", "14:00", "16:00", "18:00"]
 
 # ==========================================
 # КЛАВИАТУРЫ
@@ -44,7 +49,7 @@ def services_menu():
     return markup
 
 # ==========================================
-# КОМАНДЫ И КНОПКИ
+# ОСНОВНЫЕ ФУНКЦИИ
 # ==========================================
 @bot.message_handler(commands=["start"])
 def cmd_start(message):
@@ -52,11 +57,11 @@ def cmd_start(message):
 
 @bot.message_handler(func=lambda m: m.text == "❓ Помощь")
 def cmd_help(message):
-    bot.send_message(message.chat.id, "Этот бот помогает записаться на услуги.\n\nНажми «📝 Записаться», выбери услугу, введи имя и время.\n\nПосле записи тебе придет уведомление.")
+    bot.send_message(message.chat.id, "Этот бот помогает записаться на услуги.\n\nНажми «📝 Записаться», выбери услугу, введи имя и дату, а затем выбери свободное время.")
 
 @bot.message_handler(func=lambda m: m.text == "📞 Контакты")
 def cmd_contacts(message):
-    bot.send_message(message.chat.id, "Наш телефон: +7 (999) 123-45-67\nНаш адрес: г. Москва, ул. Пушкина, д. 10")
+    bot.send_message(message.chat.id, "Наш телефон: +7 (999) 123-45-67")
 
 @bot.message_handler(func=lambda m: m.text == "📝 Записаться")
 def start_booking(message):
@@ -69,28 +74,56 @@ def choose_service(message):
 
 def get_name(message, service):
     user_name = message.text
-    bot.send_message(message.chat.id, "Отлично! Теперь напиши желаемую дату и время (например: 25.10 в 15:00):")
-    bot.register_next_step_handler(message, get_date_time, service, user_name)
+    bot.send_message(message.chat.id, "Отлично! На какую дату хочешь записаться? (Напиши в формате ДД.ММ, например: 25.10)")
+    bot.register_next_step_handler(message, get_date, service, user_name)
 
-def get_date_time(message, service, user_name):
-    date_time = message.text
+def get_date(message, service, user_name):
+    date = message.text
     
-    # Сохраняем в базу данных
-    cursor.execute("INSERT INTO bookings (user_id, username, service, date_time) VALUES (?, ?, ?, ?)",
-                   (message.from_user.id, user_name, service, date_time))
+    # Ищем занятое время на эту дату
+    cursor.execute("SELECT time FROM bookings WHERE date = ?", (date,))
+    busy_times = [row[0] for row in cursor.fetchall()]
+    
+    # Оставляем только свободные слоты
+    free_times = [t for t in WORK_TIMES if t not in busy_times]
+    
+    if not free_times:
+        bot.send_message(message.chat.id, f"❌ К сожалению, на {date} все места заняты. Попробуй выбрать другую дату.")
+        start_booking(message)
+        return
+    
+    # Создаем кнопки с доступным временем
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+    markup.add(*[types.KeyboardButton(t) for t in free_times])
+    markup.add(types.KeyboardButton("🔙 Назад"))
+    
+    bot.send_message(message.chat.id, f"Свободное время на {date}:\nВыбери подходящее:", reply_markup=markup)
+    bot.register_next_step_handler(message, save_booking, service, user_name, date)
+
+def save_booking(message, service, user_name, date):
+    time = message.text
+    
+    if time not in WORK_TIMES:
+        bot.send_message(message.chat.id, "Пожалуйста, выбери время из предложенных кнопок.")
+        get_date(message, service, user_name) # Возвращаем в меню выбора
+        return
+    
+    # Сохраняем в базу
+    cursor.execute("INSERT INTO bookings (user_id, username, service, date, time) VALUES (?, ?, ?, ?, ?)",
+                   (message.from_user.id, user_name, service, date, time))
     conn.commit()
     
-    bot.send_message(message.chat.id, f"✅ Запись создана!\nУслуга: {service}\nИмя: {user_name}\nВремя: {date_time}\n\nМы вас ждем!", reply_markup=main_menu())
+    bot.send_message(message.chat.id, f"✅ Запись создана!\nУслуга: {service}\nИмя: {user_name}\nДата: {date}\nВремя: {time}\n\nМы вас ждем!", reply_markup=main_menu())
     
-    # Отправляем уведомление админу
+    # Уведомление админу
     try:
-        bot.send_message(ADMIN_ID, f"🔔 НОВАЯ ЗАПИСЬ!\nКлиент: {user_name} (ID: {message.from_user.id})\nУслуга: {service}\nВремя: {date_time}")
-    except Exception as e:
-        print(f"Ошибка отправки админу: {e}")
+        bot.send_message(ADMIN_ID, f"🔔 НОВАЯ ЗАПИСЬ!\nКлиент: {user_name}\nУслуга: {service}\nДата: {date}\nВремя: {time}")
+    except Exception:
+        pass
 
 @bot.message_handler(func=lambda m: m.text == "📋 Мои записи")
 def show_bookings(message):
-    cursor.execute("SELECT service, date_time FROM bookings WHERE user_id = ?", (message.from_user.id,))
+    cursor.execute("SELECT service, date, time FROM bookings WHERE user_id = ?", (message.from_user.id,))
     rows = cursor.fetchall()
     
     if not rows:
@@ -99,7 +132,7 @@ def show_bookings(message):
     
     text = "Твои записи:\n\n"
     for row in rows:
-        text += f"• {row[0]} — {row[1]}\n"
+        text += f"• {row[0]} — {row[1]} в {row[2]}\n"
     bot.send_message(message.chat.id, text)
 
 @bot.message_handler(func=lambda m: m.text == "🔙 Назад")
@@ -110,5 +143,5 @@ def back_to_main(message):
 # ЗАПУСК
 # ==========================================
 if __name__ == "__main__":
-    print("Бот запущен. Нажми Ctrl+C для остановки.")
+    print("Бот запущен.")
     bot.infinity_polling(timeout=60, long_polling_timeout=30)
