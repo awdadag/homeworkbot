@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Flying Cards</title>
+    <title>Nail Studio | 3D Flight</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,25 +12,24 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
-            overflow: hidden; /* Убираем скролл, чтобы все летало в одном окне */
+            overflow: hidden; 
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Контейнер, в котором все летает */
         .scene {
             position: relative;
             width: 100%;
             height: 100%;
-            perspective: 1500px; /* Глубина 3D */
+            perspective: 1500px; 
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Летающие карточки */
+        /* Карточки */
         .flying-card {
             position: absolute;
             width: 300px;
@@ -43,34 +42,47 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            opacity: 0; /* Изначально невидимы */
             box-shadow: 0 30px 60px rgba(0,0,0,0.6);
             transform-style: preserve-3d;
+            z-index: 5;
         }
 
         .flying-card h2 { font-size: 2rem; }
         .flying-card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
 
-        /* Заголовок */
-        .main-title {
+        /* Блок в центре (Заголовок, телефон, кнопка) */
+        .center-block {
             position: absolute;
             z-index: 10;
             text-align: center;
-            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0; /* Изначально скрыто */
             transform: scale(0.5);
         }
 
-        .main-title h1 {
-            font-size: clamp(4rem, 12vw, 10rem); 
+        .center-block h1 {
+            font-size: clamp(4rem, 10vw, 8rem); 
             line-height: 0.9;
             text-transform: uppercase;
             color: #fff;
             text-shadow: 0 0 50px rgba(255,255,255,0.8), 0 0 100px rgba(255, 154, 158, 0.5);
         }
 
+        .phone {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            color: #fff;
+            letter-spacing: 2px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
         .btn {
-            position: absolute;
-            bottom: 10%;
+            margin-top: 30px;
             padding: 20px 60px;
             font-size: 1.2rem;
             font-weight: 900;
@@ -79,8 +91,6 @@
             background: #fff;
             border-radius: 100px;
             text-decoration: none;
-            opacity: 0;
-            z-index: 10;
             box-shadow: 0 0 40px rgba(255,255,255,0.4);
             transition: transform 0.3s;
         }
@@ -93,12 +103,14 @@
 <body>
 
     <div class="scene">
-        <!-- Заголовок, который появится в центре -->
-        <div class="main-title">
+        <!-- Заголовок, телефон и кнопка -->
+        <div class="center-block">
             <h1>NAIL<br>STUDIO</h1>
+            <div class="phone">+7 (999) 123-45-67</div>
+            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </div>
 
-        <!-- Карточки, которые летят с краев -->
+        <!-- Карточки -->
         <div class="flying-card card-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
@@ -108,9 +120,6 @@
             <h2>Наращивание</h2>
             <div class="price">3 500</div>
         </div>
-
-        <!-- Кнопка -->
-        <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
     </div>
 
     <!-- Подключаем GSAP -->
@@ -119,66 +128,49 @@
     <script>
         const tl = gsap.timeline();
 
-        // 1. Карточки вылетают с разных сторон в центр
+        // 1. Устанавливаем карточки в центр в самом начале (эффект летящих)
+        gsap.set(".card-1", { x: 0, y: 0, rotationY: 0, rotationX: 0, scale: 1 });
+        gsap.set(".card-2", { x: 0, y: 0, rotationY: 0, rotationX: 0, scale: 1 });
+
+        // Анимация: карточки летают по экрану (0.5 сек)
         tl.to(".card-1", {
-            opacity: 1,
-            x: -150, // Сдвиг влево от центра
-            y: -50,
-            rotationY: 25,
-            rotationX: 10,
-            duration: 1.5,
-            ease: "power4.out"
+            x: -300, y: -200, rotationY: 45, rotationX: 45, duration: 0.6, ease: "power2.inOut"
         }, 0)
-        
         .to(".card-2", {
-            opacity: 1,
-            x: 150, // Сдвиг вправо от центра
-            y: 50,
-            rotationY: -25,
-            rotationX: -10,
-            duration: 1.5,
-            ease: "power4.out"
+            x: 300, y: 200, rotationY: -45, rotationX: -45, duration: 0.6, ease: "power2.inOut"
         }, 0)
         
-        // 2. Заголовок выпрыгивает из-за карточек
-        .to(".main-title", {
+        // Затем они разлетаются на свои места (1 сек)
+        .to(".card-1", {
+            x: -180, y: 0, rotationY: 20, rotationX: 10, duration: 1, ease: "power4.out"
+        }, 0.6)
+        .to(".card-2", {
+            x: 180, y: 0, rotationY: -20, rotationX: -10, duration: 1, ease: "power4.out"
+        }, 0.6)
+        
+        // 2. Появляется центральный блок (заголовок, телефон, кнопка)
+        .to(".center-block", {
             opacity: 1,
             scale: 1,
-            duration: 1,
-            ease: "back.out(1.5)"
-        }, 1) // Начинается через 1 секунду
-        
-        // 3. Кнопка появляется снизу
-        .to(".btn", {
-            opacity: 1,
-            y: -20,
-            duration: 0.8,
-            ease: "power2.out"
-        }, 1.5);
+            duration: 1.2,
+            ease: "back.out(1.2)"
+        }, 1.2);
 
-        // 4. Эффект параллакса для карточек при движении мыши
+        // 3. Эффект параллакса при движении мыши
         document.addEventListener('mousemove', (e) => {
             const xAxis = (window.innerWidth / 2 - e.pageX) / 30;
             const yAxis = (window.innerHeight / 2 - e.pageY) / 30;
 
-            // Заголовок слегка двигается
-            gsap.to(".main-title", {
-                rotationY: xAxis,
-                rotationX: yAxis,
-                duration: 0.5,
-                ease: "power1.out"
-            });
-
-            // Карточки двигаются сильнее (эффект объема)
+            // Наклон карточек
             gsap.to(".card-1", {
-                rotationY: 25 + xAxis * 1.5,
+                rotationY: 20 + xAxis * 1.5,
                 rotationX: 10 + yAxis * 1.5,
                 duration: 0.5,
                 ease: "power1.out"
             });
             
             gsap.to(".card-2", {
-                rotationY: -25 + xAxis * 1.5,
+                rotationY: -20 + xAxis * 1.5,
                 rotationX: -10 + yAxis * 1.5,
                 duration: 0.5,
                 ease: "power1.out"
