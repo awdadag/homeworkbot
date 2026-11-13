@@ -3,88 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Orbit 3D</title>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+    <title>Nail Studio | Space 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #030305; 
+            background-color: #030308; /* Очень темный, но не чисто черный */
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
             overflow-x: hidden;
         }
 
-        /* ЭКРАН 1: Полет */
+        /* Контейнер для 3D-фона */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+        }
+
+        /* ИНТРО-ЭКРАН */
         .intro {
             height: 100vh;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1200px;
             overflow: hidden;
+            z-index: 10;
+            pointer-events: none;
         }
 
-        .center-text {
+        /* Вспышка при загрузке */
+        .flash {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 100px 50px #fff;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        /* Заголовок */
+        .title {
+            font-size: clamp(5rem, 15vw, 12rem);
+            line-height: 0.8;
+            text-transform: uppercase;
             text-align: center;
             z-index: 10;
             opacity: 0;
-            transform: scale(0.8);
-            animation: textAppear 1.5s forwards 0.5s;
+            transform: scale(2);
+            filter: blur(10px);
+            text-shadow: 0 0 50px rgba(255,255,255,0.8), 0 0 100px rgba(255, 154, 158, 0.5);
         }
 
-        .center-text h1 {
-            font-size: clamp(4rem, 10vw, 8rem);
-            line-height: 0.8;
-            text-shadow: 0 0 40px rgba(255,255,255,0.8);
-        }
-
-        .center-text p {
-            font-size: 1.2rem;
-            margin-top: 20px;
-            color: #888;
-            letter-spacing: 5px;
-        }
-
-        /* КАРТОЧКИ (Орбита) */
-        .orbit-card {
+        /* Карточки */
+        .card {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 250px;
-            height: 350px;
-            background: rgba(255, 255, 255, 0.05);
+            width: 280px;
+            height: 380px;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 30px;
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(10px);
             padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transform: translate(-50%, -50%);
-            opacity: 0;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            transform: translate(-50%, -50%) scale(0);
             z-index: 5;
+            pointer-events: auto; /* Чтобы можно было наводить мышку на карточки */
         }
 
-        .orbit-card h2 { font-size: 1.5rem; }
-        .orbit-card .price { font-size: 3rem; font-weight: 900; color: #ff9a9e; }
+        .card h2 { font-size: 1.5rem; }
+        .card .price { font-size: 3.5rem; font-weight: 900; color: #ff9a9e; }
 
-        /* Анимация появления текста */
-        @keyframes textAppear {
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* ЭКРАН 2: Куда прилетают */
+        /* Экран с ценами (внизу) */
         .bottom-section {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 50px;
-            background: #030305;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            gap: 60px;
+            background: transparent; /* Прозрачный, чтобы был виден космос */
+            position: relative;
+            z-index: 20;
         }
 
         .static-card {
@@ -97,14 +108,14 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            opacity: 0;
-            transform: translateY(100px);
-            transition: all 1s ease;
+            opacity: 0; 
+            transform: translateY(150px);
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
         }
         .static-card h2 { font-size: 2rem; }
         .static-card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
 
-        /* Класс для появления при скролле */
         .visible {
             opacity: 1 !important;
             transform: translateY(0) !important;
@@ -113,24 +124,25 @@
 </head>
 <body>
 
-    <!-- Экран 1 -->
-    <div class="intro">
-        <div class="center-text">
-            <h1>NAIL<br>STUDIO</h1>
-            <p>+7 (999) 123-45-67</p>
-        </div>
+    <!-- ФОН: 3D Космос -->
+    <div id="canvas-container"></div>
 
-        <div class="orbit-card card-1">
+    <!-- ИНТРО -->
+    <div class="intro">
+        <div class="flash"></div>
+        <div class="title">NAIL<br>STUDIO</div>
+
+        <div class="card card-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
         </div>
-        <div class="orbit-card card-2">
+        <div class="card card-2">
             <h2>Наращивание</h2>
             <div class="price">3 500</div>
         </div>
     </div>
 
-    <!-- Экран 2 -->
+    <!-- НИЗ -->
     <div class="bottom-section">
         <div class="static-card" id="dest-1">
             <h2>Маникюр</h2>
@@ -142,58 +154,133 @@
         </div>
     </div>
 
+    <!-- Three.js для фона -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
     <script>
-        // Ждем загрузки страницы
-        window.addEventListener('load', () => {
-            const card1 = document.querySelector('.card-1');
-            const card2 = document.querySelector('.card-2');
-            const intro = document.querySelector('.intro');
+        // === 3D КОСМОС НА ФОНЕ ===
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        // Добавляем туман, чтобы звезды растворялись в глубине
+        scene.fog = new THREE.FogExp2(0x030308, 0.03); 
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
 
-            // 1. Вылет карточек с краев (через 1 секунду)
-            setTimeout(() => {
-                card1.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                card2.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                
-                // Ставим их по бокам
-                card1.style.opacity = '1';
-                card1.style.transform = 'translate(-150%, -50%) rotateY(-30deg)';
-                
-                card2.style.opacity = '1';
-                card2.style.transform = 'translate(50%, -50%) rotateY(30deg)';
-            }, 1000);
+        // Создаем 5000 звезд
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 5000;
+        const posArray = new Float32Array(particlesCount * 3);
 
-            // 2. КРУЖЕНИЕ вокруг названия (через 2.5 секунды)
-            setTimeout(() => {
-                // Делаем переход более плавным
-                card1.style.transition = 'all 3s linear';
-                card2.style.transition = 'all 3s linear';
+        for(let i = 0; i < particlesCount * 3; i++) {
+            // Разбрасываем по огромному пространству
+            posArray[i] = (Math.random() - 0.5) * 50;
+        }
 
-                // Задаем бесконечное вращение (эмуляция орбиты через сдвиг)
-                card1.style.transform = 'translate(-50%, -150%) rotateY(360deg) scale(0.8)';
-                card2.style.transform = 'translate(-50%, 100%) rotateY(-360deg) scale(0.8)';
-            }, 2500);
-
-            // 3. УЛЕТ ВНИЗ (через 5.5 секунд)
-            setTimeout(() => {
-                card1.style.transition = 'all 1s ease-in';
-                card2.style.transition = 'all 1s ease-in';
-
-                card1.style.transform = 'translate(-50%, 150vh) rotateY(720deg)';
-                card2.style.transform = 'translate(-50%, 150vh) rotateY(-720deg)';
-            }, 5500);
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        // Делаем звезды разного размера и цвета
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.1,
+            color: 0xff9a9e, // Розоватый оттенок
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending // Эффект свечения
         });
 
-        // 4. ПОЯВЛЕНИЕ КАРТОЧЕК ПРИ СКРОЛЛЕ
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 5;
+
+        // Движение мыши для параллакса фона
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        // Анимация вращения космоса
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Медленно вращаем
+            particlesMesh.rotation.y += 0.001;
+            particlesMesh.rotation.x += 0.0005;
+
+            // Камера летит за мышкой
+            camera.position.x += (mouseX * 3 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 3 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+
+        // === АНИМАЦИЯ ПОЯВЛЕНИЯ (ИНТРО) ===
+        window.addEventListener('load', () => {
+            const flash = document.querySelector('.flash');
+            const title = document.querySelector('.title');
+            const card1 = document.querySelector('.card-1');
+            const card2 = document.querySelector('.card-2');
+
+            // 1. Вспышка
+            flash.style.transition = 'all 0.8s ease-out';
+            flash.style.opacity = '1';
+            flash.style.width = '100vw';
+            flash.style.height = '100vw';
+            flash.style.boxShadow = '0 0 200px 100px rgba(255, 154, 158, 0.8)';
+
+            setTimeout(() => { flash.style.opacity = '0'; }, 300);
+
+            // 2. Заголовок
+            setTimeout(() => {
+                title.style.transition = 'all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                title.style.opacity = '1';
+                title.style.transform = 'scale(1)';
+                title.style.filter = 'blur(0px)';
+            }, 300);
+
+            // 3. Карточки вылетают
+            setTimeout(() => {
+                card1.style.transition = 'all 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
+                card2.style.transition = 'all 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
+                
+                card1.style.transform = 'translate(-180%, -60%) rotateY(45deg) rotateZ(-15deg) scale(1)';
+                card2.style.transform = 'translate(80%, 60%) rotateY(-45deg) rotateZ(15deg) scale(1)';
+            }, 1000);
+
+            // 4. Улет вниз
+            setTimeout(() => {
+                card1.style.transition = 'all 1.2s ease-in';
+                card2.style.transition = 'all 1.2s ease-in';
+                
+                card1.style.transform = 'translate(-50%, 150vh) rotateY(360deg)';
+                card2.style.transform = 'translate(-50%, 150vh) rotateY(-360deg)';
+            }, 4000);
+        });
+
+        // 5. Появление при скролле
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
                 }
             });
-        }, { threshold: 0.2 }); // Срабатывает, когда карточка показывается на 20%
+        }, { threshold: 0.2 });
 
         document.querySelectorAll('.static-card').forEach(card => {
             observer.observe(card);
+        });
+
+        // Ресайз окна
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
