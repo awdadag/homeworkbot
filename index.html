@@ -3,245 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | 3D Experience</title>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600;900&display=swap" rel="stylesheet">
+    <title>Nail Studio | Premium 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            font-family: 'Unbounded', sans-serif; 
-            background: #050505; 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0d0d12; 
             color: #fff; 
             overflow-x: hidden;
+            perspective: 1000px;
         }
 
-        /* Канвас для 3D фона */
-        #webgl {
+        /* Крутой градиентный фон с "дымкой" */
+        .bg-glow {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(255, 182, 193, 0.15), transparent 40%),
+                radial-gradient(circle at 85% 30%, rgba(147, 112, 219, 0.15), transparent 40%);
+            z-index: 0;
+            pointer-events: none;
         }
 
         .container { 
             position: relative;
             z-index: 1; 
-            max-width: 1200px; 
+            max-width: 1300px; 
             margin: 0 auto; 
             padding: 0 20px; 
         }
 
-        /* Шапка */
+        /* Шапка с параллаксом */
         header { 
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
+            align-items: flex-start;
+            padding-left: 10%;
         }
-        header h1 { 
-            font-size: clamp(3rem, 8vw, 7rem); 
-            font-weight: 900; 
+        
+        .subtitle {
+            font-size: 1.2rem;
+            letter-spacing: 8px;
             text-transform: uppercase;
-            letter-spacing: -2px;
-            line-height: 1;
-            background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent;
-        }
-        header p { 
-            font-size: 1.2rem; 
-            font-weight: 300; 
-            color: #888; 
-            margin-top: 20px;
-            letter-spacing: 5px;
-            text-transform: uppercase;
+            color: #a5a5a5;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: slideUp 1s forwards 0.2s;
         }
 
-        /* Кнопка */
-        .btn {
-            margin-top: 50px;
-            padding: 20px 50px;
-            font-size: 1rem;
+        header h1 { 
             font-family: 'Unbounded', sans-serif;
-            font-weight: 600;
+            font-size: clamp(4rem, 10vw, 9rem); 
+            font-weight: 900; 
+            line-height: 0.9;
+            letter-spacing: -3px;
+            opacity: 0;
+            animation: slideUp 1s forwards 0.4s;
+        }
+
+        header h1 span {
+            color: transparent;
+            -webkit-text-stroke: 2px #fff;
+        }
+
+        .btn {
+            margin-top: 60px;
+            padding: 20px 60px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            font-family: 'Unbounded', sans-serif;
             color: #000;
             background: #fff;
             border: none;
             border-radius: 50px;
             text-decoration: none;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            transition: all 0.4s ease;
+            opacity: 0;
+            animation: slideUp 1s forwards 0.6s;
         }
+        
         .btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 40px rgba(255,255,255,0.6);
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255,255,255,0.2);
         }
 
-        /* Блок услуг */
-        .services { padding: 100px 0; }
-        .services-title { 
-            font-size: 3rem; 
-            font-weight: 900; 
-            margin-bottom: 80px; 
-            text-align: center;
-            text-transform: uppercase;
+        /* Блок с карточками (3D Parallax) */
+        .services { 
+            padding: 150px 0; 
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
         }
 
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 40px; 
-            perspective: 2000px; 
-        }
-
-        /* Жесткие 3D карточки */
         .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 50px 30px;
-            text-align: center;
+            width: 350px;
+            height: 450px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            backdrop-filter: blur(20px);
             transform-style: preserve-3d;
-            transition: transform 0.1s ease, box-shadow 0.3s ease;
-            will-change: transform;
-            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease-out, border-color 0.3s;
+            position: relative;
+            overflow: hidden;
         }
+
+        /* Блик на стекле */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+        }
+        .card:hover::before { left: 150%; }
+
         .card:hover {
             border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
         }
-        .card h3 { 
-            font-size: 1.5rem; 
-            font-weight: 600; 
-            color: #fff; 
-            transform: translateZ(50px); 
+
+        .card h3 {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 2rem;
+            transform: translateZ(60px);
         }
-        .card .price { 
-            font-size: 3rem; 
-            font-weight: 900; 
-            color: #a5a5a5; 
-            margin: 20px 0;
+
+        .card .price {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #fff;
             transform: translateZ(40px);
         }
-        .card p { 
-            color: #666; 
-            font-size: 0.9rem; 
+
+        .card p {
+            color: #888;
+            font-size: 1rem;
             line-height: 1.6;
             transform: translateZ(20px);
+        }
+
+        /* Анимации появления */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Подвал */
         footer { 
             text-align: center; 
-            padding: 80px 0; 
-            border-top: 1px solid rgba(255,255,255,0.1); 
-            color: #555;
-            font-size: 0.9rem;
+            padding: 100px 0; 
+            color: #444;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 <body>
 
-    <!-- 3D Фон -->
-    <canvas id="webgl"></canvas>
+    <div class="bg-glow"></div>
 
     <header>
-        <h1>NAIL<br>STUDIO</h1>
-        <p>Премиум уход</p>
-        <a href="https://t.me/твой_бот" class="btn" target="_blank">Записаться</a>
+        <div class="subtitle">Premium Nail Care</div>
+        <h1>NAIL<br><span>STUDIO</span></h1>
+        <a href="https://t.me/твой_бот" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
     </header>
 
     <div class="container">
-        <section class="services">
-            <h2 class="services-title">Услуги</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Маникюр</h3>
-                    <div class="price">2000 ₽</div>
-                    <p>Аппаратный, комбинированный</p>
-                </div>
-                <div class="card">
-                    <h3>Наращивание</h3>
-                    <div class="price">3500 ₽</div>
-                    <p>Гель, акригель, коррекция</p>
-                </div>
-                <div class="card">
-                    <h3>Дизайн</h3>
-                    <div class="price">150 ₽</div>
-                    <p>Роспись, инкрустация камнями</p>
-                </div>
+        <div class="services">
+            <div class="card">
+                <h3>Маникюр</h3>
+                <div class="price">2 000</div>
+                <p>Аппаратный и комбинированный маникюр с премиальным покрытием.</p>
             </div>
-        </section>
+            <div class="card">
+                <h3>Наращивание</h3>
+                <div class="price">3 500</div>
+                <p>Моделирование любой формы и длины. Идеальная архитектура.</p>
+            </div>
+            <div class="card">
+                <h3>Дизайн</h3>
+                <div class="price">150</div>
+                <p>Сложная роспись, инкрустация камнями и модные эффекты.</p>
+            </div>
+        </div>
     </div>
 
     <footer>
-        <p>Работаем ежедневно с 10:00 до 20:00</p>
-        <p>Телефон: +7 (999) 123-45-67</p>
+        <p>+7 (999) 123-45-67</p>
+        <p style="margin-top: 10px;">МОСКВА | 2026</p>
     </footer>
 
-    <!-- Подключаем Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // === 3D СЦЕНА ===
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl'), alpha: true, antialias: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        // Создаем жесткий 3D-объект (Тор с гранями)
-        const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
-        const material = new THREE.MeshNormalMaterial({ 
-            wireframe: true, 
-            transparent: true, 
-            opacity: 0.15 
-        });
-        const torus = new THREE.Mesh(geometry, material);
-        scene.add(torus);
-
-        camera.position.z = 30;
-
-        // Движение мыши для параллакса
-        let mouseX = 0;
-        let mouseY = 0;
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-        });
-
-        // Анимация
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-            const elapsedTime = clock.getElapsedTime();
-
-            // Вращение 3D объекта
-            torus.rotation.y = elapsedTime * 0.2;
-            torus.rotation.x = elapsedTime * 0.1;
-
-            // Плавное следование за мышкой
-            torus.position.x += (mouseX * 5 - torus.position.x) * 0.05;
-            torus.position.y += (mouseY * 5 - torus.position.y) * 0.05;
-
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // Ресайз
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // === 3D ЭФФЕКТ ДЛЯ КАРТОЧЕК ===
+        // Жесткий 3D эффект для карточек
         const cards = document.querySelectorAll('.card');
+
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
@@ -251,14 +224,21 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                const rotateX = ((y - centerY) / centerY) * -15;
-                const rotateY = ((x - centerX) / centerX) * 15;
+                // Наклон в сторону мышки
+                const rotateX = ((y - centerY) / centerY) * -20;
+                const rotateY = ((x - centerX) / centerX) * 20;
                 
-                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
             });
 
+            // Возврат в исходное положение, когда мышка уходит
             card.addEventListener('mouseleave', () => {
-                card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+                card.style.transition = 'transform 0.5s ease';
+            });
+
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'none'; // Убираем задержку при движении
             });
         });
     </script>
