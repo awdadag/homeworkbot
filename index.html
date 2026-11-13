@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Cinematic</title>
+    <title>Nail Studio | Space</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,24 +34,50 @@
             align-items: center;
             overflow: hidden;
             z-index: 10;
-            perspective: 1500px;
         }
 
-        /* Заголовок (появится ПОСЛЕ карточек) */
-        .title {
-            font-size: clamp(4rem, 12vw, 10rem);
-            line-height: 0.8;
-            text-transform: uppercase;
+        /* Центральный блок (Заголовок, телефон, кнопка) */
+        .center-block {
             text-align: center;
             z-index: 10;
-            opacity: 0;
-            filter: blur(10px);
-            text-shadow: 0 0 50px rgba(255,255,255,0.8);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0; /* Появится позже */
+            transform: scale(0.8);
         }
+
+        .center-block h1 {
+            font-size: clamp(4rem, 12vw, 9rem);
+            line-height: 0.8;
+            text-transform: uppercase;
+            text-shadow: 0 0 50px rgba(255,255,255,0.8);
+            margin-bottom: 20px;
+        }
+
+        .phone {
+            font-size: 1.5rem;
+            color: #fff;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 20px 60px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            font-family: 'Unbounded', sans-serif;
+            color: #000;
+            background: #fff;
+            border-radius: 100px;
+            text-decoration: none;
+            box-shadow: 0 0 40px rgba(255,255,255,0.4);
+            transition: transform 0.3s;
+        }
+        .btn:hover { transform: scale(1.1); }
 
         /* Карточки */
         .card {
@@ -69,15 +95,15 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            transform: translate(-50%, -50%) scale(0);
             z-index: 5;
-            transform-style: preserve-3d;
+            /* Изначально скрыты */
+            transform: translate(-50%, -50%) scale(0);
         }
 
         .card h2 { font-size: 1.5rem; }
         .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; }
 
-        /* Нижний блок (появляется только при скролле) */
+        /* Нижний блок */
         .bottom-section {
             height: 100vh;
             display: flex;
@@ -110,6 +136,16 @@
             opacity: 1 !important;
             transform: translateY(0) !important;
         }
+
+        /* CSS Анимации для БЫСТРОГО кружения */
+        @keyframes fastSpin1 {
+            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+        }
+        @keyframes fastSpin2 {
+            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            100% { transform: translate(-50%, -50%) rotate(-360deg) scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -117,7 +153,12 @@
     <div id="canvas-container"></div>
 
     <div class="intro">
-        <div class="title">NAIL<br>STUDIO</div>
+        <div class="center-block">
+            <h1>NAIL<br>STUDIO</h1>
+            <div class="phone">+7 (999) 123-45-67</div>
+            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+        </div>
+
         <div class="card card-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
@@ -142,7 +183,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <script>
-        // === 3D ФОН ===
+        // === ФОН ===
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x030308, 0.03); 
@@ -174,7 +215,6 @@
         function animate() {
             requestAnimationFrame(animate);
             particlesMesh.rotation.y += 0.001;
-            particlesMesh.rotation.x += 0.0005;
             camera.position.x += (mouseX * 3 - camera.position.x) * 0.05;
             camera.position.y += (-mouseY * 3 - camera.position.y) * 0.05;
             camera.lookAt(scene.position);
@@ -182,51 +222,50 @@
         }
         animate();
 
-        // === КИНЕМАТОГРАФИЧНАЯ АНИМАЦИЯ ===
+        // === СЦЕНАРИЙ ===
         const card1 = document.querySelector('.card-1');
         const card2 = document.querySelector('.card-2');
-        const title = document.querySelector('.title');
+        const centerBlock = document.querySelector('.center-block');
 
-        window.addEventListener('load', () => {
-            // ЭТАП 1: Карточки вылетают с боков (через 0.5 сек)
-            setTimeout(() => {
-                card1.style.transition = 'all 1s cubic-bezier(0.23, 1, 0.32, 1)';
-                card2.style.transition = 'all 1s cubic-bezier(0.23, 1, 0.32, 1)';
-                
-                // Вылетают из-за краев экрана
-                card1.style.transform = 'translate(-150%, -50%) rotateY(45deg)';
-                card2.style.transform = 'translate(50%, -50%) rotateY(-45deg)';
-            }, 500);
+        // 1. Карточки вылетают (0.5 сек)
+        setTimeout(() => {
+            card1.style.transition = 'transform 0.5s ease-out';
+            card2.style.transition = 'transform 0.5s ease-out';
+            card1.style.transform = 'translate(-50%, -50%) scale(1)';
+            card2.style.transform = 'translate(-50%, -50%) scale(1)';
+        }, 500);
 
-            // ЭТАП 2: Начинают крутиться (через 1.5 сек)
-            setTimeout(() => {
-                card1.style.transition = 'all 1.5s linear';
-                card2.style.transition = 'all 1.5s linear';
-                
-                // Делаем полный оборот (360 градусов) вокруг своей оси
-                card1.style.transform = 'translate(-150%, -50%) rotateY(405deg) rotateX(20deg)';
-                card2.style.transform = 'translate(50%, -50%) rotateY(-405deg) rotateX(-20deg)';
-            }, 1500);
+        // 2. БЫСТРОЕ КРУЖЕНИЕ (1 сек)
+        setTimeout(() => {
+            // Запускаем анимацию вращения 360 градусов
+            card1.style.animation = 'fastSpin1 0.8s linear infinite';
+            card2.style.animation = 'fastSpin2 0.8s linear infinite';
+        }, 1000);
 
-            // ЭТАП 3: Улетают вниз (через 3 сек)
-            setTimeout(() => {
-                card1.style.transition = 'all 1s ease-in';
-                card2.style.transition = 'all 1s ease-in';
-                
-                card1.style.transform = 'translate(-50%, 150vh) rotateY(720deg)';
-                card2.style.transform = 'translate(-50%, 150vh) rotateY(-720deg)';
-            }, 3000);
+        // 3. УЛЕТ ВНИЗ (через 3 сек)
+        setTimeout(() => {
+            // Останавливаем вращение
+            card1.style.animation = 'none';
+            card2.style.animation = 'none';
 
-            // ЭТАП 4: Появление заголовка, ТОЛЬКО КОГДА КАРТОЧКИ УЛЕТЕЛИ (через 4 сек)
-            setTimeout(() => {
-                title.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                title.style.opacity = '1';
-                title.style.filter = 'blur(0px)';
-                title.style.transform = 'translate(-50%, -50%) scale(1)';
-            }, 4000);
-        });
+            // Плавно улетают вниз
+            card1.style.transition = 'transform 1s ease-in, opacity 1s ease-in';
+            card2.style.transition = 'transform 1s ease-in, opacity 1s ease-in';
+            
+            card1.style.transform = 'translate(-50%, 150vh) rotate(180deg) scale(0.5)';
+            card2.style.transform = 'translate(-50%, 150vh) rotate(-180deg) scale(0.5)';
+            card1.style.opacity = '0';
+            card2.style.opacity = '0';
+        }, 3000);
 
-        // === ПОЯВЛЕНИЕ ПРИ СКРОЛЛЕ ===
+        // 4. ПОЯВЛЕНИЕ ЦЕНТРАЛЬНОГО БЛОКА (Телефон, кнопка, заголовок) (через 3.5 сек)
+        setTimeout(() => {
+            centerBlock.style.transition = 'all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            centerBlock.style.opacity = '1';
+            centerBlock.style.transform = 'scale(1)';
+        }, 3500);
+
+        // 5. Появление карточек при скролле
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
