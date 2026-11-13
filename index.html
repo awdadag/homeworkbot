@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Cosmos 3D</title>
+    <title>Nail Studio | HyperSpace 3D</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #000; 
+            background-color: #050510; 
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
             overflow-x: hidden;
+            perspective: 1000px;
+            height: 300vh; /* Высокий сайт для скролла */
         }
 
-        /* 3D Канвас на весь экран */
+        /* 3D Туннель на фоне */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -28,37 +30,36 @@
         .content {
             position: relative;
             z-index: 1;
-            pointer-events: none; /* Чтобы мышка проходила сквозь текст к 3D */
+            pointer-events: none;
         }
 
-        /* Блок 1: Главный экран */
-        .hero {
+        /* Экран 1: Главный */
+        .section-1 {
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
         }
         
-        .hero h1 { 
+        .section-1 h1 { 
             font-size: clamp(4rem, 12vw, 10rem); 
             line-height: 0.9;
             text-transform: uppercase;
-            background: linear-gradient(180deg, #fff 0%, #555 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: pulse 3s infinite alternate;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
         }
 
-        .hero p {
+        .section-1 p {
             font-size: 1.5rem;
             color: #888;
             margin-top: 20px;
             letter-spacing: 10px;
         }
 
-        /* Кнопка */
         .btn {
             pointer-events: auto;
             margin-top: 50px;
@@ -79,52 +80,35 @@
             box-shadow: 0 0 100px rgba(255,255,255,0.8);
         }
 
-        /* Блок 2: Услуги, которые летают вокруг */
-        .services {
+        /* Экран 2: Карточки, которые летают */
+        .section-2 {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 2000px;
+            gap: 50px;
+            transform-style: preserve-3d;
         }
 
         .card {
             pointer-events: auto;
-            width: 400px;
-            height: 300px;
+            width: 350px;
+            height: 400px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
+            border-radius: 30px;
             padding: 40px;
-            margin: 20px;
             backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: transform 0.1s ease-out;
             transform-style: preserve-3d;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        /* При наведении карточка вылетает вперед */
-        .card:hover {
-            transform: scale(1.2) translateZ(100px) rotateY(10deg);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 30px 100px rgba(0,0,0,0.8);
-        }
-
-        .card h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: #fff;
-        }
-
-        .card .price {
-            font-size: 4rem;
-            font-weight: 900;
-            color: #ff9a9e;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.8; }
-            100% { opacity: 1; text-shadow: 0 0 50px rgba(255,255,255,0.5); }
-        }
+        .card h2 { font-size: 2rem; }
+        .card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
     </style>
 </head>
 <body>
@@ -132,18 +116,18 @@
     <div id="canvas-container"></div>
 
     <div class="content">
-        <section class="hero">
+        <section class="section-1" id="sec1">
             <h1>NAIL<br>STUDIO</h1>
-            <p>EXTREME 3D EXPERIENCE</p>
+            <p>HYPERSPACE 3D</p>
             <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </section>
 
-        <section class="services">
-            <div class="card">
+        <section class="section-2" id="sec2">
+            <div class="card" id="card1">
                 <h2>Маникюр</h2>
                 <div class="price">2 000</div>
             </div>
-            <div class="card">
+            <div class="card" id="card2">
                 <h2>Наращивание</h2>
                 <div class="price">3 500</div>
             </div>
@@ -155,46 +139,44 @@
     <script>
         const container = document.getElementById('canvas-container');
 
-        // Настройка сцены
+        // Сцена и камера
         const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050510, 0.05); // Туман для глубины
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
-        // Создаем СВЕТЯЩИЙСЯ ШАР (как планета)
-        const geometry = new THREE.SphereGeometry(3, 64, 64);
-        const material = new THREE.MeshStandardMaterial({
-            color: 0xff9a9e,
-            emissive: 0xff9a9e,
-            emissiveIntensity: 0.5,
-            roughness: 0.2,
-            metalness: 0.8
+        // Летящие частицы (туннель)
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 3000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            // Разбрасываем частицы по кругу
+            posArray[i] = (Math.random() - 0.5) * 20;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.05,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.8
         });
-        const sphere = new THREE.Mesh(geometry, material);
-        scene.add(sphere);
 
-        // Добавляем кольца вокруг (как у Сатурна)
-        const ringGeo = new THREE.TorusGeometry(5, 0.1, 16, 100);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.PI / 2;
-        scene.add(ring);
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
 
-        // Освещение
-        const light1 = new THREE.PointLight(0xffffff, 2, 100);
-        light1.position.set(10, 10, 10);
-        scene.add(light1);
-
-        const light2 = new THREE.PointLight(0xff9a9e, 2, 100);
-        light2.position.set(-10, -10, 10);
-        scene.add(light2);
-
-        camera.position.z = 15;
-
-        // Анимация
+        // Анимация полета
+        let scrollY = 0;
         let mouseX = 0;
         let mouseY = 0;
+
+        window.addEventListener('scroll', () => {
+            scrollY = window.scrollY;
+        });
+
         document.addEventListener('mousemove', (e) => {
             mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
             mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -203,18 +185,29 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            // Вращение
-            sphere.rotation.y += 0.01;
-            ring.rotation.z += 0.01;
+            // Камера летит вперед при скролле
+            camera.position.z = 5 - scrollY * 0.01;
+            camera.rotation.z += 0.002;
+            
+            // Реакция на мышку
+            camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
 
-            // Реакция на мышку (камера летит)
-            camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 5 - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
-
+            // Частицы летят на камеру
+            particlesMesh.rotation.y += 0.001;
+            
             renderer.render(scene, camera);
         }
         animate();
+
+        // 3D Эффект для карточек (наклон)
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            
+            document.getElementById('card1').style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            document.getElementById('card2').style.transform = `rotateY(${-xAxis}deg) rotateX(${-yAxis}deg)`;
+        });
 
         // Ресайз
         window.addEventListener('resize', () => {
