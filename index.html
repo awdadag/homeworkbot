@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Space 3D</title>
+    <title>Nail Studio | Cinematic</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -15,7 +15,7 @@
             overflow-x: hidden;
         }
 
-        /* 3D ФОН */
+        /* Космос */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -25,7 +25,7 @@
             z-index: 0;
         }
 
-        /* ИНТРО */
+        /* Первый экран */
         .intro {
             height: 100vh;
             position: relative;
@@ -37,7 +37,7 @@
             perspective: 1500px;
         }
 
-        /* ЗАГОЛОВОК */
+        /* Заголовок (появится ПОСЛЕ карточек) */
         .title {
             font-size: clamp(4rem, 12vw, 10rem);
             line-height: 0.8;
@@ -45,16 +45,15 @@
             text-align: center;
             z-index: 10;
             opacity: 0;
-            transform: scale(1.5);
             filter: blur(10px);
             text-shadow: 0 0 50px rgba(255,255,255,0.8);
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(1.5); /* Центрируем */
+            transform: translate(-50%, -50%) scale(1.2);
         }
 
-        /* КАРТОЧКИ */
+        /* Карточки */
         .card {
             position: absolute;
             top: 50%;
@@ -70,7 +69,7 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            transform: translate(-50%, -50%) scale(0); /* Скрыты в начале */
+            transform: translate(-50%, -50%) scale(0);
             z-index: 5;
             transform-style: preserve-3d;
         }
@@ -78,7 +77,7 @@
         .card h2 { font-size: 1.5rem; }
         .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; }
 
-        /* НИЗ */
+        /* Нижний блок (появляется только при скролле) */
         .bottom-section {
             height: 100vh;
             display: flex;
@@ -101,7 +100,7 @@
             justify-content: space-between;
             opacity: 0; 
             transform: translateY(150px);
-            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 1s ease;
             backdrop-filter: blur(10px);
         }
         .static-card h2 { font-size: 2rem; }
@@ -143,7 +142,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <script>
-        // === 3D КОСМОС ===
+        // === 3D ФОН ===
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x030308, 0.03); 
@@ -166,36 +165,12 @@
         scene.add(particlesMesh);
         camera.position.z = 5;
 
-        // === ДВИЖЕНИЕ МЫШИ (ВРАЩЕНИЕ) ===
-        let mouseX = 0;
-        let mouseY = 0;
-        let canRotate = false; // Включается, когда карточки вылетели
-
-        const card1 = document.querySelector('.card-1');
-        const card2 = document.querySelector('.card-2');
-        const title = document.querySelector('.title');
-
+        let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (e) => {
-            // Для фона
             mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
             mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-
-            // Для карточек (если они уже вылетели)
-            if (canRotate) {
-                const xAxis = (window.innerWidth / 2 - e.clientX) / 30;
-                const yAxis = (window.innerHeight / 2 - e.clientY) / 30;
-
-                // Левая карточка наклоняется
-                card1.style.transform = `translate(-150%, -50%) perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-                // Правая карточка наклоняется в противоположную сторону
-                card2.style.transform = `translate(50%, -50%) perspective(1000px) rotateY(${-xAxis}deg) rotateX(${-yAxis}deg)`;
-                
-                // Заголовок слегка парит
-                title.style.transform = `translate(-50%, -50%) perspective(1000px) rotateY(${xAxis * 0.5}deg) rotateX(${yAxis * 0.5}deg)`;
-            }
         });
 
-        // Анимация фона
         function animate() {
             requestAnimationFrame(animate);
             particlesMesh.rotation.y += 0.001;
@@ -207,42 +182,51 @@
         }
         animate();
 
-        // === АНИМАЦИЯ ПОЯВЛЕНИЯ ===
+        // === КИНЕМАТОГРАФИЧНАЯ АНИМАЦИЯ ===
+        const card1 = document.querySelector('.card-1');
+        const card2 = document.querySelector('.card-2');
+        const title = document.querySelector('.title');
+
         window.addEventListener('load', () => {
-            // 1. Заголовок
+            // ЭТАП 1: Карточки вылетают с боков (через 0.5 сек)
+            setTimeout(() => {
+                card1.style.transition = 'all 1s cubic-bezier(0.23, 1, 0.32, 1)';
+                card2.style.transition = 'all 1s cubic-bezier(0.23, 1, 0.32, 1)';
+                
+                // Вылетают из-за краев экрана
+                card1.style.transform = 'translate(-150%, -50%) rotateY(45deg)';
+                card2.style.transform = 'translate(50%, -50%) rotateY(-45deg)';
+            }, 500);
+
+            // ЭТАП 2: Начинают крутиться (через 1.5 сек)
+            setTimeout(() => {
+                card1.style.transition = 'all 1.5s linear';
+                card2.style.transition = 'all 1.5s linear';
+                
+                // Делаем полный оборот (360 градусов) вокруг своей оси
+                card1.style.transform = 'translate(-150%, -50%) rotateY(405deg) rotateX(20deg)';
+                card2.style.transform = 'translate(50%, -50%) rotateY(-405deg) rotateX(-20deg)';
+            }, 1500);
+
+            // ЭТАП 3: Улетают вниз (через 3 сек)
+            setTimeout(() => {
+                card1.style.transition = 'all 1s ease-in';
+                card2.style.transition = 'all 1s ease-in';
+                
+                card1.style.transform = 'translate(-50%, 150vh) rotateY(720deg)';
+                card2.style.transform = 'translate(-50%, 150vh) rotateY(-720deg)';
+            }, 3000);
+
+            // ЭТАП 4: Появление заголовка, ТОЛЬКО КОГДА КАРТОЧКИ УЛЕТЕЛИ (через 4 сек)
             setTimeout(() => {
                 title.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 title.style.opacity = '1';
                 title.style.filter = 'blur(0px)';
                 title.style.transform = 'translate(-50%, -50%) scale(1)';
-            }, 100);
-
-            // 2. Карточки
-            setTimeout(() => {
-                card1.style.transition = 'all 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
-                card2.style.transition = 'all 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
-                
-                // Ставим их по бокам от центра
-                card1.style.transform = 'translate(-150%, -50%)';
-                card2.style.transform = 'translate(50%, -50%)';
-                
-                // Включаем 3D-вращение через 1.5 сек
-                setTimeout(() => { canRotate = true; }, 1500);
-            }, 500);
-
-            // 3. Улет вниз
-            setTimeout(() => {
-                canRotate = false; // Отключаем вращение
-                
-                card1.style.transition = 'all 1s ease-in';
-                card2.style.transition = 'all 1s ease-in';
-                
-                card1.style.transform = 'translate(-50%, 150vh) rotateY(360deg)';
-                card2.style.transform = 'translate(-50%, 150vh) rotateY(-360deg)';
-            }, 4500);
+            }, 4000);
         });
 
-        // 4. Появление при скролле
+        // === ПОЯВЛЕНИЕ ПРИ СКРОЛЛЕ ===
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
