@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Space</title>
+    <title>Nail Studio | 3D Flight</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -15,58 +15,93 @@
             overflow-x: hidden;
         }
 
-        /* Звездный фон, который растянут на весь сайт */
+        /* Звездный фон на весь сайт */
         #canvas-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 0; /* Фон сзади */
+            z-index: 0; 
             pointer-events: none;
         }
 
-        /* Контент (текст и карточки) поверх звезд */
         .content {
             position: relative;
             z-index: 1;
         }
 
-        /* Экран 1: Главный */
-        .hero {
+        /* =========================================
+           ЭКРАН 1: 3D-ПОЛЕТ ВОКРУГ НАЗВАНИЯ
+           ========================================= */
+        .hero-scene {
             height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
+            perspective: 1500px; /* Глубина для 3D */
+            position: relative;
         }
-        
-        .hero h1 { 
+
+        .main-title { 
             font-family: 'Unbounded', sans-serif;
-            font-size: clamp(4rem, 12vw, 9rem); 
-            line-height: 0.9;
+            font-size: clamp(4rem, 15vw, 12rem); 
+            line-height: 0.8;
             text-transform: uppercase;
             color: transparent;
-            -webkit-text-stroke: 2px #fff;
-            letter-spacing: -2px;
+            -webkit-text-stroke: 2px rgba(255,255,255,0.8);
+            position: absolute;
+            text-align: center;
+            z-index: 0;
         }
 
-        .hero h1 span {
-            color: #fff;
-            -webkit-text-stroke: 0;
+        .main-title span { color: #fff; -webkit-text-stroke: 0; }
+
+        /* Карточки, которые летают вокруг */
+        .floating-card {
+            position: absolute;
+            width: 260px;
+            height: 340px;
+            background: rgba(20, 20, 35, 0.6); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 24px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            /* Бесконечная анимация полета */
+            animation: float 6s ease-in-out infinite;
         }
 
-        .hero p {
-            font-size: 1.2rem;
-            color: #888;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            margin-top: 20px;
+        .floating-card:nth-child(2) { /* Маникюр (слева) */
+            transform: translate3d(-320px, -80px, 50px) rotateZ(-10deg);
+            animation-delay: 0s;
+        }
+        .floating-card:nth-child(3) { /* Наращивание (справа) */
+            transform: translate3d(320px, -80px, 50px) rotateZ(10deg);
+            animation-delay: 2s;
+        }
+        .floating-card:nth-child(4) { /* Дизайн (снизу) */
+            transform: translate3d(0px, 220px, 50px) rotateZ(0deg);
+            animation-delay: 4s;
         }
 
+        /* Анимация полета */
+        @keyframes float {
+            0% { margin-top: 0px; }
+            50% { margin-top: -30px; }
+            100% { margin-top: 0px; }
+        }
+
+        .floating-card h2 { font-family: 'Unbounded', sans-serif; font-size: 1.3rem; }
+        .floating-card .price { font-family: 'Unbounded', sans-serif; font-size: 3rem; font-weight: 900; color: #ff9a9e; }
+
+        /* Кнопка */
         .btn {
-            margin-top: 50px;
+            position: absolute;
+            bottom: 60px;
             padding: 20px 60px;
             font-family: 'Unbounded', sans-serif;
             font-size: 1.2rem;
@@ -77,6 +112,7 @@
             text-decoration: none;
             transition: all 0.3s;
             box-shadow: 0 0 30px rgba(255,255,255,0.2);
+            z-index: 10;
         }
         
         .btn:hover {
@@ -84,7 +120,9 @@
             box-shadow: 0 20px 40px rgba(255,255,255,0.4);
         }
 
-        /* Экран 2: Услуги (Карточки) */
+        /* =========================================
+           ЭКРАН 2: ОБЫЧНЫЕ КАРТОЧКИ (ПОСЛЕ ПРОКРУТКИ)
+           ========================================= */
         .services {
             min-height: 100vh;
             padding: 100px 5%;
@@ -93,78 +131,79 @@
             align-items: center;
             gap: 30px;
             flex-wrap: wrap;
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
         }
 
         .card {
-            width: 340px;
-            height: 420px;
-            /* Полупрозрачный фон, чтобы сквозь него было видно звезды */
+            width: 320px;
+            height: 400px;
             background: rgba(20, 20, 35, 0.6); 
-            backdrop-filter: blur(8px); /* Легкое размытие фона под карточкой */
+            backdrop-filter: blur(8px); 
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 30px;
-            padding: 40px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: transform 0.3s, background 0.3s, border-color 0.3s;
-            cursor: pointer;
+            transition: transform 0.3s;
         }
 
         .card:hover {
             transform: translateY(-10px);
-            background: rgba(30, 30, 45, 0.8);
             border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
-        .card h2 { 
-            font-family: 'Unbounded', sans-serif;
-            font-size: 1.8rem; 
-            margin-bottom: 10px;
-            word-wrap: break-word; /* Защита от вылезания длинных слов */
-        }
-        
-        .card p {
-            color: #aaa;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
+        .card h2 { font-family: 'Unbounded', sans-serif; font-size: 1.5rem; white-space: nowrap; }
+        .card p { color: #aaa; font-size: 0.85rem; line-height: 1.5; }
+        .card .price { font-family: 'Unbounded', sans-serif; font-size: 3.5rem; font-weight: 900; color: #ff9a9e; }
 
-        .card .price { 
-            font-family: 'Unbounded', sans-serif;
-            font-size: 3.5rem; 
-            font-weight: 900; 
-            color: #ff9a9e; 
-            line-height: 1;
-        }
-
-        /* Подвал */
         footer {
             text-align: center;
             padding: 50px 0;
             color: #666;
             font-size: 0.9rem;
             border-top: 1px solid rgba(255,255,255,0.05);
-            background: rgba(0,0,0,0.5); /* Чтобы текст читался на фоне */
+            background: rgba(0,0,0,0.5); 
         }
+
     </style>
 </head>
 <body>
 
-    <!-- Фон со звездами на весь экран -->
     <div id="canvas-container"></div>
 
     <div class="content">
-        <section class="hero">
-            <h1>NAIL<br><span>STUDIO</span></h1>
-            <p>Premium Care</p>
+        <!-- ЭКРАН 1: 3D ПОЛЕТ -->
+        <section class="hero-scene" id="scene1">
+            <h1 class="main-title">NAIL<br><span>STUDIO</span></h1>
+            
+            <div class="floating-card">
+                <div>
+                    <h2>Маникюр</h2>
+                </div>
+                <div class="price">2 000</div>
+            </div>
+            
+            <div class="floating-card">
+                <div>
+                    <h2>Наращивание</h2>
+                </div>
+                <div class="price">3 500</div>
+            </div>
+
+            <div class="floating-card">
+                <div>
+                    <h2>Дизайн</h2>
+                </div>
+                <div class="price">150</div>
+            </div>
+
             <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </section>
 
-        <section class="services">
+        <!-- ЭКРАН 2: УСЛУГИ -->
+        <section class="services" id="scene2">
             <div class="card">
                 <div>
                     <h2>Маникюр</h2>
@@ -198,12 +237,12 @@
 
     <!-- Three.js для космоса -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- GSAP для анимации карточек -->
+    <!-- GSAP для скролла -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <script>
-        // --- КОСМОС (ЗВЕЗДЫ) ---
+        // Звездный фон
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -216,7 +255,7 @@
         const posArray = new Float32Array(particlesCount * 3);
 
         for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 50; // Разбрасываем звезды шире
+            posArray[i] = (Math.random() - 0.5) * 50;
         }
 
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
@@ -253,20 +292,32 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- АНИМАЦИЯ ПРИ ПРОКРУТКЕ ---
+        // --- КИНЕМАТОГРАФИЧНЫЙ ПЕРЕХОД ПРИ СКРОЛЛЕ ---
         gsap.registerPlugin(ScrollTrigger);
 
-        // Карточки плавно вылетают при прокрутке
-        gsap.from(".card", {
+        // Когда скроллишь, вся 3D-сцена (название и летающие карточки) улетает вглубь и растворяется
+        gsap.to("#scene1", {
             scrollTrigger: {
-                trigger: ".services",
-                start: "top 80%",
-                end: "bottom 60%",
+                trigger: "#scene1",
+                start: "top top",
+                end: "bottom top",
                 scrub: 1
             },
-            y: 150,
-            opacity: 0,
-            stagger: 0.2 // Появляются друг за другом
+            scale: 0.1,      // Уменьшается
+            opacity: 0,      // Исчезает
+            y: -500          // Улетает вверх
+        });
+
+        // Второй экран с обычными карточками плавно выезжает снизу
+        gsap.from("#scene2", {
+            scrollTrigger: {
+                trigger: "#scene2",
+                start: "top bottom",
+                end: "top center",
+                scrub: 1
+            },
+            y: 200,
+            opacity: 0
         });
     </script>
 </body>
