@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #030308; /* Очень темный, но не чисто черный */
+            background-color: #030308; 
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
             overflow-x: hidden;
@@ -35,21 +35,10 @@
             overflow: hidden;
             z-index: 10;
             pointer-events: none;
+            perspective: 1500px; /* Важно для 3D вращения карточек */
         }
 
-        /* Вспышка при загрузке */
-        .flash {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 100px 50px #fff;
-            opacity: 0;
-            z-index: 1;
-        }
-
-        /* Заголовок */
+        /* Заголовок (появляется сразу, без вспышки) */
         .title {
             font-size: clamp(5rem, 15vw, 12rem);
             line-height: 0.8;
@@ -57,9 +46,9 @@
             text-align: center;
             z-index: 10;
             opacity: 0;
-            transform: scale(2);
+            transform: scale(1.5);
             filter: blur(10px);
-            text-shadow: 0 0 50px rgba(255,255,255,0.8), 0 0 100px rgba(255, 154, 158, 0.5);
+            text-shadow: 0 0 50px rgba(255,255,255,0.8);
         }
 
         /* Карточки */
@@ -80,11 +69,12 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             transform: translate(-50%, -50%) scale(0);
             z-index: 5;
-            pointer-events: auto; /* Чтобы можно было наводить мышку на карточки */
+            pointer-events: auto;
+            transform-style: preserve-3d; /* Для 3D вращения */
         }
 
         .card h2 { font-size: 1.5rem; }
-        .card .price { font-size: 3.5rem; font-weight: 900; color: #ff9a9e; }
+        .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; } /* Цены теперь белые */
 
         /* Экран с ценами (внизу) */
         .bottom-section {
@@ -93,7 +83,7 @@
             justify-content: center;
             align-items: center;
             gap: 60px;
-            background: transparent; /* Прозрачный, чтобы был виден космос */
+            background: transparent;
             position: relative;
             z-index: 20;
         }
@@ -114,7 +104,7 @@
             backdrop-filter: blur(10px);
         }
         .static-card h2 { font-size: 2rem; }
-        .static-card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
+        .static-card .price { font-size: 4rem; font-weight: 900; color: #fff; }
 
         .visible {
             opacity: 1 !important;
@@ -129,7 +119,6 @@
 
     <!-- ИНТРО -->
     <div class="intro">
-        <div class="flash"></div>
         <div class="title">NAIL<br>STUDIO</div>
 
         <div class="card card-1">
@@ -161,7 +150,6 @@
         // === 3D КОСМОС НА ФОНЕ ===
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        // Добавляем туман, чтобы звезды растворялись в глубине
         scene.fog = new THREE.FogExp2(0x030308, 0.03); 
         
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -169,24 +157,23 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
-        // Создаем 5000 звезд
+        // 5000 белых звезд
         const particlesGeometry = new THREE.BufferGeometry();
         const particlesCount = 5000;
         const posArray = new Float32Array(particlesCount * 3);
 
         for(let i = 0; i < particlesCount * 3; i++) {
-            // Разбрасываем по огромному пространству
             posArray[i] = (Math.random() - 0.5) * 50;
         }
 
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        // Делаем звезды разного размера и цвета
+        
         const particlesMaterial = new THREE.PointsMaterial({
             size: 0.1,
-            color: 0xff9a9e, // Розоватый оттенок
+            color: 0xffffff, // БЕЛЫЙ ЦВЕТ
             transparent: true,
             opacity: 0.8,
-            blending: THREE.AdditiveBlending // Эффект свечения
+            blending: THREE.AdditiveBlending 
         });
 
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
@@ -194,7 +181,7 @@
 
         camera.position.z = 5;
 
-        // Движение мыши для параллакса фона
+        // Отслеживание мыши
         let mouseX = 0;
         let mouseY = 0;
         document.addEventListener('mousemove', (e) => {
@@ -202,15 +189,13 @@
             mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
         });
 
-        // Анимация вращения космоса
+        // Анимация фона
         function animate() {
             requestAnimationFrame(animate);
             
-            // Медленно вращаем
             particlesMesh.rotation.y += 0.001;
             particlesMesh.rotation.x += 0.0005;
 
-            // Камера летит за мышкой
             camera.position.x += (mouseX * 3 - camera.position.x) * 0.05;
             camera.position.y += (-mouseY * 3 - camera.position.y) * 0.05;
             camera.lookAt(scene.position);
@@ -219,51 +204,63 @@
         }
         animate();
 
+        // === 3D ВРАЩЕНИЕ КАРТОЧЕК ПРИ ДВИЖЕНИИ МЫШИ ===
+        const intro = document.querySelector('.intro');
+        const card1 = document.querySelector('.card-1');
+        const card2 = document.querySelector('.card-2');
 
-        // === АНИМАЦИЯ ПОЯВЛЕНИЯ (ИНТРО) ===
+        // Ждем, пока карточки вылетят (1.5 секунды), и только потом включаем 3D
+        let canRotate = false;
+
+        intro.addEventListener('mousemove', (e) => {
+            if (!canRotate) return;
+
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 20;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 20;
+
+            // Карточка 1 крутится
+            card1.style.transform = `translate(-180%, -60%) rotateY(${45 + xAxis}deg) rotateX(${yAxis}deg) rotateZ(-15deg) scale(1)`;
+            // Карточка 2 крутится в другую сторону
+            card2.style.transform = `translate(80%, 60%) rotateY(${-45 - xAxis}deg) rotateX(${-yAxis}deg) rotateZ(15deg) scale(1)`;
+        });
+
+        // === АНИМАЦИЯ ПОЯВЛЕНИЯ (БЕЗ ВСПЫШКИ) ===
         window.addEventListener('load', () => {
-            const flash = document.querySelector('.flash');
             const title = document.querySelector('.title');
-            const card1 = document.querySelector('.card-1');
-            const card2 = document.querySelector('.card-2');
 
-            // 1. Вспышка
-            flash.style.transition = 'all 0.8s ease-out';
-            flash.style.opacity = '1';
-            flash.style.width = '100vw';
-            flash.style.height = '100vw';
-            flash.style.boxShadow = '0 0 200px 100px rgba(255, 154, 158, 0.8)';
-
-            setTimeout(() => { flash.style.opacity = '0'; }, 300);
-
-            // 2. Заголовок
+            // 1. Появление заголовка (сразу при загрузке)
             setTimeout(() => {
                 title.style.transition = 'all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 title.style.opacity = '1';
                 title.style.transform = 'scale(1)';
                 title.style.filter = 'blur(0px)';
-            }, 300);
+            }, 100);
 
-            // 3. Карточки вылетают
+            // 2. Карточки вылетают (через 1 сек)
             setTimeout(() => {
                 card1.style.transition = 'all 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
                 card2.style.transition = 'all 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
                 
                 card1.style.transform = 'translate(-180%, -60%) rotateY(45deg) rotateZ(-15deg) scale(1)';
                 card2.style.transform = 'translate(80%, 60%) rotateY(-45deg) rotateZ(15deg) scale(1)';
+                
+                // Разрешаем вращение
+                setTimeout(() => { canRotate = true; }, 1500);
             }, 1000);
 
-            // 4. Улет вниз
+            // 3. Улет вниз (через 4.5 сек)
             setTimeout(() => {
+                canRotate = false; // Отключаем вращение перед улетом
+                
                 card1.style.transition = 'all 1.2s ease-in';
                 card2.style.transition = 'all 1.2s ease-in';
                 
                 card1.style.transform = 'translate(-50%, 150vh) rotateY(360deg)';
                 card2.style.transform = 'translate(-50%, 150vh) rotateY(-360deg)';
-            }, 4000);
+            }, 4500);
         });
 
-        // 5. Появление при скролле
+        // 4. Появление при скролле
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -276,7 +273,7 @@
             observer.observe(card);
         });
 
-        // Ресайз окна
+        // Ресайз
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
