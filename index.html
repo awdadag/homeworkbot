@@ -64,10 +64,19 @@
         .word-super { font-size: clamp(1.5rem, 4vw, 3rem); color: #ff9a9e; letter-spacing: 10px; margin-top: 20px; text-shadow: 0 0 20px rgba(255,154,158,0.5); }
         .word-premium { font-size: clamp(1.5rem, 4vw, 3rem); color: #fff; letter-spacing: 10px; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
 
-        .btn {
+        /* Блок с кнопкой и телефоном */
+        .action-block {
             position: absolute;
             bottom: 10%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             z-index: 5;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .btn {
             padding: 20px 60px;
             font-family: 'Unbounded', sans-serif;
             font-size: 1.2rem;
@@ -78,13 +87,28 @@
             text-decoration: none;
             transition: all 0.3s;
             box-shadow: 0 0 30px rgba(255,255,255,0.2);
-            opacity: 0;
-            transform: translateY(20px);
+            margin-bottom: 20px;
         }
         
         .btn:hover {
             transform: scale(1.05) translateY(-5px);
             box-shadow: 0 20px 40px rgba(255,255,255,0.4);
+        }
+
+        /* ТЕЛЕФОН ПОД КНОПКОЙ */
+        .phone-link {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+            transition: color 0.3s;
+        }
+
+        .phone-link:hover {
+            color: #ff9a9e;
         }
 
         /* Контейнер с карточками */
@@ -188,12 +212,16 @@
         footer {
             text-align: center;
             padding: 50px 0;
-            color: #666;
-            font-size: 0.9rem;
+            color: #ccc;
+            font-size: 1rem;
             border-top: 1px solid rgba(255,255,255,0.05);
             background: rgba(0,0,0,0.9); 
             position: relative;
             z-index: 3;
+        }
+
+        footer p {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -228,7 +256,11 @@
                 </div>
             </div>
 
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" id="main-btn" target="_blank">ЗАПИСАТЬСЯ</a>
+            <!-- Возвращаем блок с кнопкой и телефоном -->
+            <div class="action-block" id="action-block">
+                <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+                <a href="tel:+79991234567" class="phone-link">+7 (999) 123-45-67</a>
+            </div>
         </section>
 
         <section class="services" id="services-scene">
@@ -258,8 +290,8 @@
         </section>
 
         <footer>
-            <p>+7 (999) 123-45-67</p>
-            <p style="margin-top: 10px;">МОСКВА | 2026</p>
+            <p style="font-family: 'Unbounded', sans-serif; font-size: 1.2rem; color: #fff;">+7 (999) 123-45-67</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">МОСКВА | 2026</p>
         </footer>
 
     </div>
@@ -320,28 +352,30 @@
         // 2. Пауза
           .to({}, { duration: 0.5 })
 
-        // 3. Появление карточек и кнопки
+        // 3. Появление карточек
           .to("#spin-container", { duration: 0.8, opacity: 1 }, "+=0.2")
-          .to("#main-btn", { duration: 0.5, opacity: 1, y: 0 }, "-=0.3")
+          
+        // 4. Появление кнопки и ТЕЛЕФОНА
+          .to("#action-block", { duration: 0.5, opacity: 1, y: 0 }, "-=0.3")
 
-        // 4. Пауза для вращения
+        // 5. Пауза для вращения
           .to({}, { duration: 2.0 }) 
 
-        // 5. КРАСИВЫЙ УЛЕТ ВНИЗ (с ускорением и вращением)
+        // 6. Улет вниз
           .to("#spin-container", {
-              y: 1200,              // Улетает очень далеко вниз
-              z: -500,              // И вглубь
-              rotationX: 90,        // Наклоняется (эффект падения)
-              rotationZ: 45,        // Закручивается
-              scale: 0.1,           // Уменьшается до точки
-              opacity: 0,           // Растворяется
-              duration: 1.2,        // Длится 1.2 секунды
-              ease: "power4.in",    // Резкое ускорение (как падение)
+              y: 1200,
+              z: -500,
+              rotationX: 90,
+              rotationZ: 45,
+              scale: 0.1,
+              opacity: 0,
+              duration: 1.2,
+              ease: "power4.in",
               onComplete: () => {
                   document.getElementById('spin-container').style.display = 'none';
                   document.body.style.overflow = 'auto';
               }
-          }, "-=0.5"); // Начинает улетать чуть раньше, чтобы было динамичнее
+          }, "-=0.5");
     </script>
 </body>
 </html>
