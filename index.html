@@ -3,204 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | 3D Cinematic</title>
+    <title>Nail Studio | Orbit 3D</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #000; 
+            background-color: #030305; 
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
             overflow-x: hidden;
         }
 
-        /* Контейнер для анимации */
-        .intro-screen {
+        /* ЭКРАН 1: Полет */
+        .intro {
             height: 100vh;
             position: relative;
-            overflow: hidden;
-            perspective: 1200px;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at center, #0a0a1a 0%, #000 100%);
+            perspective: 1200px;
+            overflow: hidden;
         }
 
-        /* Центральный блок */
-        .center-block {
+        .center-text {
             text-align: center;
             z-index: 10;
-            position: relative;
-            opacity: 0; /* Будет анимировано */
-            transform: translateZ(-1000px) scale(0.5);
+            opacity: 0;
+            transform: scale(0.8);
+            animation: textAppear 1.5s forwards 0.5s;
         }
 
-        .center-block h1 {
-            font-size: clamp(4rem, 12vw, 10rem);
+        .center-text h1 {
+            font-size: clamp(4rem, 10vw, 8rem);
             line-height: 0.8;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 40px rgba(255,255,255,0.8), 0 0 100px rgba(255, 154, 158, 0.5);
-            margin-bottom: 20px;
+            text-shadow: 0 0 40px rgba(255,255,255,0.8);
         }
 
-        .phone {
+        .center-text p {
             font-size: 1.2rem;
-            color: #aaa;
+            margin-top: 20px;
+            color: #888;
             letter-spacing: 5px;
-            margin-bottom: 30px;
         }
 
-        .btn {
-            padding: 20px 60px;
-            font-size: 1.2rem;
-            font-weight: 900;
-            font-family: 'Unbounded', sans-serif;
-            color: #000;
-            background: #fff;
-            border-radius: 100px;
-            text-decoration: none;
-            box-shadow: 0 0 40px rgba(255,255,255,0.3);
-            transition: transform 0.3s;
-            display: inline-block;
-        }
-        
-        .btn:hover { transform: scale(1.1); }
-
-        /* Карточки */
-        .flying-card {
+        /* КАРТОЧКИ (Орбита) */
+        .orbit-card {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 300px;
-            height: 400px;
+            width: 250px;
+            height: 350px;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 30px;
-            backdrop-filter: blur(20px);
-            padding: 40px;
+            backdrop-filter: blur(15px);
+            padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            transform: translate(-50%, -50%); /* Центрируем */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: translate(-50%, -50%);
+            opacity: 0;
             z-index: 5;
         }
 
-        .flying-card h2 { font-size: 2rem; }
-        .flying-card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
+        .orbit-card h2 { font-size: 1.5rem; }
+        .orbit-card .price { font-size: 3rem; font-weight: 900; color: #ff9a9e; }
 
-        /* Второй экран */
+        /* Анимация появления текста */
+        @keyframes textAppear {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ЭКРАН 2: Куда прилетают */
         .bottom-section {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 60px;
-            background: #000;
-            position: relative;
-            z-index: 20;
-            padding: 20px;
+            gap: 50px;
+            background: #030305;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
 
-        .bottom-card {
+        .static-card {
             width: 300px;
             height: 400px;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 30px;
             padding: 40px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            opacity: 0; /* Скрыто до скролла */
+            opacity: 0;
+            transform: translateY(100px);
+            transition: all 1s ease;
         }
-        .bottom-card h2 { font-size: 2rem; }
-        .bottom-card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
+        .static-card h2 { font-size: 2rem; }
+        .static-card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
+
+        /* Класс для появления при скролле */
+        .visible {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
     </style>
 </head>
 <body>
 
-    <div class="intro-screen">
-        <!-- Центр -->
-        <div class="center-block">
+    <!-- Экран 1 -->
+    <div class="intro">
+        <div class="center-text">
             <h1>NAIL<br>STUDIO</h1>
-            <div class="phone">+7 (999) 123-45-67</div>
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+            <p>+7 (999) 123-45-67</p>
         </div>
 
-        <!-- Карточки для полета -->
-        <div class="flying-card card-1">
+        <div class="orbit-card card-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
         </div>
-        <div class="flying-card card-2">
+        <div class="orbit-card card-2">
             <h2>Наращивание</h2>
             <div class="price">3 500</div>
         </div>
     </div>
 
-    <!-- Куда прилетят -->
+    <!-- Экран 2 -->
     <div class="bottom-section">
-        <div class="bottom-card dest-card-1">
+        <div class="static-card" id="dest-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
         </div>
-        <div class="bottom-card dest-card-2">
+        <div class="static-card" id="dest-2">
             <h2>Наращивание</h2>
             <div class="price">3 500</div>
         </div>
     </div>
 
-    <!-- GSAP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script>
-        gsap.registerPlugin(ScrollTrigger);
+        // Ждем загрузки страницы
+        window.addEventListener('load', () => {
+            const card1 = document.querySelector('.card-1');
+            const card2 = document.querySelector('.card-2');
+            const intro = document.querySelector('.intro');
 
-        // --- 1. АНИМАЦИЯ ПОЯВЛЕНИЯ САМОГО САЙТА ---
-        const intro = gsap.timeline();
+            // 1. Вылет карточек с краев (через 1 секунду)
+            setTimeout(() => {
+                card1.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                card2.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                
+                // Ставим их по бокам
+                card1.style.opacity = '1';
+                card1.style.transform = 'translate(-150%, -50%) rotateY(-30deg)';
+                
+                card2.style.opacity = '1';
+                card2.style.transform = 'translate(50%, -50%) rotateY(30deg)';
+            }, 1000);
 
-        // Название вылетает из глубины
-        intro.to(".center-block", {
-            opacity: 1,
-            z: 0,
-            scale: 1,
-            duration: 1.5,
-            ease: "power4.out"
-        })
-        
-        // --- 2. ВЫЛЕТ КАРТОЧЕК И КРУЖЕНИЕ ---
-        // Карточки вылетают с краев
-        .from(".card-1", { x: -800, y: -300, rotationZ: 45, opacity: 0, duration: 1, ease: "power2.out" }, 0.5)
-        .from(".card-2", { x: 800, y: 300, rotationZ: -45, opacity: 0, duration: 1, ease: "power2.out" }, 0.5)
-        
-        // КРУЖЕНИЕ ВОКРУГ НАЗВАНИЯ (делаем орбиту)
-        .to(".card-1", {
-            x: -300, y: -150, rotationY: 360, rotationZ: 10, 
-            duration: 3, 
-            ease: "power1.inOut" 
-        }, 1.5)
-        .to(".card-2", {
-            x: 300, y: 150, rotationY: -360, rotationZ: -10, 
-            duration: 3, 
-            ease: "power1.inOut"
-        }, 1.5)
-        
-        // --- 3. УЛЕТ ВНИЗ ---
-        .to(".card-1", { y: "150vh", opacity: 0, duration: 1, ease: "power2.in" }, 4.5)
-        .to(".card-2", { y: "150vh", opacity: 0, duration: 1, ease: "power2.in" }, 4.5)
+            // 2. КРУЖЕНИЕ вокруг названия (через 2.5 секунды)
+            setTimeout(() => {
+                // Делаем переход более плавным
+                card1.style.transition = 'all 3s linear';
+                card2.style.transition = 'all 3s linear';
 
+                // Задаем бесконечное вращение (эмуляция орбиты через сдвиг)
+                card1.style.transform = 'translate(-50%, -150%) rotateY(360deg) scale(0.8)';
+                card2.style.transform = 'translate(-50%, 100%) rotateY(-360deg) scale(0.8)';
+            }, 2500);
 
-        // --- 4. ПОЯВЛЕНИЕ ПРИ СКРОЛЛЕ ---
-        gsap.from(".dest-card-1", {
-            scrollTrigger: { trigger: ".bottom-section", start: "top bottom", scrub: 1 },
-            y: -300, opacity: 0, rotationZ: -15
+            // 3. УЛЕТ ВНИЗ (через 5.5 секунд)
+            setTimeout(() => {
+                card1.style.transition = 'all 1s ease-in';
+                card2.style.transition = 'all 1s ease-in';
+
+                card1.style.transform = 'translate(-50%, 150vh) rotateY(720deg)';
+                card2.style.transform = 'translate(-50%, 150vh) rotateY(-720deg)';
+            }, 5500);
         });
-        gsap.from(".dest-card-2", {
-            scrollTrigger: { trigger: ".bottom-section", start: "top bottom", scrub: 1 },
-            y: -300, opacity: 0, rotationZ: 15
+
+        // 4. ПОЯВЛЕНИЕ КАРТОЧЕК ПРИ СКРОЛЛЕ
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.2 }); // Срабатывает, когда карточка показывается на 20%
+
+        document.querySelectorAll('.static-card').forEach(card => {
+            observer.observe(card);
         });
     </script>
 </body>
