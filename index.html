@@ -3,34 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Premium</title>
-    <!-- Подключаем шрифты и библиотеку анимаций -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <title>Nail Studio | 3D Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: 'Montserrat', sans-serif; 
-            background: #0f0c29; 
-            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+            font-family: 'Unbounded', sans-serif; 
+            background: #050505; 
             color: #fff; 
             overflow-x: hidden;
         }
 
-        /* 3D Канвас на фоне */
-        #canvas-container {
+        /* Канвас для 3D фона */
+        #webgl {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            width: 100vw;
             height: 100vh;
             z-index: -1;
-            opacity: 0.4;
         }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .container { 
+            position: relative;
+            z-index: 1; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+        }
 
-        /* Шапка (Glassmorphism) */
+        /* Шапка */
         header { 
             height: 100vh;
             display: flex;
@@ -41,147 +43,194 @@
             padding: 20px;
         }
         header h1 { 
-            font-size: 5rem; 
-            font-weight: 800; 
-            background: linear-gradient(90deg, #ff9a9e, #fecfef); 
+            font-size: clamp(3rem, 8vw, 7rem); 
+            font-weight: 900; 
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%); 
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
         }
-        header p { font-size: 1.5rem; font-weight: 300; opacity: 0.8; margin-bottom: 40px; }
-        
-        .btn-glow {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            color: #fff;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            text-decoration: none;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .btn-glow:hover {
-            background: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-            transform: scale(1.05);
+        header p { 
+            font-size: 1.2rem; 
+            font-weight: 300; 
+            color: #888; 
+            margin-top: 20px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
         }
 
-        /* Услуги (3D Карточки) */
+        /* Кнопка */
+        .btn {
+            margin-top: 50px;
+            padding: 20px 50px;
+            font-size: 1rem;
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 600;
+            color: #000;
+            background: #fff;
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(255,255,255,0.6);
+        }
+
+        /* Блок услуг */
         .services { padding: 100px 0; }
-        .services h2 { text-align: center; font-size: 3rem; margin-bottom: 60px; font-weight: 600; }
-        
+        .services-title { 
+            font-size: 3rem; 
+            font-weight: 900; 
+            margin-bottom: 80px; 
+            text-align: center;
+            text-transform: uppercase;
+        }
+
         .grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 30px; 
-            perspective: 1000px; 
+            gap: 40px; 
+            perspective: 2000px; 
         }
 
+        /* Жесткие 3D карточки */
         .card {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 40px;
+            border-radius: 24px;
+            padding: 50px 30px;
             text-align: center;
-            transition: 0.5s;
             transform-style: preserve-3d;
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+            will-change: transform;
+            backdrop-filter: blur(10px);
         }
         .card:hover {
-            transform: translateY(-10px) rotateX(10deg) rotateY(10deg);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
         }
-        .card h3 { font-size: 1.5rem; margin-bottom: 20px; color: #fecfef; }
-        .card .price { font-size: 2.5rem; font-weight: 800; color: #fff; }
-        .card p { margin-top: 15px; opacity: 0.6; font-size: 0.9rem; }
+        .card h3 { 
+            font-size: 1.5rem; 
+            font-weight: 600; 
+            color: #fff; 
+            transform: translateZ(50px); 
+        }
+        .card .price { 
+            font-size: 3rem; 
+            font-weight: 900; 
+            color: #a5a5a5; 
+            margin: 20px 0;
+            transform: translateZ(40px);
+        }
+        .card p { 
+            color: #666; 
+            font-size: 0.9rem; 
+            line-height: 1.6;
+            transform: translateZ(20px);
+        }
 
-        /* Футер */
-        footer { padding: 50px 0; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); }
-        footer p { opacity: 0.5; margin-bottom: 10px; }
+        /* Подвал */
+        footer { 
+            text-align: center; 
+            padding: 80px 0; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            color: #555;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
 
     <!-- 3D Фон -->
-    <div id="canvas-container"></div>
+    <canvas id="webgl"></canvas>
 
     <header>
-        <h1>NAIL STUDIO</h1>
-        <p>Премиальный уход за вашими руками</p>
-        <a href="https://t.me/твой_бот" class="btn-glow" target="_blank">Записаться онлайн</a>
+        <h1>NAIL<br>STUDIO</h1>
+        <p>Премиум уход</p>
+        <a href="https://t.me/твой_бот" class="btn" target="_blank">Записаться</a>
     </header>
 
     <div class="container">
         <section class="services">
-            <h2 data-aos="fade-up">Наши услуги</h2>
+            <h2 class="services-title">Услуги</h2>
             <div class="grid">
-                <div class="card" data-aos="fade-right" data-aos-delay="100">
+                <div class="card">
                     <h3>Маникюр</h3>
                     <div class="price">2000 ₽</div>
-                    <p>Аппаратный, комбинированный, с покрытием гель-лак</p>
+                    <p>Аппаратный, комбинированный</p>
                 </div>
-                <div class="card" data-aos="fade-up" data-aos-delay="200">
+                <div class="card">
                     <h3>Наращивание</h3>
                     <div class="price">3500 ₽</div>
-                    <p>Гель, акригель, коррекция и дизайн любой сложности</p>
+                    <p>Гель, акригель, коррекция</p>
                 </div>
-                <div class="card" data-aos="fade-left" data-aos-delay="300">
+                <div class="card">
                     <h3>Дизайн</h3>
                     <div class="price">150 ₽</div>
-                    <p>Стемпинг, роспись, инкрустация камнями (за 1 ноготь)</p>
+                    <p>Роспись, инкрустация камнями</p>
                 </div>
             </div>
         </section>
     </div>
 
     <footer>
-        <p>Телефон: +7 (999) 123-45-67</p>
         <p>Работаем ежедневно с 10:00 до 20:00</p>
-        <p style="margin-top: 20px; font-size: 12px;">&copy; 2026 Nail Studio. Все права защищены.</p>
+        <p>Телефон: +7 (999) 123-45-67</p>
     </footer>
 
-    <!-- Подключаем Three.js для 3D фона и AOS для анимаций -->
+    <!-- Подключаем Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    
     <script>
-        // Инициализация анимаций
-        AOS.init({ duration: 1000, once: true });
-
-        // 3D Фон (Летающие частицы)
+        // === 3D СЦЕНА ===
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl'), alpha: true, antialias: true });
         
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Создаем частицы (пыль/блестки)
-        const geometry = new THREE.BufferGeometry();
-        const particlesCount = 1000;
-        const posArray = new Float32Array(particlesCount * 3);
+        // Создаем жесткий 3D-объект (Тор с гранями)
+        const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+        const material = new THREE.MeshNormalMaterial({ 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.15 
+        });
+        const torus = new THREE.Mesh(geometry, material);
+        scene.add(torus);
 
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 20;
-        }
+        camera.position.z = 30;
 
-        geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const material = new THREE.PointsMaterial({ size: 0.05, color: 0xfecfef });
-        const particlesMesh = new THREE.Points(geometry, material);
-        scene.add(particlesMesh);
+        // Движение мыши для параллакса
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
 
-        camera.position.z = 5;
-
-        // Анимация вращения
-        const animate = () => {
+        // Анимация
+        const clock = new THREE.Clock();
+        function animate() {
             requestAnimationFrame(animate);
-            particlesMesh.rotation.y += 0.001;
-            particlesMesh.rotation.x += 0.0005;
+            const elapsedTime = clock.getElapsedTime();
+
+            // Вращение 3D объекта
+            torus.rotation.y = elapsedTime * 0.2;
+            torus.rotation.x = elapsedTime * 0.1;
+
+            // Плавное следование за мышкой
+            torus.position.x += (mouseX * 5 - torus.position.x) * 0.05;
+            torus.position.y += (mouseY * 5 - torus.position.y) * 0.05;
+
             renderer.render(scene, camera);
-        };
+        }
         animate();
 
         // Ресайз
@@ -189,6 +238,28 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // === 3D ЭФФЕКТ ДЛЯ КАРТОЧЕК ===
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -15;
+                const rotateY = ((x - centerX) / centerX) * 15;
+                
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+            });
         });
     </script>
 </body>
