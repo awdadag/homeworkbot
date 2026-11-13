@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Space</title>
+    <title>Nail Studio | Orbit Fixed</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -15,17 +15,13 @@
             overflow-x: hidden;
         }
 
-        /* Космос */
         #canvas-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
             z-index: 0;
         }
 
-        /* Первый экран */
         .intro {
             height: 100vh;
             position: relative;
@@ -36,11 +32,10 @@
             z-index: 10;
         }
 
-        /* Центральный блок (Заголовок, телефон, кнопка) */
         .center-block {
             text-align: center;
             z-index: 10;
-            opacity: 0; /* Появится позже */
+            opacity: 0; 
             transform: scale(0.8);
         }
 
@@ -69,7 +64,6 @@
             padding: 20px 60px;
             font-size: 1.2rem;
             font-weight: 900;
-            font-family: 'Unbounded', sans-serif;
             color: #000;
             background: #fff;
             border-radius: 100px;
@@ -79,13 +73,10 @@
         }
         .btn:hover { transform: scale(1.1); }
 
-        /* Карточки */
         .card {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 280px;
-            height: 380px;
+            top: 50%; left: 50%;
+            width: 280px; height: 380px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 30px;
@@ -96,14 +87,12 @@
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             z-index: 5;
-            /* Изначально скрыты */
             transform: translate(-50%, -50%) scale(0);
         }
 
         .card h2 { font-size: 1.5rem; }
         .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; }
 
-        /* Нижний блок */
         .bottom-section {
             height: 100vh;
             display: flex;
@@ -115,8 +104,7 @@
         }
 
         .static-card {
-            width: 300px;
-            height: 400px;
+            width: 300px; height: 400px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 30px;
@@ -135,16 +123,6 @@
         .visible {
             opacity: 1 !important;
             transform: translateY(0) !important;
-        }
-
-        /* CSS Анимации для БЫСТРОГО кружения */
-        @keyframes fastSpin1 {
-            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
-            100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
-        }
-        @keyframes fastSpin2 {
-            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
-            100% { transform: translate(-50%, -50%) rotate(-360deg) scale(1); }
         }
     </style>
 </head>
@@ -222,33 +200,54 @@
         }
         animate();
 
-        // === СЦЕНАРИЙ ===
+        // === ИСПРАВЛЕННЫЙ ПОЛЕТ ПО КРУГУ ===
         const card1 = document.querySelector('.card-1');
         const card2 = document.querySelector('.card-2');
         const centerBlock = document.querySelector('.center-block');
 
-        // 1. Карточки вылетают (0.5 сек)
+        // 1. Вылет с краев
         setTimeout(() => {
-            card1.style.transition = 'transform 0.5s ease-out';
-            card2.style.transition = 'transform 0.5s ease-out';
+            card1.style.transition = 'transform 0.8s ease-out';
+            card2.style.transition = 'transform 0.8s ease-out';
             card1.style.transform = 'translate(-50%, -50%) scale(1)';
             card2.style.transform = 'translate(-50%, -50%) scale(1)';
         }, 500);
 
-        // 2. БЫСТРОЕ КРУЖЕНИЕ (1 сек)
+        // 2. Кружение (используем JS для просчета круга)
+        let startAngle = 0;
+        let isOrbiting = true;
+        let orbitTime = 0;
+
+        function orbit() {
+            if (!isOrbiting) return;
+            
+            // Чем больше time, тем быстрее крутятся
+            orbitTime += 0.15; 
+            
+            // Радиус орбиты (расстояние от центра)
+            const radius = 250; 
+            
+            // Карточка 1 (летит по часовой)
+            const x1 = Math.cos(orbitTime) * radius;
+            const y1 = Math.sin(orbitTime) * radius * 0.5; // 0.5 делает орбиту более плоской (эллипс)
+            card1.style.transform = `translate(calc(-50% + ${x1}px), calc(-50% + ${y1}px)) rotate(${orbitTime * 10}deg)`;
+
+            // Карточка 2 (летит против часовой, с другой стороны)
+            const x2 = Math.cos(orbitTime + Math.PI) * radius;
+            const y2 = Math.sin(orbitTime + Math.PI) * radius * 0.5;
+            card2.style.transform = `translate(calc(-50% + ${x2}px), calc(-50% + ${y2}px)) rotate(${orbitTime * -10}deg)`;
+
+            requestAnimationFrame(orbit);
+        }
+
         setTimeout(() => {
-            // Запускаем анимацию вращения 360 градусов
-            card1.style.animation = 'fastSpin1 0.8s linear infinite';
-            card2.style.animation = 'fastSpin2 0.8s linear infinite';
+            orbit(); // Запускаем круг
         }, 1000);
 
-        // 3. УЛЕТ ВНИЗ (через 3 сек)
+        // 3. Улет вниз (через 4 секунды)
         setTimeout(() => {
-            // Останавливаем вращение
-            card1.style.animation = 'none';
-            card2.style.animation = 'none';
-
-            // Плавно улетают вниз
+            isOrbiting = false; // Останавливаем круг
+            
             card1.style.transition = 'transform 1s ease-in, opacity 1s ease-in';
             card2.style.transition = 'transform 1s ease-in, opacity 1s ease-in';
             
@@ -256,33 +255,23 @@
             card2.style.transform = 'translate(-50%, 150vh) rotate(-180deg) scale(0.5)';
             card1.style.opacity = '0';
             card2.style.opacity = '0';
-        }, 3000);
+        }, 4000);
 
-        // 4. ПОЯВЛЕНИЕ ЦЕНТРАЛЬНОГО БЛОКА (Телефон, кнопка, заголовок) (через 3.5 сек)
+        // 4. Появление текста
         setTimeout(() => {
             centerBlock.style.transition = 'all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             centerBlock.style.opacity = '1';
             centerBlock.style.transform = 'scale(1)';
-        }, 3500);
+        }, 4500);
 
-        // 5. Появление карточек при скролле
+        // 5. Скролл
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('visible');
             });
         }, { threshold: 0.2 });
 
-        document.querySelectorAll('.static-card').forEach(card => {
-            observer.observe(card);
-        });
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        document.querySelectorAll('.static-card').forEach(card => observer.observe(card));
     </script>
 </body>
 </html>
