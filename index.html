@@ -10,35 +10,34 @@
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #0d0d12; 
+            background-color: #000; 
             color: #fff; 
             overflow-x: hidden;
             perspective: 1000px;
         }
 
-        /* Крутой градиентный фон с "дымкой" */
-        .bg-glow {
+        /* Контейнер для 3D фона Vanta */
+        #vanta-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: 
-                radial-gradient(circle at 15% 50%, rgba(255, 182, 193, 0.15), transparent 40%),
-                radial-gradient(circle at 85% 30%, rgba(147, 112, 219, 0.15), transparent 40%);
             z-index: 0;
-            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1; 
         }
 
         .container { 
-            position: relative;
-            z-index: 1; 
             max-width: 1300px; 
             margin: 0 auto; 
             padding: 0 20px; 
         }
 
-        /* Шапка с параллаксом */
+        /* Шапка */
         header { 
             height: 100vh;
             display: flex;
@@ -66,6 +65,7 @@
             letter-spacing: -3px;
             opacity: 0;
             animation: slideUp 1s forwards 0.4s;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         header h1 span {
@@ -88,14 +88,15 @@
             transition: all 0.4s ease;
             opacity: 0;
             animation: slideUp 1s forwards 0.6s;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
         }
         
         .btn:hover {
             transform: scale(1.05) translateY(-5px);
-            box-shadow: 0 20px 40px rgba(255,255,255,0.2);
+            box-shadow: 0 20px 40px rgba(255,255,255,0.6);
         }
 
-        /* Блок с карточками (3D Parallax) */
+        /* Блок с карточками */
         .services { 
             padding: 150px 0; 
             display: flex;
@@ -107,14 +108,14 @@
         .card {
             width: 350px;
             height: 450px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.4); /* Полупрозрачный черный */
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 30px;
             padding: 40px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(15px); /* Эффект матового стекла */
             transform-style: preserve-3d;
             transition: transform 0.2s ease-out, border-color 0.3s;
             position: relative;
@@ -134,7 +135,7 @@
         .card:hover::before { left: 150%; }
 
         .card:hover {
-            border-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         .card h3 {
@@ -149,10 +150,11 @@
             font-weight: 900;
             color: #fff;
             transform: translateZ(40px);
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         .card p {
-            color: #888;
+            color: #ccc;
             font-size: 1rem;
             line-height: 1.6;
             transform: translateZ(20px);
@@ -168,51 +170,77 @@
         footer { 
             text-align: center; 
             padding: 100px 0; 
-            color: #444;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            color: #666;
+            border-top: 1px solid rgba(255,255,255,0.1);
             font-family: 'Unbounded', sans-serif;
             font-size: 0.8rem;
             letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
+    <!-- 3D ФОН VANTA -->
+    <div id="vanta-bg"></div>
 
-    <header>
-        <div class="subtitle">Premium Nail Care</div>
-        <h1>NAIL<br><span>STUDIO</span></h1>
-        <!-- ССЫЛКА НА БОТА УЖЕ ВСТАВЛЕНА -->
-        <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
-    </header>
+    <div class="content">
+        <header>
+            <div class="subtitle">Premium Nail Care</div>
+            <h1>NAIL<br><span>STUDIO</span></h1>
+            <!-- ССЫЛКА НА БОТА -->
+            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+        </header>
 
-    <div class="container">
-        <div class="services">
-            <div class="card">
-                <h3>Маникюр</h3>
-                <div class="price">2 000</div>
-                <p>Аппаратный и комбинированный маникюр с премиальным покрытием.</p>
-            </div>
-            <div class="card">
-                <h3>Наращивание</h3>
-                <div class="price">3 500</div>
-                <p>Моделирование любой формы и длины. Идеальная архитектура.</p>
-            </div>
-            <div class="card">
-                <h3>Дизайн</h3>
-                <div class="price">150</div>
-                <p>Сложная роспись, инкрустация камнями и модные эффекты.</p>
+        <div class="container">
+            <div class="services">
+                <div class="card">
+                    <h3>Маникюр</h3>
+                    <div class="price">2 000</div>
+                    <p>Аппаратный и комбинированный маникюр с премиальным покрытием.</p>
+                </div>
+                <div class="card">
+                    <h3>Наращивание</h3>
+                    <div class="price">3 500</div>
+                    <p>Моделирование любой формы и длины. Идеальная архитектура.</p>
+                </div>
+                <div class="card">
+                    <h3>Дизайн</h3>
+                    <div class="price">150</div>
+                    <p>Сложная роспись, инкрустация камнями и модные эффекты.</p>
+                </div>
             </div>
         </div>
+
+        <footer>
+            <p>+7 (999) 123-45-67</p>
+            <p style="margin-top: 10px;">МОСКВА | 2026</p>
+        </footer>
     </div>
 
-    <footer>
-        <p>+7 (999) 123-45-67</p>
-        <p style="margin-top: 10px;">МОСКВА | 2026</p>
-    </footer>
-
+    <!-- Скрипты для 3D фона Vanta.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    
     <script>
+        // Инициализация Vanta (3D нейросеть с точками и линиями)
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0xffffff,       // Цвет линий (белый)
+            backgroundColor: 0x0d0d12, // Цвет фона (темный)
+            points: 12.00,         // Количество точек
+            maxDistance: 22.00,    // Длина связей
+            spacing: 18.00         // Расстояние между точками
+        });
+
         // Жесткий 3D эффект для карточек
         const cards = document.querySelectorAll('.card');
 
