@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Extreme 3D Text</title>
+    <title>Nail Studio | Flying Cards</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,198 +12,176 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
-            overflow-x: hidden;
-            perspective: 1200px; /* Глубина для 3D */
-        }
-
-        /* Главный экран */
-        .hero {
+            overflow: hidden; /* Убираем скролл, чтобы все летало в одном окне */
             height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            background: radial-gradient(circle, #1a1a2e 0%, #050510 100%);
-        }
-        
-        .hero h1 { 
-            font-size: clamp(4rem, 12vw, 10rem); 
-            line-height: 0.9;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 50px rgba(255,255,255,0.5);
         }
 
-        .btn {
-            margin-top: 50px;
-            padding: 25px 80px;
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: #000;
-            background: #fff;
-            border-radius: 100px;
-            text-decoration: none;
-            transition: all 0.4s;
-            box-shadow: 0 0 50px rgba(255,255,255,0.3);
-        }
-        
-        .btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 100px rgba(255,255,255,0.8);
-        }
-
-        /* Экран услуг */
-        .services {
-            min-height: 100vh;
+        /* Контейнер, в котором все летает */
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1500px; /* Глубина 3D */
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 50px;
-            padding: 100px 20px;
-            flex-wrap: wrap;
-            transform-style: preserve-3d; /* Для 3D текста */
         }
 
-        /* САМА КАРТОЧКА */
-        .card {
-            width: 350px;
-            height: 450px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255,255,255,0.1);
+        /* Летающие карточки */
+        .flying-card {
+            position: absolute;
+            width: 300px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 30px;
+            backdrop-filter: blur(15px);
             padding: 40px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            backdrop-filter: blur(20px);
-            transform-style: preserve-3d; /* Сохраняем 3D детей */
-            transition: transform 0.1s ease-out, border-color 0.3s;
-            position: relative;
-            cursor: crosshair;
+            opacity: 0; /* Изначально невидимы */
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transform-style: preserve-3d;
         }
 
-        .card:hover {
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+        .flying-card h2 { font-size: 2rem; }
+        .flying-card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
+
+        /* Заголовок */
+        .main-title {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.5);
         }
 
-        /* БУКВЫ И ЦИФРЫ (Летают в 3D) */
-        .card h2 { 
-            font-size: 2.5rem; 
-            transform: translateZ(60px); /* Вылетают вперед */
-            text-shadow: 0 10px 20px rgba(0,0,0,0.8);
-            transition: transform 0.1s;
+        .main-title h1 {
+            font-size: clamp(4rem, 12vw, 10rem); 
+            line-height: 0.9;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 50px rgba(255,255,255,0.8), 0 0 100px rgba(255, 154, 158, 0.5);
+        }
+
+        .btn {
+            position: absolute;
+            bottom: 10%;
+            padding: 20px 60px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            font-family: 'Unbounded', sans-serif;
+            color: #000;
+            background: #fff;
+            border-radius: 100px;
+            text-decoration: none;
+            opacity: 0;
+            z-index: 10;
+            box-shadow: 0 0 40px rgba(255,255,255,0.4);
+            transition: transform 0.3s;
         }
         
-        .card .price { 
-            font-size: 5rem; 
-            font-weight: 900; 
-            color: #ff9a9e; 
-            transform: translateZ(100px); /* Вылетают ЕЩЕ сильнее вперед */
-            text-shadow: 0 20px 40px rgba(0,0,0,0.9), 0 0 20px rgba(255,154,158,0.4);
-            transition: transform 0.1s;
-        }
-
-        /* Текст описания (чуть-чуть вперед) */
-        .card p {
-            color: #aaa;
-            font-size: 1rem;
-            transform: translateZ(30px);
+        .btn:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body>
 
-    <section class="hero">
-        <h1>NAIL<br>STUDIO</h1>
-        <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
-    </section>
+    <div class="scene">
+        <!-- Заголовок, который появится в центре -->
+        <div class="main-title">
+            <h1>NAIL<br>STUDIO</h1>
+        </div>
 
-    <section class="services">
-        <div class="card">
+        <!-- Карточки, которые летят с краев -->
+        <div class="flying-card card-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
-            <p>Премиальный уход за руками</p>
         </div>
-        <div class="card">
+        
+        <div class="flying-card card-2">
             <h2>Наращивание</h2>
             <div class="price">3 500</div>
-            <p>Идеальная архитектура ногтей</p>
         </div>
-        <div class="card">
-            <h2>Дизайн</h2>
-            <div class="price">150</div>
-            <p>Сложная роспись и камни</p>
-        </div>
-    </section>
 
-    <!-- GSAP для жестких анимаций при прокрутке -->
+        <!-- Кнопка -->
+        <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+    </div>
+
+    <!-- Подключаем GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
     <script>
-        gsap.registerPlugin(ScrollTrigger);
+        const tl = gsap.timeline();
 
-        // Главный текст улетает вглубь при скролле
-        gsap.to(".hero h1", {
-            scrollTrigger: {
-                trigger: ".hero",
-                start: "top top",
-                end: "bottom top",
-                scrub: true
-            },
-            scale: 0.2,
-            opacity: 0,
-            rotationX: 45,
-            y: 200
-        });
+        // 1. Карточки вылетают с разных сторон в центр
+        tl.to(".card-1", {
+            opacity: 1,
+            x: -150, // Сдвиг влево от центра
+            y: -50,
+            rotationY: 25,
+            rotationX: 10,
+            duration: 1.5,
+            ease: "power4.out"
+        }, 0)
+        
+        .to(".card-2", {
+            opacity: 1,
+            x: 150, // Сдвиг вправо от центра
+            y: 50,
+            rotationY: -25,
+            rotationX: -10,
+            duration: 1.5,
+            ease: "power4.out"
+        }, 0)
+        
+        // 2. Заголовок выпрыгивает из-за карточек
+        .to(".main-title", {
+            opacity: 1,
+            scale: 1,
+            duration: 1,
+            ease: "back.out(1.5)"
+        }, 1) // Начинается через 1 секунду
+        
+        // 3. Кнопка появляется снизу
+        .to(".btn", {
+            opacity: 1,
+            y: -20,
+            duration: 0.8,
+            ease: "power2.out"
+        }, 1.5);
 
-        // Карточки влетают с 3D-вращением
-        gsap.from(".card", {
-            scrollTrigger: {
-                trigger: ".services",
-                start: "top bottom",
-                end: "center center",
-                scrub: true
-            },
-            y: 300,
-            rotationY: 180, /* Карточки переворачиваются в воздухе */
-            rotationX: 45,
-            opacity: 0,
-            stagger: 0.3
-        });
+        // 4. Эффект параллакса для карточек при движении мыши
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 30;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 30;
 
-        // ЖЕСТКИЙ 3D ЭФФЕКТ ПРИ НАВЕДЕНИИ МЫШКИ
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = ((y - centerY) / centerY) * -25;
-                const rotateY = ((x - centerX) / centerX) * 25;
-                
-                // Вращаем саму карточку
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
-                
-                // Дополнительно двигаем текст внутри (чтобы он летал еще сильнее)
-                card.querySelector('h2').style.transform = `translateZ(80px) translateX(${rotateY}px)`;
-                card.querySelector('.price').style.transform = `translateZ(120px) translateX(${rotateY * 1.5}px)`;
+            // Заголовок слегка двигается
+            gsap.to(".main-title", {
+                rotationY: xAxis,
+                rotationX: yAxis,
+                duration: 0.5,
+                ease: "power1.out"
             });
 
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
-                card.querySelector('h2').style.transform = `translateZ(60px)`;
-                card.querySelector('.price').style.transform = `translateZ(100px)`;
-                card.style.transition = 'transform 0.5s ease';
+            // Карточки двигаются сильнее (эффект объема)
+            gsap.to(".card-1", {
+                rotationY: 25 + xAxis * 1.5,
+                rotationX: 10 + yAxis * 1.5,
+                duration: 0.5,
+                ease: "power1.out"
             });
-
-            card.addEventListener('mouseenter', () => {
-                card.style.transition = 'none';
+            
+            gsap.to(".card-2", {
+                rotationY: -25 + xAxis * 1.5,
+                rotationX: -10 + yAxis * 1.5,
+                duration: 0.5,
+                ease: "power1.out"
             });
         });
     </script>
