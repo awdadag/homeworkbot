@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | 3D Flight</title>
+    <title>Nail Studio | Premium</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -15,23 +15,6 @@
             overflow-x: hidden;
         }
 
-        /* 3D Канвас на фоне */
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-        }
-
-        .content {
-            position: relative;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* Экран 1: Главный */
         .hero {
             height: 100vh;
             display: flex;
@@ -39,7 +22,7 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            will-change: transform, opacity;
+            background: radial-gradient(circle, #1a1a2e 0%, #050510 100%);
         }
         
         .hero h1 { 
@@ -58,7 +41,6 @@
         }
 
         .btn {
-            pointer-events: auto;
             margin-top: 50px;
             padding: 25px 80px;
             font-size: 1.5rem;
@@ -77,18 +59,18 @@
             box-shadow: 0 0 100px rgba(255,255,255,0.8);
         }
 
-        /* Экран 2: Услуги (Карточки) */
         .services {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 50px;
-            perspective: 1000px;
+            padding: 100px 20px;
+            flex-wrap: wrap;
+            background: #050510;
         }
 
         .card {
-            pointer-events: auto;
             width: 350px;
             height: 450px;
             background: rgba(255, 255, 255, 0.05);
@@ -100,7 +82,12 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            will-change: transform;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-20px);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .card h2 { font-size: 2rem; }
@@ -109,132 +96,58 @@
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <section class="hero">
+        <h1>NAIL<br>STUDIO</h1>
+        <p>PREMIUM CARE</p>
+        <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+    </section>
 
-    <div class="content">
-        <!-- Этот блок будет улетать вглубь при скролле -->
-        <section class="hero" id="hero-section">
-            <h1>NAIL<br>STUDIO</h1>
-            <p>HYPERSPACE 3D</p>
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
-        </section>
+    <section class="services">
+        <div class="card">
+            <h2>Маникюр</h2>
+            <div class="price">2 000</div>
+        </div>
+        <div class="card">
+            <h2>Наращивание</h2>
+            <div class="price">3 500</div>
+        </div>
+        <div class="card">
+            <h2>Дизайн</h2>
+            <div class="price">150</div>
+        </div>
+    </section>
 
-        <!-- Эти карточки будут вылетать на тебя -->
-        <section class="services">
-            <div class="card" id="card1">
-                <h2>Маникюр</h2>
-                <div class="price">2 000</div>
-            </div>
-            <div class="card" id="card2">
-                <h2>Наращивание</h2>
-                <div class="price">3 500</div>
-            </div>
-        </section>
-    </div>
-
-    <!-- Three.js для 3D фона -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- GSAP для анимации при скролле -->
+    <!-- Подключаем GSAP для анимации -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
-        // --- 3D ФОН (Летящие частицы) ---
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050510, 0.05);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
-
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 5000;
-        const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 20;
-        }
-
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.05,
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.8
-        });
-
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-
-        let mouseX = 0;
-        let mouseY = 0;
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            particlesMesh.rotation.y += 0.001;
-            
-            // Камера следит за мышкой
-            camera.position.x += (mouseX * 3 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 3 - camera.position.y) * 0.05;
-            
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // --- АНИМАЦИЯ ПРИ СКРОЛЛЕ (GSAP) ---
-        
-        // Главный экран улетает вглубь и растворяется
-        gsap.to("#hero-section", {
+        // Текст улетает вглубь при скролле
+        gsap.to(".hero", {
             scrollTrigger: {
-                trigger: "#hero-section",
+                trigger: ".hero",
                 start: "top top",
                 end: "bottom top",
                 scrub: true
             },
             scale: 0.5,
             opacity: 0,
-            z: -1000,
             y: -200
         });
 
         // Карточки вылетают с разных сторон
-        gsap.from("#card1", {
+        gsap.from(".card", {
             scrollTrigger: {
                 trigger: ".services",
                 start: "top bottom",
                 end: "center center",
                 scrub: true
             },
-            x: -500,
-            rotationY: 45,
-            opacity: 0
-        });
-
-        gsap.from("#card2", {
-            scrollTrigger: {
-                trigger: ".services",
-                start: "top bottom",
-                end: "center center",
-                scrub: true
-            },
-            x: 500,
-            rotationY: -45,
-            opacity: 0
-        });
-
-        // Ресайз
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            y: 200,
+            opacity: 0,
+            rotation: 10,
+            stagger: 0.2
         });
     </script>
 </body>
