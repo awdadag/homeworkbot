@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Orbit Fixed</title>
+    <title>Nail Studio | Orbit</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,11 +32,13 @@
             z-index: 10;
         }
 
+        /* 1. НАЗВАНИЕ (Появляется первым) */
         .center-block {
             text-align: center;
             z-index: 10;
             opacity: 0; 
-            transform: scale(0.8);
+            transform: scale(0.5) translateZ(-500px);
+            filter: blur(10px);
         }
 
         .center-block h1 {
@@ -73,6 +75,7 @@
         }
         .btn:hover { transform: scale(1.1); }
 
+        /* 2. КАРТОЧКИ */
         .card {
             position: absolute;
             top: 50%; left: 50%;
@@ -87,12 +90,14 @@
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             z-index: 5;
+            opacity: 0; /* Скрыты в самом начале */
             transform: translate(-50%, -50%) scale(0);
         }
 
         .card h2 { font-size: 1.5rem; }
         .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; }
 
+        /* 3. НИЖНИЙ БЛОК */
         .bottom-section {
             height: 100vh;
             display: flex;
@@ -131,12 +136,14 @@
     <div id="canvas-container"></div>
 
     <div class="intro">
+        <!-- Название -->
         <div class="center-block">
             <h1>NAIL<br>STUDIO</h1>
             <div class="phone">+7 (999) 123-45-67</div>
             <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </div>
 
+        <!-- Карточки -->
         <div class="card card-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
@@ -161,7 +168,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <script>
-        // === ФОН ===
+        // КОСМОС
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x030308, 0.03); 
@@ -200,71 +207,76 @@
         }
         animate();
 
-        // === ИСПРАВЛЕННЫЙ ПОЛЕТ ПО КРУГУ ===
+        // СЦЕНАРИЙ
         const card1 = document.querySelector('.card-1');
         const card2 = document.querySelector('.card-2');
         const centerBlock = document.querySelector('.center-block');
 
-        // 1. Вылет с краев
+        // ЭТАП 1: Название вылетает с жесткой анимацией (Сразу при загрузке)
         setTimeout(() => {
-            card1.style.transition = 'transform 0.8s ease-out';
-            card2.style.transition = 'transform 0.8s ease-out';
-            card1.style.transform = 'translate(-50%, -50%) scale(1)';
-            card2.style.transform = 'translate(-50%, -50%) scale(1)';
+            centerBlock.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            centerBlock.style.opacity = '1';
+            centerBlock.style.transform = 'scale(1) translateZ(0)';
+            centerBlock.style.filter = 'blur(0px)';
         }, 500);
 
-        // 2. Кружение (используем JS для просчета круга)
-        let startAngle = 0;
-        let isOrbiting = true;
+        // ЭТАП 2: С боков вылетают карточки (Через 1.5 секунды)
+        setTimeout(() => {
+            card1.style.transition = 'transform 0.8s ease-out, opacity 0.8s';
+            card2.style.transition = 'transform 0.8s ease-out, opacity 0.8s';
+            
+            // Появляются из-за краев
+            card1.style.opacity = '1';
+            card1.style.transform = 'translate(-150%, -50%) scale(1)';
+            
+            card2.style.opacity = '1';
+            card2.style.transform = 'translate(50%, -50%) scale(1)';
+        }, 1500);
+
+        // ЭТАП 3: Начинают вращаться вокруг названия (Через 2.5 секунды)
         let orbitTime = 0;
+        let isOrbiting = false;
 
         function orbit() {
             if (!isOrbiting) return;
+            orbitTime += 0.05; 
             
-            // Чем больше time, тем быстрее крутятся
-            orbitTime += 0.15; 
+            const radius = 260; // Радиус орбиты
             
-            // Радиус орбиты (расстояние от центра)
-            const radius = 250; 
-            
-            // Карточка 1 (летит по часовой)
+            // Карточка 1
             const x1 = Math.cos(orbitTime) * radius;
-            const y1 = Math.sin(orbitTime) * radius * 0.5; // 0.5 делает орбиту более плоской (эллипс)
-            card1.style.transform = `translate(calc(-50% + ${x1}px), calc(-50% + ${y1}px)) rotate(${orbitTime * 10}deg)`;
+            const y1 = Math.sin(orbitTime) * radius * 0.4;
+            card1.style.transform = `translate(calc(-50% + ${x1}px), calc(-50% + ${y1}px)) rotateY(${orbitTime * 50}deg)`;
+            card1.style.transition = 'none'; // Убираем задержку для плавности
 
-            // Карточка 2 (летит против часовой, с другой стороны)
+            // Карточка 2 (напротив)
             const x2 = Math.cos(orbitTime + Math.PI) * radius;
-            const y2 = Math.sin(orbitTime + Math.PI) * radius * 0.5;
-            card2.style.transform = `translate(calc(-50% + ${x2}px), calc(-50% + ${y2}px)) rotate(${orbitTime * -10}deg)`;
+            const y2 = Math.sin(orbitTime + Math.PI) * radius * 0.4;
+            card2.style.transform = `translate(calc(-50% + ${x2}px), calc(-50% + ${y2}px)) rotateY(${orbitTime * -50}deg)`;
+            card2.style.transition = 'none';
 
             requestAnimationFrame(orbit);
         }
 
         setTimeout(() => {
-            orbit(); // Запускаем круг
-        }, 1000);
+            isOrbiting = true;
+            orbit();
+        }, 2500);
 
-        // 3. Улет вниз (через 4 секунды)
+        // ЭТАП 4: УЛЕТ ВНИЗ (Через 5 секунд)
         setTimeout(() => {
-            isOrbiting = false; // Останавливаем круг
+            isOrbiting = false;
             
             card1.style.transition = 'transform 1s ease-in, opacity 1s ease-in';
             card2.style.transition = 'transform 1s ease-in, opacity 1s ease-in';
             
-            card1.style.transform = 'translate(-50%, 150vh) rotate(180deg) scale(0.5)';
-            card2.style.transform = 'translate(-50%, 150vh) rotate(-180deg) scale(0.5)';
+            card1.style.transform = 'translate(-50%, 150vh) scale(0.5)';
+            card2.style.transform = 'translate(-50%, 150vh) scale(0.5)';
             card1.style.opacity = '0';
             card2.style.opacity = '0';
-        }, 4000);
+        }, 5000);
 
-        // 4. Появление текста
-        setTimeout(() => {
-            centerBlock.style.transition = 'all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            centerBlock.style.opacity = '1';
-            centerBlock.style.transform = 'scale(1)';
-        }, 4500);
-
-        // 5. Скролл
+        // Скролл
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) entry.target.classList.add('visible');
