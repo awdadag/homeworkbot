@@ -15,7 +15,7 @@
             overflow-x: hidden;
         }
 
-        /* Контейнер для 3D-фона */
+        /* 3D ФОН */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -25,7 +25,7 @@
             z-index: 0;
         }
 
-        /* ИНТРО-ЭКРАН */
+        /* ИНТРО */
         .intro {
             height: 100vh;
             position: relative;
@@ -34,13 +34,12 @@
             align-items: center;
             overflow: hidden;
             z-index: 10;
-            pointer-events: none;
-            perspective: 1500px; /* Важно для 3D вращения карточек */
+            perspective: 1500px;
         }
 
-        /* Заголовок (появляется сразу, без вспышки) */
+        /* ЗАГОЛОВОК */
         .title {
-            font-size: clamp(5rem, 15vw, 12rem);
+            font-size: clamp(4rem, 12vw, 10rem);
             line-height: 0.8;
             text-transform: uppercase;
             text-align: center;
@@ -49,16 +48,20 @@
             transform: scale(1.5);
             filter: blur(10px);
             text-shadow: 0 0 50px rgba(255,255,255,0.8);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.5); /* Центрируем */
         }
 
-        /* Карточки */
+        /* КАРТОЧКИ */
         .card {
             position: absolute;
             top: 50%;
             left: 50%;
             width: 280px;
             height: 380px;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 30px;
             backdrop-filter: blur(10px);
@@ -67,23 +70,21 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            transform: translate(-50%, -50%) scale(0);
+            transform: translate(-50%, -50%) scale(0); /* Скрыты в начале */
             z-index: 5;
-            pointer-events: auto;
-            transform-style: preserve-3d; /* Для 3D вращения */
+            transform-style: preserve-3d;
         }
 
         .card h2 { font-size: 1.5rem; }
-        .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; } /* Цены теперь белые */
+        .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; }
 
-        /* Экран с ценами (внизу) */
+        /* НИЗ */
         .bottom-section {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 60px;
-            background: transparent;
             position: relative;
             z-index: 20;
         }
@@ -114,13 +115,10 @@
 </head>
 <body>
 
-    <!-- ФОН: 3D Космос -->
     <div id="canvas-container"></div>
 
-    <!-- ИНТРО -->
     <div class="intro">
         <div class="title">NAIL<br>STUDIO</div>
-
         <div class="card card-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
@@ -131,7 +129,6 @@
         </div>
     </div>
 
-    <!-- НИЗ -->
     <div class="bottom-section">
         <div class="static-card" id="dest-1">
             <h2>Маникюр</h2>
@@ -143,117 +140,102 @@
         </div>
     </div>
 
-    <!-- Three.js для фона -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <script>
-        // === 3D КОСМОС НА ФОНЕ ===
+        // === 3D КОСМОС ===
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x030308, 0.03); 
-        
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
-        // 5000 белых звезд
         const particlesGeometry = new THREE.BufferGeometry();
         const particlesCount = 5000;
         const posArray = new Float32Array(particlesCount * 3);
-
         for(let i = 0; i < particlesCount * 3; i++) {
             posArray[i] = (Math.random() - 0.5) * 50;
         }
-
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        
         const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.1,
-            color: 0xffffff, // БЕЛЫЙ ЦВЕТ
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending 
+            size: 0.1, color: 0xffffff, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending 
         });
-
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
-
         camera.position.z = 5;
 
-        // Отслеживание мыши
+        // === ДВИЖЕНИЕ МЫШИ (ВРАЩЕНИЕ) ===
         let mouseX = 0;
         let mouseY = 0;
+        let canRotate = false; // Включается, когда карточки вылетели
+
+        const card1 = document.querySelector('.card-1');
+        const card2 = document.querySelector('.card-2');
+        const title = document.querySelector('.title');
+
         document.addEventListener('mousemove', (e) => {
+            // Для фона
             mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
             mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+
+            // Для карточек (если они уже вылетели)
+            if (canRotate) {
+                const xAxis = (window.innerWidth / 2 - e.clientX) / 30;
+                const yAxis = (window.innerHeight / 2 - e.clientY) / 30;
+
+                // Левая карточка наклоняется
+                card1.style.transform = `translate(-150%, -50%) perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+                // Правая карточка наклоняется в противоположную сторону
+                card2.style.transform = `translate(50%, -50%) perspective(1000px) rotateY(${-xAxis}deg) rotateX(${-yAxis}deg)`;
+                
+                // Заголовок слегка парит
+                title.style.transform = `translate(-50%, -50%) perspective(1000px) rotateY(${xAxis * 0.5}deg) rotateX(${yAxis * 0.5}deg)`;
+            }
         });
 
         // Анимация фона
         function animate() {
             requestAnimationFrame(animate);
-            
             particlesMesh.rotation.y += 0.001;
             particlesMesh.rotation.x += 0.0005;
-
             camera.position.x += (mouseX * 3 - camera.position.x) * 0.05;
             camera.position.y += (-mouseY * 3 - camera.position.y) * 0.05;
             camera.lookAt(scene.position);
-
             renderer.render(scene, camera);
         }
         animate();
 
-        // === 3D ВРАЩЕНИЕ КАРТОЧЕК ПРИ ДВИЖЕНИИ МЫШИ ===
-        const intro = document.querySelector('.intro');
-        const card1 = document.querySelector('.card-1');
-        const card2 = document.querySelector('.card-2');
-
-        // Ждем, пока карточки вылетят (1.5 секунды), и только потом включаем 3D
-        let canRotate = false;
-
-        intro.addEventListener('mousemove', (e) => {
-            if (!canRotate) return;
-
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 20;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 20;
-
-            // Карточка 1 крутится
-            card1.style.transform = `translate(-180%, -60%) rotateY(${45 + xAxis}deg) rotateX(${yAxis}deg) rotateZ(-15deg) scale(1)`;
-            // Карточка 2 крутится в другую сторону
-            card2.style.transform = `translate(80%, 60%) rotateY(${-45 - xAxis}deg) rotateX(${-yAxis}deg) rotateZ(15deg) scale(1)`;
-        });
-
-        // === АНИМАЦИЯ ПОЯВЛЕНИЯ (БЕЗ ВСПЫШКИ) ===
+        // === АНИМАЦИЯ ПОЯВЛЕНИЯ ===
         window.addEventListener('load', () => {
-            const title = document.querySelector('.title');
-
-            // 1. Появление заголовка (сразу при загрузке)
+            // 1. Заголовок
             setTimeout(() => {
-                title.style.transition = 'all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                title.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 title.style.opacity = '1';
-                title.style.transform = 'scale(1)';
                 title.style.filter = 'blur(0px)';
+                title.style.transform = 'translate(-50%, -50%) scale(1)';
             }, 100);
 
-            // 2. Карточки вылетают (через 1 сек)
+            // 2. Карточки
             setTimeout(() => {
                 card1.style.transition = 'all 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
                 card2.style.transition = 'all 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
                 
-                card1.style.transform = 'translate(-180%, -60%) rotateY(45deg) rotateZ(-15deg) scale(1)';
-                card2.style.transform = 'translate(80%, 60%) rotateY(-45deg) rotateZ(15deg) scale(1)';
+                // Ставим их по бокам от центра
+                card1.style.transform = 'translate(-150%, -50%)';
+                card2.style.transform = 'translate(50%, -50%)';
                 
-                // Разрешаем вращение
+                // Включаем 3D-вращение через 1.5 сек
                 setTimeout(() => { canRotate = true; }, 1500);
-            }, 1000);
+            }, 500);
 
-            // 3. Улет вниз (через 4.5 сек)
+            // 3. Улет вниз
             setTimeout(() => {
-                canRotate = false; // Отключаем вращение перед улетом
+                canRotate = false; // Отключаем вращение
                 
-                card1.style.transition = 'all 1.2s ease-in';
-                card2.style.transition = 'all 1.2s ease-in';
+                card1.style.transition = 'all 1s ease-in';
+                card2.style.transition = 'all 1s ease-in';
                 
                 card1.style.transform = 'translate(-50%, 150vh) rotateY(360deg)';
                 card2.style.transform = 'translate(-50%, 150vh) rotateY(-360deg)';
@@ -273,7 +255,6 @@
             observer.observe(card);
         });
 
-        // Ресайз
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
