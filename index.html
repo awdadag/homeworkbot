@@ -183,7 +183,8 @@
     <header>
         <div class="subtitle">Premium Nail Care</div>
         <h1>NAIL<br><span>STUDIO</span></h1>
-        <a href="https://t.me/твой_бот" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+        <!-- ССЫЛКА НА БОТА УЖЕ ВСТАВЛЕНА -->
+        <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
     </header>
 
     <div class="container">
@@ -224,21 +225,19 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                // Наклон в сторону мышки
                 const rotateX = ((y - centerY) / centerY) * -20;
                 const rotateY = ((x - centerX) / centerX) * 20;
                 
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
             });
 
-            // Возврат в исходное положение, когда мышка уходит
             card.addEventListener('mouseleave', () => {
                 card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
                 card.style.transition = 'transform 0.5s ease';
             });
 
             card.addEventListener('mouseenter', () => {
-                card.style.transition = 'none'; // Убираем задержку при движении
+                card.style.transition = 'none';
             });
         });
     </script>
