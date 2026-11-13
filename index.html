@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | 3D Animation</title>
+    <title>Nail Studio | Premium</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,40 +31,30 @@
             z-index: 1;
         }
 
-        /* --- ЭКРАН 1: 3D СЦЕНА --- */
-        .hero-scene {
+        /* --- СЦЕНА 1: АНИМАЦИЯ С КАРТОЧКАМИ --- */
+        .intro-scene {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             perspective: 1500px;
-            position: relative;
+            position: absolute; /* Накладываем поверх */
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
             overflow: hidden;
         }
 
-        .main-title { 
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(4rem, 15vw, 12rem); 
-            line-height: 0.8;
-            text-transform: uppercase;
-            color: transparent;
-            -webkit-text-stroke: 2px rgba(255,255,255,0.3); 
-            position: absolute;
-            text-align: center;
-            z-index: 1;
-        }
-        .main-title span { color: rgba(255,255,255,0.1); -webkit-text-stroke: 0; }
-
-        /* Контейнер для вращения */
         .spin-container {
             position: absolute;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
             animation: spin 2s ease-in-out forwards; 
-            z-index: 2;
         }
 
+        /* Прозрачные карточки */
         .floating-card {
             position: absolute;
             top: 50%;
@@ -73,14 +63,16 @@
             height: 340px;
             margin-top: -170px; 
             margin-left: -130px;
-            background: #111116; 
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 24px;
             padding: 25px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             backface-visibility: hidden; 
         }
 
@@ -90,7 +82,6 @@
 
         .floating-card h2 { font-family: 'Unbounded', sans-serif; font-size: 1.3rem; color: #fff; white-space: nowrap;}
         
-        /* КРАСИВАЯ ЦЕНА (Градиент + Свечение) */
         .price { 
             font-family: 'Unbounded', sans-serif; 
             font-size: 3.5rem; 
@@ -98,7 +89,7 @@
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 154, 158, 0.4));
+            filter: drop-shadow(0 0 15px rgba(255, 154, 158, 0.6));
             line-height: 1;
         }
 
@@ -107,22 +98,64 @@
             100% { transform: rotateY(720deg); }
         }
 
-        .btn {
-            position: absolute;
-            bottom: 40px;
-            padding: 15px 50px;
+        /* --- СЦЕНА 2: ОСНОВНОЙ САЙТ (Появляется после) --- */
+        .main-site {
+            opacity: 0; /* Скрыто изначально */
+            transition: opacity 1s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* ТО САМОЕ НАЗВАНИЕ, КОТОРОЕ ПОЯВИТСЯ */
+        .main-title { 
             font-family: 'Unbounded', sans-serif;
-            font-size: 1rem;
+            font-size: clamp(4rem, 15vw, 12rem); 
+            line-height: 0.8;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px #fff;
+            letter-spacing: -3px;
+        }
+        .main-title span { color: #fff; -webkit-text-stroke: 0; }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #ff9a9e;
+            font-weight: 700;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+
+        .btn {
+            margin-top: 50px;
+            padding: 20px 60px;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.2rem;
             font-weight: 700;
             color: #000;
             background: #fff;
             border-radius: 50px;
             text-decoration: none;
             transition: all 0.3s;
-            z-index: 10;
+            box-shadow: 0 0 30px rgba(255,255,255,0.2);
         }
         
-        /* --- ЭКРАН 2: ОБЫЧНЫЕ КАРТОЧКИ --- */
+        .btn:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255,255,255,0.4);
+        }
+
+        /* Экран с обычными карточками */
         .services {
             min-height: 100vh;
             padding: 100px 5%;
@@ -138,23 +171,25 @@
         .card {
             width: 320px;
             height: 400px;
-            background: #111116; 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px);
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 30px;
             padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: transform 0.3s;
+            transition: transform 0.3s, border-color 0.3s;
         }
 
         .card:hover {
             transform: translateY(-10px);
             border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.1); 
         }
 
         .card h2 { font-family: 'Unbounded', sans-serif; font-size: 1.5rem; white-space: nowrap; margin-bottom: 10px;}
-        .card p { color: #aaa; font-size: 0.85rem; line-height: 1.5; }
+        .card p { color: #ccc; font-size: 0.85rem; line-height: 1.5; }
 
         footer {
             text-align: center;
@@ -172,10 +207,9 @@
     <div id="canvas-container"></div>
 
     <div class="content">
-        <!-- Сцена, которая улетит -->
-        <section class="hero-scene" id="scene1">
-            <h1 class="main-title">NAIL<br><span>STUDIO</span></h1>
-            
+        
+        <!-- СЦЕНА 1: Анимация (улетает) -->
+        <section class="intro-scene" id="intro-scene">
             <div class="spin-container" id="spin-container">
                 <div class="floating-card">
                     <div><h2>Маникюр</h2></div>
@@ -190,47 +224,56 @@
                     <div class="price">150</div>
                 </div>
             </div>
-
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </section>
 
-        <section class="services" id="scene2">
-            <div class="card">
-                <div>
-                    <h2>Маникюр</h2>
-                    <p>Аппаратный и комбинированный маникюр с премиальным покрытием.</p>
-                </div>
-                <div class="price">2 000</div>
-            </div>
-            
-            <div class="card">
-                <div>
-                    <h2>Наращивание</h2>
-                    <p>Моделирование любой формы и длины. Идеальная архитектура.</p>
-                </div>
-                <div class="price">3 500</div>
-            </div>
+        <!-- СЦЕНА 2: Основной сайт (появляется) -->
+        <div class="main-site" id="main-site">
+            <section class="hero">
+                <!-- Возвращаем НАЗВАНИЕ -->
+                <h1 class="main-title">NAIL<br><span>STUDIO</span></h1>
+                <p>Premium Care</p>
+                <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+            </section>
 
-            <div class="card">
-                <div>
-                    <h2>Дизайн</h2>
-                    <p>Сложная роспись, инкрустация камнями и модные эффекты.</p>
+            <section class="services">
+                <div class="card">
+                    <div>
+                        <h2>Маникюр</h2>
+                        <p>Аппаратный и комбинированный маникюр с премиальным покрытием.</p>
+                    </div>
+                    <div class="price">2 000</div>
                 </div>
-                <div class="price">150</div>
-            </div>
-        </section>
+                
+                <div class="card">
+                    <div>
+                        <h2>Наращивание</h2>
+                        <p>Моделирование любой формы и длины. Идеальная архитектура.</p>
+                    </div>
+                    <div class="price">3 500</div>
+                </div>
 
-        <footer>
-            <p>+7 (999) 123-45-67</p>
-            <p style="margin-top: 10px;">МОСКВА | 2026</p>
-        </footer>
+                <div class="card">
+                    <div>
+                        <h2>Дизайн</h2>
+                        <p>Сложная роспись, инкрустация камнями и модные эффекты.</p>
+                    </div>
+                    <div class="price">150</div>
+                </div>
+            </section>
+
+            <footer>
+                <p>+7 (999) 123-45-67</p>
+                <p style="margin-top: 10px;">МОСКВА | 2026</p>
+            </footer>
+        </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
-        // Космос
+        // --- КОСМОС ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -262,21 +305,43 @@
         }
         animate();
 
-        // --- АНИМАЦИЯ УЛЕТА ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- СЦЕНАРИЙ ПЕРЕХОДА ---
+        // Ждем 2 секунды (пока карточки крутятся)
         setTimeout(() => {
-            gsap.to("#scene1", {
+            
+            // 1. Улетаем вниз и растворяем сцену с карточками
+            gsap.to("#intro-scene", {
                 y: 800,          
                 opacity: 0,      
                 scale: 0.8,      
                 duration: 0.8,   
                 ease: "power2.in",
                 onComplete: () => {
-                    // НЕ удаляем элемент, а делаем его невидимым и отключаем клики
-                    document.getElementById('scene1').style.visibility = 'hidden';
-                    document.getElementById('scene1').style.pointerEvents = 'none';
+                    // Полностью скрываем первый блок
+                    document.getElementById('intro-scene').style.display = 'none';
+                    
+                    // 2. РАЗБЛОКИРУЕМ СКРОЛЛ и показываем основной сайт
+                    document.body.style.overflowY = 'auto';
                 }
             });
-        }, 2000); // Через 2 секунды
+
+            // Параллельно проявляем основной сайт (НАЗВАНИЕ и кнопку)
+            gsap.to("#main-site", {
+                opacity: 1,
+                duration: 1,
+                delay: 0.5 // Начинает появляться, когда карточки уже улетают
+            });
+
+        }, 2000); // 2 секунды на анимацию карточек
+
+        // В начале сайта запрещаем скролл, пока идет анимация
+        document.body.style.overflowY = 'hidden';
     </script>
 </body>
 </html>
