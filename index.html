@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | 3D Flight</title>
+    <title>Nail Studio | Cinematic Scroll</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,26 +12,81 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
-            overflow: hidden; 
+            overflow-x: hidden;
+        }
+
+        /* Контейнер для 3D-сцены */
+        .scene {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            perspective: 1500px;
+            overflow: hidden;
+        }
+
+        /* Заголовок в центре */
+        .center-block {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            opacity: 0;
+        }
+
+        .center-block h1 {
+            font-size: clamp(4rem, 10vw, 8rem); 
+            line-height: 0.9;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 50px rgba(255,255,255,0.8);
+        }
+
+        .phone {
+            font-size: 1.2rem;
+            margin-top: 20px;
+            color: #aaa;
+            letter-spacing: 2px;
+        }
+
+        /* Летающие карточки */
+        .flying-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 250px;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        .flying-card h2 { font-size: 1.5rem; }
+        .flying-card .price { font-size: 3rem; font-weight: 900; color: #ff9a9e; }
+
+        /* Секция, которая открывается при скролле */
+        .bottom-section {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        .scene {
+            gap: 50px;
+            padding: 100px 20px;
+            background: #050510;
             position: relative;
-            width: 100%;
-            height: 100%;
-            perspective: 1500px; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            z-index: 20;
         }
 
-        /* Карточки */
-        .flying-card {
-            position: absolute;
+        .static-card {
             width: 300px;
             height: 400px;
             background: rgba(255, 255, 255, 0.05);
@@ -42,75 +97,20 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-            transform-style: preserve-3d;
-            z-index: 5;
-        }
-
-        .flying-card h2 { font-size: 2rem; }
-        .flying-card .price { font-size: 4rem; font-weight: 900; color: #ff9a9e; }
-
-        /* Блок в центре (Заголовок, телефон, кнопка) */
-        .center-block {
-            position: absolute;
-            z-index: 10;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            opacity: 0; /* Изначально скрыто */
-            transform: scale(0.5);
-        }
-
-        .center-block h1 {
-            font-size: clamp(4rem, 10vw, 8rem); 
-            line-height: 0.9;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 50px rgba(255,255,255,0.8), 0 0 100px rgba(255, 154, 158, 0.5);
-        }
-
-        .phone {
-            font-size: 1.5rem;
-            margin-top: 20px;
-            color: #fff;
-            letter-spacing: 2px;
-            background: rgba(255,255,255,0.1);
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .btn {
-            margin-top: 30px;
-            padding: 20px 60px;
-            font-size: 1.2rem;
-            font-weight: 900;
-            font-family: 'Unbounded', sans-serif;
-            color: #000;
-            background: #fff;
-            border-radius: 100px;
-            text-decoration: none;
-            box-shadow: 0 0 40px rgba(255,255,255,0.4);
-            transition: transform 0.3s;
-        }
-        
-        .btn:hover {
-            transform: scale(1.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            opacity: 0; /* Изначально скрыты, появятся при скролле */
         }
     </style>
 </head>
 <body>
 
+    <!-- Первый экран с полетом -->
     <div class="scene">
-        <!-- Заголовок, телефон и кнопка -->
         <div class="center-block">
             <h1>NAIL<br>STUDIO</h1>
             <div class="phone">+7 (999) 123-45-67</div>
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </div>
 
-        <!-- Карточки -->
         <div class="flying-card card-1">
             <h2>Маникюр</h2>
             <div class="price">2 000</div>
@@ -122,59 +122,86 @@
         </div>
     </div>
 
+    <!-- Второй экран (куда они прилетят) -->
+    <div class="bottom-section">
+        <div class="static-card" id="dest-card-1">
+            <h2>Маникюр</h2>
+            <div class="price">2 000</div>
+        </div>
+        <div class="static-card" id="dest-card-2">
+            <h2>Наращивание</h2>
+            <div class="price">3 500</div>
+        </div>
+    </div>
+
     <!-- Подключаем GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
     <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ==========================================
+        // 1. КИНЕМАТОГРАФИЧНАЯ АНИМАЦИЯ ПОЯВЛЕНИЯ
+        // ==========================================
         const tl = gsap.timeline();
 
-        // 1. Устанавливаем карточки в центр в самом начале (эффект летящих)
-        gsap.set(".card-1", { x: 0, y: 0, rotationY: 0, rotationX: 0, scale: 1 });
-        gsap.set(".card-2", { x: 0, y: 0, rotationY: 0, rotationX: 0, scale: 1 });
-
-        // Анимация: карточки летают по экрану (0.5 сек)
-        tl.to(".card-1", {
-            x: -300, y: -200, rotationY: 45, rotationX: 45, duration: 0.6, ease: "power2.inOut"
-        }, 0)
-        .to(".card-2", {
-            x: 300, y: 200, rotationY: -45, rotationX: -45, duration: 0.6, ease: "power2.inOut"
-        }, 0)
-        
-        // Затем они разлетаются на свои места (1 сек)
-        .to(".card-1", {
-            x: -180, y: 0, rotationY: 20, rotationX: 10, duration: 1, ease: "power4.out"
-        }, 0.6)
-        .to(".card-2", {
-            x: 180, y: 0, rotationY: -20, rotationX: -10, duration: 1, ease: "power4.out"
-        }, 0.6)
-        
-        // 2. Появляется центральный блок (заголовок, телефон, кнопка)
-        .to(".center-block", {
+        // Заголовок плавно появляется
+        tl.to(".center-block", {
             opacity: 1,
-            scale: 1,
-            duration: 1.2,
-            ease: "back.out(1.2)"
-        }, 1.2);
+            duration: 1.5,
+            ease: "power2.out"
+        })
+        
+        // Карточки вылетают с краев и кружатся
+        .from(".card-1", {
+            x: -800, y: -200, rotationZ: 45, opacity: 0, duration: 1.5, ease: "power3.out"
+        }, 0.5)
+        .from(".card-2", {
+            x: 800, y: 200, rotationZ: -45, opacity: 0, duration: 1.5, ease: "power3.out"
+        }, 0.5)
 
-        // 3. Эффект параллакса при движении мыши
-        document.addEventListener('mousemove', (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 30;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 30;
+        // Карточки начинают вращаться вокруг заголовка (параллакс)
+        .to(".card-1", {
+            x: -250, y: -100, rotationY: 20, rotationX: 10, duration: 1.5, ease: "power2.inOut"
+        }, 2)
+        .to(".card-2", {
+            x: 250, y: 100, rotationY: -20, rotationX: -10, duration: 1.5, ease: "power2.inOut"
+        }, 2)
 
-            // Наклон карточек
-            gsap.to(".card-1", {
-                rotationY: 20 + xAxis * 1.5,
-                rotationX: 10 + yAxis * 1.5,
-                duration: 0.5,
-                ease: "power1.out"
-            });
-            
-            gsap.to(".card-2", {
-                rotationY: -20 + xAxis * 1.5,
-                rotationX: -10 + yAxis * 1.5,
-                duration: 0.5,
-                ease: "power1.out"
-            });
+        // В конце анимации карточки улетают вниз за экран (чтобы мы их "нашли" при скролле)
+        .to(".card-1", {
+            y: "120vh", rotationZ: 90, opacity: 0, duration: 1, ease: "power2.in"
+        }, 3.5)
+        .to(".card-2", {
+            y: "120vh", rotationZ: -90, opacity: 0, duration: 1, ease: "power2.in"
+        }, 3.5)
+
+        // ==========================================
+        // 2. ПОЯВЛЕНИЕ КАРТОЧЕК ПРИ СКРОЛЛЕ (ScrollTrigger)
+        // ==========================================
+        gsap.from("#dest-card-1", {
+            scrollTrigger: {
+                trigger: ".bottom-section",
+                start: "top bottom", // Начинается, как только секция показывается
+                end: "center center",
+                scrub: 1 // Плавная привязка к скроллу
+            },
+            y: -200,
+            opacity: 0,
+            rotationZ: -10
+        });
+
+        gsap.from("#dest-card-2", {
+            scrollTrigger: {
+                trigger: ".bottom-section",
+                start: "top bottom",
+                end: "center center",
+                scrub: 1
+            },
+            y: -200,
+            opacity: 0,
+            rotationZ: 10
         });
     </script>
 </body>
