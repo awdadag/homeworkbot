@@ -32,7 +32,7 @@
             z-index: 10;
         }
 
-        /* 1. НАЗВАНИЕ (Появляется первым) */
+        /* НАЗВАНИЕ */
         .center-block {
             text-align: center;
             z-index: 10;
@@ -49,6 +49,7 @@
             margin-bottom: 20px;
         }
 
+        /* НОМЕР ТЕЛЕФОНА (Кликабельный) */
         .phone {
             font-size: 1.5rem;
             color: #fff;
@@ -59,7 +60,11 @@
             padding: 10px 25px;
             border-radius: 30px;
             border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: background 0.3s;
+            pointer-events: auto; /* Чтобы кликалось */
         }
+        .phone:hover { background: rgba(255,255,255,0.2); }
 
         .btn {
             display: inline-block;
@@ -72,10 +77,11 @@
             text-decoration: none;
             box-shadow: 0 0 40px rgba(255,255,255,0.4);
             transition: transform 0.3s;
+            pointer-events: auto;
         }
         .btn:hover { transform: scale(1.1); }
 
-        /* 2. КАРТОЧКИ */
+        /* КАРТОЧКИ */
         .card {
             position: absolute;
             top: 50%; left: 50%;
@@ -90,14 +96,14 @@
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             z-index: 5;
-            opacity: 0; /* Скрыты в самом начале */
+            opacity: 0; 
             transform: translate(-50%, -50%) scale(0);
         }
 
         .card h2 { font-size: 1.5rem; }
         .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; }
 
-        /* 3. НИЖНИЙ БЛОК */
+        /* НИЖНИЙ БЛОК */
         .bottom-section {
             height: 100vh;
             display: flex;
@@ -136,10 +142,10 @@
     <div id="canvas-container"></div>
 
     <div class="intro">
-        <!-- Название -->
+        <!-- Название, телефон, кнопка -->
         <div class="center-block">
             <h1>NAIL<br>STUDIO</h1>
-            <div class="phone">+7 (999) 123-45-67</div>
+            <div class="phone" id="phone-number">+7 (999) 123-45-67</div>
             <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </div>
 
@@ -207,12 +213,29 @@
         }
         animate();
 
-        // СЦЕНАРИЙ
+        // === КОПИРОВАНИЕ НОМЕРА ===
+        const phone = document.getElementById('phone-number');
+        phone.addEventListener('click', () => {
+            const number = phone.innerText;
+            navigator.clipboard.writeText(number).then(() => {
+                // Меняем текст на время, чтобы показать, что скопировалось
+                const originalText = phone.innerText;
+                phone.innerText = "Скопировано!";
+                phone.style.background = "rgba(255,255,255,0.3)";
+                
+                setTimeout(() => {
+                    phone.innerText = originalText;
+                    phone.style.background = "rgba(255,255,255,0.1)";
+                }, 1500);
+            });
+        });
+
+        // === АНИМАЦИЯ ===
         const card1 = document.querySelector('.card-1');
         const card2 = document.querySelector('.card-2');
         const centerBlock = document.querySelector('.center-block');
 
-        // ЭТАП 1: Название вылетает с жесткой анимацией (Сразу при загрузке)
+        // 1. Появление названия
         setTimeout(() => {
             centerBlock.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             centerBlock.style.opacity = '1';
@@ -220,20 +243,20 @@
             centerBlock.style.filter = 'blur(0px)';
         }, 500);
 
-        // ЭТАП 2: С боков вылетают карточки (Через 1.5 секунды)
+        // 2. Симметричный вылет карточек
         setTimeout(() => {
             card1.style.transition = 'transform 0.8s ease-out, opacity 0.8s';
             card2.style.transition = 'transform 0.8s ease-out, opacity 0.8s';
             
-            // Появляются из-за краев
+            // Обе карточки на одинаковом расстоянии от центра (300px)
             card1.style.opacity = '1';
-            card1.style.transform = 'translate(-150%, -50%) scale(1)';
+            card1.style.transform = 'translate(-200%, -50%) scale(1)';
             
             card2.style.opacity = '1';
-            card2.style.transform = 'translate(50%, -50%) scale(1)';
+            card2.style.transform = 'translate(100%, -50%) scale(1)';
         }, 1500);
 
-        // ЭТАП 3: Начинают вращаться вокруг названия (Через 2.5 секунды)
+        // 3. Кружение (радиус увеличен)
         let orbitTime = 0;
         let isOrbiting = false;
 
@@ -241,15 +264,15 @@
             if (!isOrbiting) return;
             orbitTime += 0.05; 
             
-            const radius = 260; // Радиус орбиты
+            const radius = 350; // Радиус увеличен с 260 до 350, чтобы летали подальше
             
             // Карточка 1
             const x1 = Math.cos(orbitTime) * radius;
             const y1 = Math.sin(orbitTime) * radius * 0.4;
             card1.style.transform = `translate(calc(-50% + ${x1}px), calc(-50% + ${y1}px)) rotateY(${orbitTime * 50}deg)`;
-            card1.style.transition = 'none'; // Убираем задержку для плавности
+            card1.style.transition = 'none';
 
-            // Карточка 2 (напротив)
+            // Карточка 2
             const x2 = Math.cos(orbitTime + Math.PI) * radius;
             const y2 = Math.sin(orbitTime + Math.PI) * radius * 0.4;
             card2.style.transform = `translate(calc(-50% + ${x2}px), calc(-50% + ${y2}px)) rotateY(${orbitTime * -50}deg)`;
@@ -263,7 +286,7 @@
             orbit();
         }, 2500);
 
-        // ЭТАП 4: УЛЕТ ВНИЗ (Через 5 секунд)
+        // 4. Улет вниз
         setTimeout(() => {
             isOrbiting = false;
             
