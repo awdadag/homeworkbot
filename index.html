@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Cinematic 3D</title>
+    <title>Nail Studio | Cinematic</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -15,7 +15,6 @@
             overflow-x: hidden;
         }
 
-        /* Звездный фон */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -31,7 +30,7 @@
             z-index: 1;
         }
 
-        /* --- СЦЕНА 1: ГЛАВНЫЙ ЭКРАН --- */
+        /* --- СЦЕНА 1 --- */
         .hero-scene {
             height: 100vh;
             display: flex;
@@ -43,11 +42,10 @@
             overflow: hidden;
         }
 
-        /* ТЕКСТ (Название) */
         .text-container {
             position: absolute;
             text-align: center;
-            z-index: 1; /* Сзади карточек */
+            z-index: 1; 
             top: 45%;
             transform: translateY(-50%);
         }
@@ -58,37 +56,14 @@
             line-height: 0.9;
             text-transform: uppercase;
             opacity: 0; 
-            transform: translateZ(-1000px) scale(0.1); /* Вылетают из глубины */
+            transform: translateZ(-800px) scale(0.5); 
         }
 
-        .word-nail {
-            font-size: clamp(4rem, 12vw, 10rem);
-            color: transparent;
-            -webkit-text-stroke: 2px rgba(255,255,255,0.8);
-        }
+        .word-nail { font-size: clamp(4rem, 12vw, 10rem); color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,0.8); }
+        .word-studio { font-size: clamp(4rem, 12vw, 10rem); color: rgba(255,255,255,0.2); -webkit-text-stroke: 0; }
+        .word-super { font-size: clamp(1.5rem, 4vw, 3rem); color: #ff9a9e; letter-spacing: 10px; margin-top: 20px; text-shadow: 0 0 20px rgba(255,154,158,0.5); }
+        .word-premium { font-size: clamp(1.5rem, 4vw, 3rem); color: #fff; letter-spacing: 10px; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
 
-        .word-studio {
-            font-size: clamp(4rem, 12vw, 10rem);
-            color: rgba(255,255,255,0.2);
-            -webkit-text-stroke: 0;
-        }
-
-        .word-super {
-            font-size: clamp(1.5rem, 4vw, 3rem);
-            color: #ff9a9e;
-            letter-spacing: 10px;
-            margin-top: 20px;
-            text-shadow: 0 0 20px rgba(255,154,158,0.5);
-        }
-
-        .word-premium {
-            font-size: clamp(1.5rem, 4vw, 3rem);
-            color: #fff;
-            letter-spacing: 10px;
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
-        }
-
-        /* КНОПКА */
         .btn {
             position: absolute;
             bottom: 10%;
@@ -112,15 +87,23 @@
             box-shadow: 0 20px 40px rgba(255,255,255,0.4);
         }
 
-        /* ВРАЩАЮЩИЕСЯ КАРТОЧКИ */
+        /* Контейнер с карточками */
         .spin-container {
             position: absolute;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
-            animation: spin 4s linear infinite; /* Бесконечное вращение */
-            z-index: 2; /* Поверх названия */
-            opacity: 0; /* Сначала скрыты */
+            z-index: 2; 
+            opacity: 0; /* Скрыты, пока не вылетит текст */
+        }
+
+        /* Внутренний контейнер, который будет вращаться */
+        .rotator {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: spin 4s linear infinite;
         }
 
         .floating-card {
@@ -165,7 +148,7 @@
             100% { transform: rotateY(360deg); }
         }
 
-        /* --- СЦЕНА 2: КАРТОЧКИ (ПРИ СКРОЛЛЕ) --- */
+        /* --- СЦЕНА 2 --- */
         .services {
             min-height: 100vh;
             padding: 100px 5%;
@@ -178,7 +161,7 @@
             margin: 0 auto;
             position: relative;
             z-index: 3;
-            background: rgba(5, 5, 16, 0.8); /* Чтоб не сливалось с фоном */
+            background: rgba(5, 5, 16, 0.8);
         }
 
         .card {
@@ -213,7 +196,6 @@
             position: relative;
             z-index: 3;
         }
-
     </style>
 </head>
 <body>
@@ -223,7 +205,6 @@
     <div class="content">
         
         <section class="hero-scene" id="hero-scene">
-            <!-- Текст по центру -->
             <div class="text-container" id="text-container">
                 <span class="word word-nail" id="w1">NAIL</span>
                 <span class="word word-studio" id="w2">STUDIO</span>
@@ -231,27 +212,28 @@
                 <span class="word word-premium" id="w4">PREMIUM</span>
             </div>
             
-            <!-- Летающие карточки -->
+            <!-- Внешний контейнер (для улета) -->
             <div class="spin-container" id="spin-container">
-                <div class="floating-card">
-                    <div><h2>Маникюр</h2></div>
-                    <div class="price">2 000</div>
-                </div>
-                <div class="floating-card">
-                    <div><h2>Наращивание</h2></div>
-                    <div class="price">3 500</div>
-                </div>
-                <div class="floating-card">
-                    <div><h2>Дизайн</h2></div>
-                    <div class="price">150</div>
+                <!-- Внутренний контейнер (для вращения) -->
+                <div class="rotator" id="rotator">
+                    <div class="floating-card">
+                        <div><h2>Маникюр</h2></div>
+                        <div class="price">2 000</div>
+                    </div>
+                    <div class="floating-card">
+                        <div><h2>Наращивание</h2></div>
+                        <div class="price">3 500</div>
+                    </div>
+                    <div class="floating-card">
+                        <div><h2>Дизайн</h2></div>
+                        <div class="price">150</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Кнопка -->
             <a href="https://t.me/HomeworkHelper_1bot" class="btn" id="main-btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </section>
 
-        <!-- Секция с ценами (появляется при скролле) -->
         <section class="services" id="services-scene">
             <div class="card">
                 <div>
@@ -289,7 +271,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
-        // Блокируем скролл в начале
         document.body.style.overflow = 'hidden';
 
         // --- КОСМОС ---
@@ -330,33 +311,35 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- ГЛАВНЫЙ ТАЙМЛАЙН АНИМАЦИИ ---
+        // --- ТАЙМЛАЙН (ПОШАГОВО) ---
         const tl = gsap.timeline();
 
-        // 1. Вылетают слова
-        tl.to("#w1", { duration: 0.8, opacity: 1, z: 0, scale: 1, ease: "power3.out" })
-          .to("#w2", { duration: 0.8, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.6")
-          .to("#w3", { duration: 0.8, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.6")
-          .to("#w4", { duration: 0.8, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.6")
+        // 1. Медленно и красиво появляются слова
+        tl.to("#w1", { duration: 1.2, opacity: 1, z: 0, scale: 1, ease: "power3.out" })
+          .to("#w2", { duration: 1.2, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.9")
+          .to("#w3", { duration: 1.2, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.9")
+          .to("#w4", { duration: 1.2, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.9")
 
-        // 2. Как только слова вылетели — проявляются вращающиеся карточки
-          .to("#spin-container", { duration: 0.5, opacity: 1 }, "+=0.2")
+        // 2. Ждем паузу, чтобы название "устаканилось"
+          .to({}, { duration: 0.5 })
+
+        // 3. Плавно проявляются карточки (они уже крутятся благодаря CSS)
+          .to("#spin-container", { duration: 0.8, opacity: 1 }, "+=0.2")
           .to("#main-btn", { duration: 0.5, opacity: 1, y: 0 }, "-=0.3")
 
-        // 3. Ждем 2 секунды (карточки крутятся)
-          .to({}, { duration: 2.5 }) 
+        // 4. Даем им покрутиться 2 секунды
+          .to({}, { duration: 2.0 }) 
 
-        // 4. Карточки улетают вниз (текст и кнопка остаются!)
+        // 5. Карточки УЛЕТАЮТ ВНИЗ (внешний контейнер), вращение не мешает
           .to("#spin-container", {
-              y: 800,
+              y: 1000, // Улетает далеко вниз
               opacity: 0,
               scale: 0.5,
               duration: 0.8,
               ease: "power2.in",
               onComplete: () => {
-                  // Карточки исчезли, разблокируем скролл
                   document.getElementById('spin-container').style.display = 'none';
-                  document.body.style.overflow = 'auto';
+                  document.body.style.overflow = 'auto'; // Включаем скролл
               }
           });
     </script>
