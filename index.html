@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Fast 3D</title>
+    <title>Nail Studio | 3D Animation</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -15,7 +15,7 @@
             overflow-x: hidden;
         }
 
-        /* Космос на фоне */
+        /* Звездный фон */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -31,45 +31,43 @@
             z-index: 1;
         }
 
-        /* ЭКРАН 1: БЫСТРАЯ 3D КАРУСЕЛЬ */
+        /* --- ЭКРАН 1: 3D СЦЕНА (которая улетит) --- */
         .hero-scene {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px;
+            perspective: 1500px;
             position: relative;
+            /* Убираем скролл на первом экране */
             overflow: hidden;
         }
 
-        /* Название в центре */
         .main-title { 
             font-family: 'Unbounded', sans-serif;
-            font-size: clamp(4rem, 12vw, 10rem); 
-            line-height: 0.9;
+            font-size: clamp(4rem, 15vw, 12rem); 
+            line-height: 0.8;
             text-transform: uppercase;
             color: transparent;
-            -webkit-text-stroke: 2px rgba(255,255,255,0.3);
+            -webkit-text-stroke: 2px rgba(255,255,255,0.3); 
             position: absolute;
             text-align: center;
             z-index: 1;
-            pointer-events: none;
         }
-        .main-title span { color: #fff; -webkit-text-stroke: 0; }
+        .main-title span { color: rgba(255,255,255,0.1); -webkit-text-stroke: 0; }
 
-        /* Контейнер карусели */
-        .carousel {
+        /* Контейнер, который будет вращаться */
+        .spin-container {
             position: absolute;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
-            /* ОЧЕНЬ БЫСТРОЕ ВРАЩЕНИЕ (3 секунды на круг) */
-            animation: spin 4s linear infinite; 
+            /* Анимация вращения: начинается сразу, длится 2 секунды, 2 оборота */
+            animation: spin 2s ease-in-out forwards; 
             z-index: 2;
         }
 
-        /* Карточки в 3D */
-        .card-3d {
+        .floating-card {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -88,21 +86,20 @@
             backface-visibility: hidden; 
         }
 
-        /* Ставим их по кругу радиусом 350px */
-        .card-3d:nth-child(1) { transform: rotateY(0deg) translateZ(350px); }
-        .card-3d:nth-child(2) { transform: rotateY(120deg) translateZ(350px); }
-        .card-3d:nth-child(3) { transform: rotateY(240deg) translateZ(350px); }
+        /* Расстановка карточек по кругу */
+        .floating-card:nth-child(1) { transform: rotateY(0deg) translateZ(300px); }
+        .floating-card:nth-child(2) { transform: rotateY(120deg) translateZ(300px); }
+        .floating-card:nth-child(3) { transform: rotateY(240deg) translateZ(300px); }
 
-        .card-3d h2 { font-family: 'Unbounded', sans-serif; font-size: 1.3rem; color: #fff; white-space: nowrap;}
-        .card-3d .price { font-family: 'Unbounded', sans-serif; font-size: 3rem; font-weight: 900; color: #ff9a9e; }
+        .floating-card h2 { font-family: 'Unbounded', sans-serif; font-size: 1.3rem; color: #fff; white-space: nowrap;}
+        .floating-card .price { font-family: 'Unbounded', sans-serif; font-size: 3rem; font-weight: 900; color: #ff9a9e; }
 
-        /* Ключевые кадры вращения */
+        /* Анимация: 2 секунды, два полных оборота (720 градусов) */
         @keyframes spin {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(720deg); }
         }
 
-        /* Кнопка */
         .btn {
             position: absolute;
             bottom: 40px;
@@ -115,16 +112,10 @@
             border-radius: 50px;
             text-decoration: none;
             transition: all 0.3s;
-            box-shadow: 0 0 30px rgba(255,255,255,0.2);
             z-index: 10;
         }
         
-        .btn:hover {
-            transform: scale(1.05) translateY(-5px);
-            box-shadow: 0 20px 40px rgba(255,255,255,0.4);
-        }
-
-        /* ЭКРАН 2: ОБЫЧНЫЕ КАРТОЧКИ */
+        /* --- ЭКРАН 2: ОБЫЧНЫЕ КАРТОЧКИ (появляются после улета) --- */
         .services {
             min-height: 100vh;
             padding: 100px 5%;
@@ -175,20 +166,20 @@
     <div id="canvas-container"></div>
 
     <div class="content">
-        <!-- 1 ЭКРАН -->
+        <!-- Сцена, которая улетит -->
         <section class="hero-scene" id="scene1">
             <h1 class="main-title">NAIL<br><span>STUDIO</span></h1>
             
-            <div class="carousel" id="carousel">
-                <div class="card-3d">
+            <div class="spin-container" id="spin-container">
+                <div class="floating-card">
                     <div><h2>Маникюр</h2></div>
                     <div class="price">2 000</div>
                 </div>
-                <div class="card-3d">
+                <div class="floating-card">
                     <div><h2>Наращивание</h2></div>
                     <div class="price">3 500</div>
                 </div>
-                <div class="card-3d">
+                <div class="floating-card">
                     <div><h2>Дизайн</h2></div>
                     <div class="price">150</div>
                 </div>
@@ -197,7 +188,6 @@
             <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
         </section>
 
-        <!-- 2 ЭКРАН -->
         <section class="services" id="scene2">
             <div class="card">
                 <div>
@@ -230,11 +220,8 @@
         </footer>
     </div>
 
-    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <script>
         // Космос
@@ -262,18 +249,9 @@
         scene.add(particlesMesh);
         camera.position.z = 5;
 
-        let mouseX = 0;
-        let mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-        });
-
         function animate() {
             requestAnimationFrame(animate);
             particlesMesh.rotation.y += 0.001;
-            camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
             renderer.render(scene, camera);
         }
         animate();
@@ -284,21 +262,22 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- БЫСТРЫЙ УЛЕТ ВНИЗ ПРИ СКРОЛЛЕ ---
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Как только чуть-чуть скролльнул — вся сцена мгновенно улетает вниз
-        gsap.to("#scene1", {
-            scrollTrigger: {
-                trigger: "#scene1",
-                start: "top top",
-                end: "20% top", // Очень быстрый скролл (20% экрана)
-                scrub: 0.2      // Почти мгновенная реакция
-            },
-            y: 500,      // Улетает вниз
-            opacity: 0,  // Растворяется
-            scale: 0.2   // Уменьшается
-        });
+        // --- ГЛАВНАЯ МАГИЯ: СЦЕНАРИЙ АНИМАЦИИ ---
+        // Ждем 2 секунды, пока карточки крутятся (благодаря CSS)
+        setTimeout(() => {
+            // Через 2 секунды запускаем GSAP, который уносит всё ВНИЗ
+            gsap.to("#scene1", {
+                y: 800,          // Улетает далеко вниз
+                opacity: 0,      // Растворяется
+                scale: 0.8,      // Чуть уменьшается
+                duration: 0.8,   // Длится 0.8 секунды
+                ease: "power2.in", // Резкий уход
+                onComplete: () => {
+                    // Когда улетело, скрываем его совсем, чтобы не мешало скроллу
+                    document.getElementById('scene1').style.display = 'none';
+                }
+            });
+        }, 2000); // 2000 миллисекунд = 2 секунды
     </script>
 </body>
 </html>
