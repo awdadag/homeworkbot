@@ -3,392 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Drag 3D</title>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;900&display=swap" rel="stylesheet">
+    <title>Nail Studio | Fast 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #030308; 
+            background-color: #050510; 
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
             overflow-x: hidden;
         }
 
-        /* Космос */
-        #canvas-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            z-index: 0;
-        }
-
-        .intro {
+        /* Главный экран */
+        .hero {
             height: 100vh;
-            position: relative;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
-            z-index: 10;
-            perspective: 1000px;
-        }
-
-        /* --- СТИКЕРЫ, КОТОРЫЕ МОЖНО ТАСКАТЬ --- */
-        .draggable-sticker {
-            position: absolute;
-            padding: 15px 30px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50px;
-            backdrop-filter: blur(10px);
-            font-size: 1rem;
-            font-weight: 500;
-            color: #fff;
-            cursor: grab;
-            user-select: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 15px rgba(255,255,255,0.1);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            z-index: 20;
+            text-align: center;
+            background: radial-gradient(circle, #1a1a2e 0%, #050510 100%);
         }
         
-        .draggable-sticker:active {
-            cursor: grabbing;
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.4);
-        }
-
-        .draggable-sticker:hover {
-            border-color: #fff;
-            box-shadow: 0 0 20px rgba(255,255,255,0.3);
-        }
-
-        /* Начальные позиции стикеров */
-        .st-1 { top: 15%; left: 10%; transform: rotate(-10deg); }
-        .st-2 { top: 25%; right: 15%; transform: rotate(15deg); }
-        .st-3 { bottom: 20%; left: 20%; transform: rotate(5deg); }
-        .st-4 { bottom: 30%; right: 10%; transform: rotate(-5deg); }
-        .st-5 { top: 10%; left: 45%; transform: rotate(2deg); }
-
-        /* --- ЦЕНТРАЛЬНЫЙ БЛОК --- */
-        .center-block {
-            text-align: center;
-            z-index: 10;
-            opacity: 0; 
-            transform: scale(0.5) translateZ(-500px);
-            filter: blur(10px);
-        }
-
-        .center-block h1 {
-            font-size: clamp(4rem, 12vw, 9rem);
-            line-height: 0.8;
+        .hero h1 { 
+            font-size: clamp(4rem, 12vw, 10rem); 
+            line-height: 0.9;
             text-transform: uppercase;
-            text-shadow: 0 0 50px rgba(255,255,255,0.8);
-            margin-bottom: 20px;
-            pointer-events: none;
-        }
-
-        .phone {
-            font-size: 1.5rem;
             color: #fff;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            background: rgba(255,255,255,0.1);
-            display: inline-block;
-            padding: 10px 25px;
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.2);
-            cursor: pointer;
-            transition: background 0.3s;
-            pointer-events: auto;
+            text-shadow: 0 0 50px rgba(255,255,255,0.5);
         }
-        .phone:hover { background: rgba(255,255,255,0.2); }
 
         .btn {
-            display: inline-block;
-            padding: 20px 60px;
-            font-size: 1.2rem;
+            margin-top: 50px;
+            padding: 25px 80px;
+            font-size: 1.5rem;
             font-weight: 900;
             color: #000;
             background: #fff;
             border-radius: 100px;
             text-decoration: none;
-            box-shadow: 0 0 40px rgba(255,255,255,0.4);
-            transition: transform 0.3s;
-            pointer-events: auto;
+            transition: all 0.4s;
+            box-shadow: 0 0 50px rgba(255,255,255,0.3);
         }
-        .btn:hover { transform: scale(1.1); }
+        
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 100px rgba(255,255,255,0.8);
+        }
 
-        /* --- КАРТОЧКИ С ЦЕНАМИ --- */
+        /* Экран услуг */
+        .services {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            padding: 100px 20px;
+            flex-wrap: wrap;
+            perspective: 1500px;
+        }
+
+        /* КАРТОЧКА */
         .card {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 280px; height: 380px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            backdrop-filter: blur(10px);
+            width: 320px;
+            height: 420px;
+            background: #111118; /* Плотный фон, чтобы текст не сливался */
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
             padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            z-index: 15;
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .card h2 { font-size: clamp(1rem, 3vw, 1.5rem); line-height: 1.1; }
-        .card .price { font-size: 3.5rem; font-weight: 900; color: #fff; }
-
-        /* CSS Анимация орбиты */
-        @keyframes orbit1 {
-            0% { transform: translate(calc(-50% + 350px), calc(-50% + 0px)) scale(1); }
-            25% { transform: translate(calc(-50% + 0px), calc(-50% + 150px)) scale(1); }
-            50% { transform: translate(calc(-50% - 350px), calc(-50% + 0px)) scale(1); }
-            75% { transform: translate(calc(-50% + 0px), calc(-50% - 150px)) scale(1); }
-            100% { transform: translate(calc(-50% + 350px), calc(-50% + 0px)) scale(1); }
-        }
-
-        @keyframes orbit2 {
-            0% { transform: translate(calc(-50% - 350px), calc(-50% + 0px)) scale(1); }
-            25% { transform: translate(calc(-50% + 0px), calc(-50% - 150px)) scale(1); }
-            50% { transform: translate(calc(-50% + 350px), calc(-50% + 0px)) scale(1); }
-            75% { transform: translate(calc(-50% + 0px), calc(-50% + 150px)) scale(1); }
-            100% { transform: translate(calc(-50% - 350px), calc(-50% + 0px)) scale(1); }
-        }
-
-        .card-1.orbiting { animation: orbit1 4s linear infinite; opacity: 1; }
-        .card-2.orbiting { animation: orbit2 4s linear infinite; opacity: 1; }
-
-        /* Нижний блок */
-        .bottom-section {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 60px;
+            transition: transform 0.15s ease-out, box-shadow 0.3s ease;
             position: relative;
-            z-index: 20;
+            overflow: hidden; /* Ничего не вылезет за края */
+            transform-style: preserve-3d;
+            cursor: pointer;
         }
 
-        .static-card {
-            width: 300px; height: 400px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            padding: 40px;
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        }
+
+        /* Контент внутри карточки */
+        .card-content {
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            opacity: 0; 
-            transform: translateY(150px);
-            transition: all 1s ease;
-            backdrop-filter: blur(10px);
+            transform: translateZ(30px); /* Легкий подъем текста */
         }
-        .static-card h2 { font-size: 2rem; }
-        .static-card .price { font-size: 4rem; font-weight: 900; color: #fff; }
 
-        .visible {
-            opacity: 1 !important;
-            transform: translateY(0) !important;
+        .card h2 { 
+            font-size: 1.8rem; 
+            line-height: 1.2;
+            word-wrap: break-word; /* Перенос длинных слов */
+        }
+        
+        .card .price { 
+            font-size: 4rem; 
+            font-weight: 900; 
+            color: #ff9a9e; 
+            line-height: 1;
+        }
+
+        .card p {
+            color: #888;
+            font-size: 0.85rem;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <section class="hero">
+        <h1>NAIL<br>STUDIO</h1>
+        <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+    </section>
 
-    <div class="intro">
-        <!-- ТАСКАЕМЫЕ СТИКЕРЫ -->
-        <div class="draggable-sticker st-1">Ты супер! 🔥</div>
-        <div class="draggable-sticker st-2">Топ-мастер 💅</div>
-        <div class="draggable-sticker st-3">Запишись!</div>
-        <div class="draggable-sticker st-4">Nail Studio ✨</div>
-        <div class="draggable-sticker st-5">Лучший сервис ⭐</div>
+    <section class="services">
+        <div class="card">
+            <div class="card-content">
+                <h2>Маникюр</h2>
+                <p>Премиальный уход</p>
+                <div class="price">2 000</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-content">
+                <h2>Наращивание</h2>
+                <p>Идеальная архитектура</p>
+                <div class="price">3 500</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-content">
+                <h2>Дизайн</h2>
+                <p>Роспись и камни</p>
+                <div class="price">150</div>
+            </div>
+        </div>
+    </section>
 
-        <!-- ЦЕНТР -->
-        <div class="center-block">
-            <h1>NAIL<br>STUDIO</h1>
-            <div class="phone" id="phone-number">+7 (999) 123-45-67</div>
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
-        </div>
-
-        <!-- КАРТОЧКИ -->
-        <div class="card card-1">
-            <h2>Маникюр</h2>
-            <div class="price">2 000</div>
-        </div>
-        <div class="card card-2">
-            <h2>Наращивание</h2>
-            <div class="price">3 500</div>
-        </div>
-    </div>
-
-    <div class="bottom-section">
-        <div class="static-card" id="dest-1">
-            <h2>Маникюр</h2>
-            <div class="price">2 000</div>
-        </div>
-        <div class="static-card" id="dest-2">
-            <h2>Наращивание</h2>
-            <div class="price">3 500</div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script>
-        // === КОСМОС ===
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x030308, 0.03); 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
+        gsap.registerPlugin(ScrollTrigger);
 
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 5000;
-        const posArray = new Float32Array(particlesCount * 3);
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 50;
-        }
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.1, color: 0xffffff, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending 
-        });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-        camera.position.z = 5;
-
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        // Анимация при прокрутке (без размытия)
+        gsap.from(".card", {
+            scrollTrigger: {
+                trigger: ".services",
+                start: "top bottom",
+                end: "center center",
+                scrub: true
+            },
+            y: 100,
+            opacity: 0,
+            rotationY: 30,
+            stagger: 0.1
         });
 
-        function animate() {
-            requestAnimationFrame(animate);
-            particlesMesh.rotation.y += 0.001;
-            camera.position.x += (mouseX * 3 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 3 - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
-            renderer.render(scene, camera);
-        }
-        animate();
+        // Быстрый и четкий 3D-эффект (без transition, чтобы не тормозило)
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                // Угол наклона (максимум 15 градусов)
+                const rotateX = ((y - centerY) / centerY) * -15;
+                const rotateY = ((x - centerX) / centerX) * 15;
+                
+                // Применяем трансформацию мгновенно
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            });
 
-        // === КОПИРОВАНИЕ НОМЕРА ===
-        const phone = document.getElementById('phone-number');
-        phone.addEventListener('click', () => {
-            navigator.clipboard.writeText(phone.innerText).then(() => {
-                const originalText = phone.innerText;
-                phone.innerText = "Скопировано!";
-                phone.style.background = "rgba(255,255,255,0.3)";
-                setTimeout(() => {
-                    phone.innerText = originalText;
-                    phone.style.background = "rgba(255,255,255,0.1)";
-                }, 1500);
+            card.addEventListener('mouseleave', () => {
+                // Возвращаем на место с легкой задержкой
+                card.style.transition = 'transform 0.3s ease';
+                card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+            });
+
+            card.addEventListener('mouseenter', () => {
+                // Убираем задержку при входе, чтобы двигалось моментально за мышкой
+                card.style.transition = 'none';
             });
         });
-
-        // === ЛОГИКА ПЕРЕТАСКИВАНИЯ СТИКЕРОВ (DRAG & DROP) ===
-        const stickers = document.querySelectorAll('.draggable-sticker');
-        
-        stickers.forEach(sticker => {
-            let isDragging = false;
-            let startX, startY, initialLeft, initialTop;
-
-            sticker.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                sticker.style.cursor = 'grabbing';
-                sticker.style.zIndex = '100'; // Поднимаем наверх
-                
-                // Запоминаем начальную позицию мыши и стикера
-                startX = e.clientX;
-                startY = e.clientY;
-                
-                const rect = sticker.getBoundingClientRect();
-                initialLeft = rect.left;
-                initialTop = rect.top;
-                
-                // Убираем CSS анимации, чтобы не мешали
-                sticker.style.transition = 'none';
-                sticker.style.left = initialLeft + 'px';
-                sticker.style.top = initialTop + 'px';
-                sticker.style.right = 'auto';
-                sticker.style.bottom = 'auto';
-                sticker.style.margin = '0';
-                sticker.style.transform = 'scale(1.1)';
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                
-                sticker.style.left = (initialLeft + dx) + 'px';
-                sticker.style.top = (initialTop + dy) + 'px';
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    sticker.style.cursor = 'grab';
-                    sticker.style.zIndex = '20';
-                    sticker.style.transform = 'scale(1) rotate(0deg)'; // Сбрасываем наклон при отпускании
-                    sticker.style.transition = 'transform 0.3s, box-shadow 0.3s, background 0.3s';
-                }
-            });
-        });
-
-        // === АНИМАЦИЯ ПОЯВЛЕНИЯ ===
-        const card1 = document.querySelector('.card-1');
-        const card2 = document.querySelector('.card-2');
-        const centerBlock = document.querySelector('.center-block');
-
-        // 1. Появление названия
-        setTimeout(() => {
-            centerBlock.style.transition = 'all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            centerBlock.style.opacity = '1';
-            centerBlock.style.transform = 'scale(1) translateZ(0)';
-            centerBlock.style.filter = 'blur(0px)';
-        }, 500);
-
-        // 2. Карточки начинают кружить
-        setTimeout(() => {
-            card1.classList.add('orbiting');
-            card2.classList.add('orbiting');
-            card1.style.opacity = '1';
-            card2.style.opacity = '1';
-        }, 1500);
-
-        // 3. Улет вниз
-        setTimeout(() => {
-            card1.classList.remove('orbiting');
-            card2.classList.remove('orbiting');
-            
-            card1.style.transition = 'transform 1s ease-in, opacity 1s ease-in';
-            card2.style.transition = 'transform 1s ease-in, opacity 1s ease-in';
-            
-            card1.style.transform = 'translate(-50%, 150vh) scale(0.5)';
-            card2.style.transform = 'translate(-50%, 150vh) scale(0.5)';
-            
-            card1.style.opacity = '0';
-            card2.style.opacity = '0';
-        }, 6000);
-
-        // Скролл
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('visible');
-            });
-        }, { threshold: 0.2 });
-
-        document.querySelectorAll('.static-card').forEach(card => observer.observe(card));
     </script>
 </body>
 </html>
