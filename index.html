@@ -12,8 +12,7 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
-            overflow-x: hidden;
-            perspective: 1000px;
+            overflow: hidden; /* Запрещаем скролл, все на одном экране */
         }
 
         /* Контейнер для 3D-звезд */
@@ -24,92 +23,78 @@
             width: 100vw;
             height: 100vh;
             z-index: 0;
-            pointer-events: none; /* Чтобы мышка проходила сквозь звезды к карточкам */
+            pointer-events: none;
         }
 
-        .content {
+        /* Главный экран (все элементы тут) */
+        .hero {
             position: relative;
             z-index: 1;
-        }
-
-        /* Главный экран */
-        .hero {
             height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
+            perspective: 1500px; /* Глубина для полета карточек */
         }
-        
-        .hero h1 { 
-            font-size: clamp(4rem, 12vw, 10rem); 
-            line-height: 0.9;
+
+        /* Огромное название по центру */
+        .main-title { 
+            font-size: clamp(5rem, 15vw, 14rem); 
+            line-height: 0.8;
             text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px rgba(255,255,255,0.8); /* Прозрачные буквы с обводкой */
+            position: absolute;
+            text-align: center;
+            z-index: 0;
+            user-select: none;
+        }
+
+        .main-title span {
             color: #fff;
-            text-shadow: 0 0 50px rgba(255,255,255,0.5);
+            -webkit-text-stroke: 0;
         }
 
-        .btn {
-            margin-top: 50px;
-            padding: 25px 80px;
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: #000;
-            background: #fff;
-            border-radius: 100px;
-            text-decoration: none;
-            transition: all 0.4s;
-            box-shadow: 0 0 50px rgba(255,255,255,0.3);
-            pointer-events: auto;
-        }
-        
-        .btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 100px rgba(255,255,255,0.8);
-        }
-
-        /* Экран услуг */
-        .services {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            padding: 100px 20px;
-            flex-wrap: wrap;
-        }
-
-        /* КАРТОЧКА */
+        /* Карточки, которые летают вокруг */
         .card {
-            width: 320px;
-            height: 420px;
-            background: rgba(20, 20, 30, 0.8); /* Темный фон, чтобы выделяться на звездах */
-            border: 1px solid rgba(255,255,255,0.1);
+            position: absolute;
+            width: 300px;
+            height: 380px;
+            background: rgba(15, 15, 25, 0.4); /* Прозрачный фон, чтобы видеть звезды сквозь карточку */
+            backdrop-filter: blur(10px); /* Легкое размытие фона под карточкой */
+            border: 1px solid rgba(255,255,255,0.15);
             border-radius: 24px;
             padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: transform 0.1s ease-out, border-color 0.3s, box-shadow 0.3s;
-            position: relative;
-            cursor: pointer;
-            backdrop-filter: blur(5px); /* Легкое стекло, но без сильного размытия текста */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             pointer-events: auto;
+            /* Плавный переход для возврата в исходное состояние */
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            transform-style: preserve-3d;
         }
 
+        /* Расположение карточек вокруг центра */
+        .card:nth-child(1) { transform: translate3d(-350px, -100px, 0) rotateZ(-5deg); }
+        .card:nth-child(2) { transform: translate3d(350px, -100px, 0) rotateZ(5deg); }
+        .card:nth-child(3) { transform: translate3d(0px, 250px, 0) rotateZ(0deg); }
+
+        /* Эффект при наведении (карточка вылетает вперед) */
         .card:hover {
+            background: rgba(30, 30, 45, 0.7);
             border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.1);
+            transform: translate3d(var(--x), var(--y), 100px) scale(1.05) rotateZ(0deg) !important;
+            z-index: 10;
         }
 
-        /* Текст */
+        /* Текст внутри карточек */
         .card h2 { 
             font-size: 1.8rem; 
             line-height: 1.2;
             word-wrap: break-word;
             color: #fff;
-            text-shadow: 0 5px 10px rgba(0,0,0,0.5);
         }
         
         .card .price { 
@@ -117,14 +102,42 @@
             font-weight: 900; 
             color: #ff9a9e; 
             line-height: 1;
-            margin-top: 10px;
-            text-shadow: 0 10px 20px rgba(0,0,0,0.8);
+            text-shadow: 0 0 20px rgba(255,154,158,0.3);
         }
 
         .card p {
             color: #aaa;
             font-size: 0.85rem;
             line-height: 1.4;
+        }
+
+        /* Кнопка записи */
+        .btn {
+            position: absolute;
+            bottom: 50px;
+            z-index: 5;
+            padding: 20px 60px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #000;
+            background: #fff;
+            border-radius: 100px;
+            text-decoration: none;
+            transition: all 0.4s;
+            box-shadow: 0 0 50px rgba(255,255,255,0.3);
+        }
+        
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 100px rgba(255,255,255,0.8);
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 1024px) {
+            .card:nth-child(1) { transform: translate3d(-150px, -250px, 0) rotateZ(-5deg) scale(0.8); }
+            .card:nth-child(2) { transform: translate3d(150px, -250px, 0) rotateZ(5deg) scale(0.8); }
+            .card:nth-child(3) { transform: translate3d(0px, 50px, 0) rotateZ(0deg) scale(0.8); }
+            .main-title { font-size: 4rem; }
         }
     </style>
 </head>
@@ -133,65 +146,63 @@
     <!-- Фон со звездами -->
     <div id="canvas-container"></div>
 
-    <div class="content">
-        <section class="hero">
-            <h1>NAIL<br>STUDIO</h1>
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
-        </section>
+    <section class="hero">
+        <!-- Огромное название на фоне -->
+        <h1 class="main-title">NAIL<br><span>STUDIO</span></h1>
 
-        <section class="services">
-            <div class="card">
-                <div>
-                    <h2>Маникюр</h2>
-                    <p>Премиальный уход</p>
-                </div>
-                <div class="price">2 000</div>
+        <!-- Карточки, которые летают -->
+        <div class="card" style="--x: -350px; --y: -100px;">
+            <div>
+                <h2>Маникюр</h2>
+                <p>Премиальный уход</p>
             </div>
-            <div class="card">
-                <div>
-                    <h2>Наращивание</h2>
-                    <p>Идеальная архитектура</p>
-                </div>
-                <div class="price">3 500</div>
+            <div class="price">2 000</div>
+        </div>
+        
+        <div class="card" style="--x: 350px; --y: -100px;">
+            <div>
+                <h2>Наращивание</h2>
+                <p>Идеальная архитектура</p>
             </div>
-            <div class="card">
-                <div>
-                    <h2>Дизайн</h2>
-                    <p>Роспись и камни</p>
-                </div>
-                <div class="price">150</div>
+            <div class="price">3 500</div>
+        </div>
+
+        <div class="card" style="--x: 0px; --y: 250px;">
+            <div>
+                <h2>Дизайн</h2>
+                <p>Роспись и камни</p>
             </div>
-        </section>
-    </div>
+            <div class="price">150</div>
+        </div>
+
+        <!-- Кнопка -->
+        <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
+    </section>
 
     <!-- Three.js для космоса -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- GSAP для анимаций -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <script>
         // --- 3D КОСМОС (ЗВЕЗДЫ) ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050510, 0.02); // Туман для глубины
+        scene.fog = new THREE.FogExp2(0x050510, 0.02); 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
-        // Создаем звезды
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 3000;
+        const particlesCount = 4000;
         const posArray = new Float32Array(particlesCount * 3);
 
         for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 30; // Разбрасываем по ширине
+            posArray[i] = (Math.random() - 0.5) * 40; 
         }
 
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.05,
+            size: 0.06,
             color: 0xffffff,
             transparent: true,
             opacity: 0.8
@@ -202,7 +213,6 @@
 
         camera.position.z = 5;
 
-        // Движение мышки для параллакса звезд
         let mouseX = 0;
         let mouseY = 0;
         document.addEventListener('mousemove', (e) => {
@@ -213,9 +223,8 @@
         function animate() {
             requestAnimationFrame(animate);
             particlesMesh.rotation.y += 0.001;
-            particlesMesh.rotation.x += 0.0005;
-
-            // Камера плавно летит за мышкой
+            
+            // Камера летит за мышкой
             camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
             camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
 
@@ -223,31 +232,13 @@
         }
         animate();
 
-        // Ресайз окна
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- АНИМАЦИЯ КАРТОЧЕК ---
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Плавный вылет карточек
-        gsap.from(".card", {
-            scrollTrigger: {
-                trigger: ".services",
-                start: "top bottom",
-                end: "center center",
-                scrub: true
-            },
-            y: 100,
-            opacity: 0,
-            rotationY: 15,
-            stagger: 0.1
-        });
-
-        // Быстрый 3D-наклон карточек
+        // --- ЖЕСТКИЙ 3D НАКЛОН КАРТОЧЕК ПРИ НАВЕДЕНИИ ---
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
@@ -258,19 +249,21 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                const rotateX = ((y - centerY) / centerY) * -15;
-                const rotateY = ((x - centerX) / centerX) * 15;
+                const rotateX = ((y - centerY) / centerY) * -20;
+                const rotateY = ((x - centerX) / centerX) * 20;
                 
-                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                // Сохраняем позицию карточки, но добавляем наклон
+                const baseX = card.style.getPropertyValue('--x') || '0px';
+                const baseY = card.style.getPropertyValue('--y') || '0px';
+                
+                card.style.transform = `translate3d(${baseX}, ${baseY}, 50px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
             });
 
             card.addEventListener('mouseleave', () => {
-                card.style.transition = 'transform 0.3s ease';
-                card.style.transform = `rotateX(0) rotateY(0) scale(1)`;
-            });
-
-            card.addEventListener('mouseenter', () => {
-                card.style.transition = 'none';
+                // Возвращаем на место
+                const baseX = card.style.getPropertyValue('--x') || '0px';
+                const baseY = card.style.getPropertyValue('--y') || '0px';
+                card.style.transform = `translate3d(${baseX}, ${baseY}, 0) rotateX(0) rotateY(0) scale(1)`;
             });
         });
     </script>
