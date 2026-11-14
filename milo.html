@@ -31,7 +31,7 @@
             z-index: 1;
         }
 
-        /* --- СЕКЦИЯ 1: НАЗВАНИЕ + КАРТОЧКИ --- */
+        /* --- СЕКЦИЯ 1: ИНТРО --- */
         .hero {
             height: 100vh;
             display: flex;
@@ -43,18 +43,21 @@
             overflow: hidden;
         }
 
-        /* Название (Всегда на месте) */
+        /* Название с градиентом */
         .main-title { 
             font-family: 'Unbounded', sans-serif;
             font-size: clamp(2.5rem, 8vw, 6rem); 
             line-height: 0.9;
             text-transform: uppercase;
-            color: #fff;
+            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%); /* ГРАДИЕНТ */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-align: center;
             z-index: 5;
             margin-bottom: 20px;
             opacity: 0;
             transform: translateY(-30px);
+            filter: drop-shadow(0 0 20px rgba(255, 0, 204, 0.4)); /* СВЕЧЕНИЕ */
         }
 
         .subtitle {
@@ -67,7 +70,7 @@
             opacity: 0;
         }
 
-        /* Карточки (Контейнер) */
+        /* Карточки (исходные, улетают) */
         .cards-wrapper {
             display: flex;
             gap: 30px;
@@ -78,23 +81,40 @@
         .card {
             width: 260px;
             height: 380px;
-            background: rgba(15, 15, 25, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 35, 0.8);
+            border: 1px solid rgba(255, 0, 204, 0.3); /* НЕОНОВАЯ РАМКА */
             border-radius: 24px;
             padding: 30px;
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(255, 0, 204, 0.1); /* СВЕЧЕНИЕ */
             opacity: 0; 
+            transition: all 0.3s;
         }
 
-        .card h3 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; margin-bottom: 10px; }
-        .card .price { font-family: 'Unbounded', sans-serif; font-size: 2.8rem; font-weight: 900; margin-bottom: 15px; }
-        .card p { color: #888; font-size: 0.85rem; line-height: 1.4; }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 40px rgba(255, 0, 204, 0.4);
+            border-color: #ff00cc;
+        }
 
-        /* Блок "Обо мне" (изначально скрыт) */
+        .card h3 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; margin-bottom: 10px; color: #fff;}
+        
+        .card .price { 
+            font-family: 'Unbounded', sans-serif; 
+            font-size: 2.8rem; 
+            font-weight: 900; 
+            margin-bottom: 15px; 
+            background: linear-gradient(135deg, #ff00cc, #3333ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .card p { color: #aaa; font-size: 0.85rem; line-height: 1.4; }
+
+        /* Блок "Обо мне" (появляется после улета) */
         .about-content {
             position: absolute;
             top: 55%;
@@ -112,6 +132,9 @@
             font-family: 'Unbounded', sans-serif;
             font-size: 3rem;
             margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .about-content p {
@@ -127,16 +150,44 @@
             font-family: 'Unbounded', sans-serif;
             font-size: 1.2rem;
             font-weight: 900;
-            color: #000;
-            background: #fff;
+            color: #fff;
+            background: linear-gradient(90deg, #ff00cc, #3333ff);
             border-radius: 50px;
             text-decoration: none;
             transition: 0.3s;
+            pointer-events: auto;
+            box-shadow: 0 0 20px rgba(255, 0, 204, 0.5);
         }
 
         .btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 60px rgba(255, 0, 204, 0.8);
+        }
+
+        /* --- СЕКЦИЯ 2: БЛОК С ЦЕНАМИ --- */
+        .prices-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            background: #050510;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .prices-section h2 {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .prices-cards {
+            display: flex;
+            gap: 30px;
         }
 
         footer {
@@ -146,8 +197,6 @@
             font-size: 0.9rem;
             border-top: 1px solid rgba(255,255,255,0.05);
             background: #050510;
-            position: relative;
-            z-index: 10;
         }
     </style>
 </head>
@@ -156,12 +205,11 @@
     <div id="canvas-container"></div>
 
     <div class="content">
+        <!-- ИНТРО -->
         <section class="hero" id="hero">
-            <!-- Название -->
             <h1 class="main-title" id="main-title">HARVEST PROJECT</h1>
             <p class="subtitle" id="subtitle">СОЗДАЮ 3D-САЙТЫ И ВИЗИТКИ</p>
             
-            <!-- Карточки -->
             <div class="cards-wrapper" id="cards-wrapper">
                 <div class="card" id="card1">
                     <h3>Сайт-визитка</h3>
@@ -180,12 +228,33 @@
                 </div>
             </div>
 
-            <!-- Блок "Обо мне" -->
             <div class="about-content" id="about-content">
                 <h2>Обо мне</h2>
                 <p>Harvest Project — это создание современных сайтов и Telegram-ботов для малого бизнеса.</p>
                 <p>Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
                 <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Обсудить проект</a>
+            </div>
+        </section>
+
+        <!-- БЛОК С ЦЕНАМИ -->
+        <section class="prices-section" id="prices-section">
+            <h2>Наши услуги</h2>
+            <div class="prices-cards">
+                <div class="card">
+                    <h3>Сайт-визитка</h3>
+                    <div class="price">1000 ₽</div>
+                    <p>Красивый одностраничник.</p>
+                </div>
+                <div class="card">
+                    <h3>Telegram-бот</h3>
+                    <div class="price">2000 ₽</div>
+                    <p>Автоматизация записи.</p>
+                </div>
+                <div class="card">
+                    <h3>Сайт + Бот</h3>
+                    <div class="price">2500 ₽</div>
+                    <p>Полный комплект.</p>
+                </div>
             </div>
         </section>
 
@@ -198,7 +267,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
-        // 1. КОСМОС
+        // Космос
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -229,48 +298,27 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // 2. СЦЕНАРИЙ АНИМАЦИИ
-        document.body.style.overflow = 'hidden'; // Блокируем скролл
+        // --- СЦЕНАРИЙ ---
+        document.body.style.overflow = 'hidden';
 
-        // Начальные позиции карточек
         gsap.set("#card1", { x: -500, y: 0, z: -500, rotationY: 45 });
         gsap.set("#card2", { x: 0, y: 500, z: -500 });
         gsap.set("#card3", { x: 500, y: 0, z: -500, rotationY: -45 });
 
         const tl = gsap.timeline({
             onComplete: () => {
-                // Разблокируем скролл, когда всё улетело
                 document.body.style.overflow = 'auto';
             }
         });
 
-        // 1. Появление названия
         tl.to("#main-title", { duration: 0.8, opacity: 1, y: 0, ease: "back.out(1.7)" })
           .to("#subtitle", { duration: 0.8, opacity: 1, ease: "power2.out" }, "-=0.5")
-
-        // 2. Вылет карточек
           .to("#card1", { duration: 0.8, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.3")
           .to("#card2", { duration: 0.8, y: 0, z: 0, opacity: 1, ease: "power3.out" }, "-=0.6")
           .to("#card3", { duration: 0.8, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.6")
-
-        // 3. Пауза 2 секунды (карточки висят)
-          .to({}, { duration: 2 })
-
-        // 4. Улет карточек вниз
-          .to(".cards-wrapper", { 
-              y: 800, 
-              opacity: 0, 
-              scale: 0.8,
-              duration: 1, 
-              ease: "power2.in" 
-          })
-
-        // 5. Появление блока "Обо мне"
-          .to("#about-content", {
-              opacity: 1,
-              duration: 1,
-              pointerEvents: 'auto'
-          }, "-=0.5");
+          .to({}, { duration: 2 }) 
+          .to(".cards-wrapper", { y: 800, opacity: 0, scale: 0.8, duration: 1, ease: "power2.in" }) 
+          .to("#about-content", { opacity: 1, duration: 1, pointerEvents: 'auto' }, "-=0.5");
     </script>
 </body>
 </html>
