@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Harvest Project | Сайты и Боты</title>
+    <title>Harvest Project</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,6 +14,11 @@
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
             perspective: 1500px;
+        }
+
+        /* Блокируем скролл, пока карточки не улетят */
+        body.locked {
+            overflow: hidden;
         }
 
         #canvas-container {
@@ -42,20 +47,20 @@
             overflow: hidden;
         }
 
-        /* Название проекта */
+        /* Название (остается на месте) */
         .title-container {
             text-align: center;
             z-index: 2;
             margin-bottom: 50px;
+            position: absolute;
+            top: 15%;
         }
 
         .title-container h1 {
             font-family: 'Unbounded', sans-serif;
             font-size: clamp(3rem, 10vw, 8rem);
             text-transform: uppercase;
-            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff; /* Белый цвет */
             line-height: 1;
             opacity: 0;
             transform: translateY(-50px);
@@ -76,14 +81,15 @@
             gap: 40px;
             transform-style: preserve-3d;
             z-index: 3;
+            margin-top: 150px; /* Сдвигаем карточки чуть ниже названия */
         }
 
         .card {
             width: 300px;
             height: 420px;
-            background: rgba(20, 20, 35, 0.8);
+            background: rgba(255, 255, 255, 0.03); /* Прозрачный белый фон */
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Белая прозрачная рамка */
             border-radius: 30px;
             padding: 35px;
             text-align: center;
@@ -106,18 +112,19 @@
             font-family: 'Unbounded', sans-serif;
             font-size: 1.4rem;
             margin-bottom: 15px;
+            color: #fff;
         }
 
         .card .price {
             font-family: 'Unbounded', sans-serif;
             font-size: 3rem;
             font-weight: 900;
-            color: #ff00cc;
+            color: #fff; /* Белый цвет цены */
             margin-bottom: 20px;
         }
 
         .card p.short-desc {
-            color: #aaa;
+            color: #ccc;
             font-size: 0.9rem;
             line-height: 1.6;
         }
@@ -129,7 +136,7 @@
             width: 100%;
             background: rgba(10, 10, 15, 0.95);
             backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 0, 204, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
             padding: 25px;
             transform: translateY(100%);
             transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
@@ -147,7 +154,7 @@
             display: block;
             font-family: 'Unbounded', sans-serif;
             font-size: 1rem;
-            color: #ff00cc;
+            color: #fff; /* Белый цвет заголовка */
             margin-bottom: 10px;
         }
 
@@ -170,9 +177,7 @@
             font-family: 'Unbounded', sans-serif;
             font-size: 3rem;
             margin-bottom: 30px;
-            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff; /* Белый цвет */
         }
 
         .about p {
@@ -210,20 +215,20 @@
         }
     </style>
 </head>
-<body>
+<body class="locked"> <!-- Блокируем скролл -->
 
     <div id="canvas-container"></div>
 
     <div class="content">
         <section class="scene-1" id="scene1">
             
-            <!-- Название -->
+            <!-- Название (остается) -->
             <div class="title-container">
                 <h1 id="main-title">HARVEST<br>PROJECT</h1>
                 <p id="subtitle">Создаю сложные 3D-сайты и простые визитки</p>
             </div>
 
-            <!-- Карточки -->
+            <!-- Карточки (улетают) -->
             <div class="cards-container" id="cards-container">
                 <div class="card" id="card1">
                     <div class="card-front">
@@ -316,7 +321,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // 3D эффект
+        // 3D эффект для карточек
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
@@ -338,43 +343,44 @@
             });
         });
 
-        // --- АНИМАЦИЯ ---
+        // --- СЦЕНАРИЙ ---
         
-        // Начальное состояние (карточки с боков, невидимы)
+        // Начальное состояние
+        gsap.set("#main-title", { opacity: 0, y: -50 });
+        gsap.set("#subtitle", { opacity: 0, y: 20 });
         gsap.set("#card1", { x: -600, opacity: 0, rotationY: 45 });
-        gsap.set("#card2", { x: 0, y: 100, opacity: 0, rotationY: 0 }); // Центральная чуть снизу
+        gsap.set("#card2", { y: 100, opacity: 0 });
         gsap.set("#card3", { x: 600, opacity: 0, rotationY: -45 });
 
-        const tl = gsap.timeline();
+        const tl = gsap.timeline({
+            onComplete: () => {
+                // Когда карточки улетели — разблокируем скролл
+                document.body.classList.remove('locked');
+            }
+        });
 
-        // 1. Появляется название
+        // 1. Появление названия
         tl.to("#main-title", { duration: 1, opacity: 1, y: 0, ease: "power3.out" })
           .to("#subtitle", { duration: 0.8, opacity: 1, y: 0, ease: "power3.out" }, "-=0.5")
 
-        // 2. Вылетают карточки с боков
+        // 2. Вылет карточек
           .to("#card1", { duration: 0.8, x: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.3")
           .to("#card2", { duration: 0.8, y: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.6")
           .to("#card3", { duration: 0.8, x: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.6")
 
-        // 3. Пауза (2 секунды) — любуемся
+        // 3. Пауза 2 секунды (карточки висят)
           .to({}, { duration: 2 })
 
-        // 4. Карточки УЛЕТАЮТ ВНИЗ вместе с текстом
+        // 4. Карточки УЛЕТАЮТ ВНИЗ (название остается!)
           .to("#cards-container", { 
               y: 800, 
               opacity: 0, 
               scale: 0.8,
               duration: 1, 
               ease: "power2.in" 
-          })
-          .to(".title-container", {
-              y: -200,
-              opacity: 0,
-              duration: 1,
-              ease: "power2.in"
-          }, "-=0.8"); // Название улетает одновременно
-
-        // 5. При скролле показываем "О нас"
+          });
+        
+        // Скролл для блока "О нас"
         gsap.from("#scene2", {
             scrollTrigger: {
                 trigger: "#scene2",
