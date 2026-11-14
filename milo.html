@@ -12,7 +12,7 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Запрет скролла, все на одном экране */
+            overflow: hidden; /* Запрет скролла */
             perspective: 1500px;
         }
 
@@ -33,22 +33,35 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 10vh; /* Название сверху */
+            justify-content: center;
+            padding: 20px;
         }
 
-        /* Название (ВСЕГДА НА МЕСТЕ) */
+        /* Блок с названием (ВСЕГДА НА МЕСТЕ) */
+        .title-block {
+            text-align: center;
+            z-index: 5;
+            margin-bottom: 50px;
+            position: absolute;
+            top: 15%;
+        }
+
         .main-title { 
             font-family: 'Unbounded', sans-serif;
             font-size: clamp(2.5rem, 8vw, 6rem); 
             line-height: 0.9;
             text-transform: uppercase;
             color: #fff;
-            text-align: center;
-            z-index: 5;
-            margin-bottom: 50px;
         }
 
-        /* Контейнер для карточек (по центру экрана) */
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        /* Контейнер для карточек */
         .cards-wrapper {
             position: absolute;
             top: 55%;
@@ -79,7 +92,7 @@
         .card .price { font-family: 'Unbounded', sans-serif; font-size: 2.8rem; font-weight: 900; }
         .card p { color: #888; font-size: 0.85rem; }
 
-        /* Блок "Обо мне" (появится под названием, когда карточки улетят) */
+        /* Блок "Обо мне" (появится на месте карточек) */
         .about-block {
             position: absolute;
             top: 55%;
@@ -131,8 +144,11 @@
     <div id="canvas-container"></div>
 
     <div class="content">
-        <!-- Название (остается) -->
-        <h1 class="main-title">HARVEST PROJECT</h1>
+        <!-- Название (не исчезает) -->
+        <div class="title-block">
+            <h1 class="main-title">HARVEST PROJECT</h1>
+            <p class="subtitle">СОЗДАЮ 3D-САЙТЫ И ВИЗИТКИ</p>
+        </div>
 
         <!-- Карточки -->
         <div class="cards-wrapper" id="cards-wrapper">
@@ -205,7 +221,7 @@
 
         const tl = gsap.timeline();
 
-        // 1. Карточки вылетают
+        // 1. Вылет карточек
         tl.to("#card1", { duration: 0.8, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" })
           .to("#card2", { duration: 0.8, y: 0, z: 0, opacity: 1, ease: "power3.out" }, "-=0.6")
           .to("#card3", { duration: 0.8, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.6")
@@ -213,7 +229,7 @@
         // 2. Пауза (2 секунды)
           .to({}, { duration: 2 })
 
-        // 3. Карточки улетают вниз (название остается!)
+        // 3. Карточки УЛЕТАЮТ ВНИЗ
           .to(".cards-wrapper", { 
               y: 800, 
               opacity: 0, 
@@ -222,7 +238,7 @@
               ease: "power2.in" 
           })
 
-        // 4. Появление блока "Обо мне"
+        // 4. Появление блока "Обо мне" на месте карточек
           .to("#about-block", {
               opacity: 1,
               duration: 1,
