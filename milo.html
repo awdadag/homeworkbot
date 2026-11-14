@@ -12,8 +12,14 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Запрет обычного скролла */
+            overflow: hidden; /* Запрет скролла до окончания анимации */
             perspective: 1500px;
+        }
+
+        /* Снимаем блокировку скролла после анимации */
+        body.unlock {
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         #canvas-container {
@@ -26,95 +32,78 @@
             pointer-events: none;
         }
 
-        .slides-container {
+        .content {
             position: relative;
             z-index: 1;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
         }
 
-        /* Каждый слайд — на весь экран */
-        .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+        /* ЭКРАН 1: СЦЕНА С КАРТОЧКАМИ */
+        .scene-1 {
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Название (остается на месте) */
+        .title-container {
             text-align: center;
-            padding: 20px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(50px); /* Сдвиг для анимации появления */
-            transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
+            z-index: 1; 
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
         }
 
-        /* Активный слайд */
-        .slide.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        /* --- СЛАЙД 1 --- */
-        .slide-1 h1 {
+        .title-container h1 {
             font-family: 'Unbounded', sans-serif;
-            font-size: clamp(3rem, 12vw, 10rem);
+            font-size: clamp(4rem, 12vw, 10rem);
             text-transform: uppercase;
             color: #fff;
             line-height: 0.9;
-        }
-        
-        .slide-1 p {
-            font-size: 1.5rem;
-            color: #aaa;
-            letter-spacing: 5px;
-            margin-top: 20px;
+            opacity: 0; /* Появится в анимации */
+            transform: translateY(50px);
         }
 
-        /* --- СЛАЙД 2: КАРТОЧКИ --- */
-        .cards-row {
-            display: flex;
-            gap: 30px;
+        .title-container p {
+            font-size: 1.2rem;
+            color: #aaa;
             margin-top: 20px;
+            letter-spacing: 5px;
+            opacity: 0;
+        }
+
+        /* Карточки */
+        .cards-container {
+            display: flex;
+            gap: 40px;
+            transform-style: preserve-3d;
+            z-index: 2;
         }
 
         .card {
-            width: 280px;
-            height: 380px;
-            background: rgba(20, 20, 35, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 30px;
+            width: 300px;
+            height: 420px;
+            background: rgba(20, 20, 35, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            padding: 35px;
             text-align: center;
             position: relative;
-            overflow: hidden;
             transform-style: preserve-3d;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             cursor: crosshair;
-            
-            /* Начальное состояние для вылета */
+            overflow: hidden;
             opacity: 0;
-            transform: translateY(100px) rotateY(20deg);
         }
 
-        /* Класс, который добавляет анимацию */
-        .slide.active .card {
-            animation: flyIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .slide.active .card:nth-child(1) { animation-delay: 0.1s; }
-        .slide.active .card:nth-child(2) { animation-delay: 0.3s; }
-        .slide.active .card:nth-child(3) { animation-delay: 0.5s; }
-
-        @keyframes flyIn {
-            0% { opacity: 0; transform: translateY(100px) rotateY(20deg); }
-            100% { opacity: 1; transform: translateY(0) rotateY(0deg); }
-        }
+        /* Начальные позиции карточек (за экраном) */
+        #card1 { transform: translateX(-800px) translateZ(-500px) rotateY(45deg); }
+        #card2 { transform: translateY(800px) translateZ(-500px); }
+        #card3 { transform: translateX(800px) translateZ(-500px) rotateY(-45deg); }
 
         .card-front {
             display: flex;
@@ -129,6 +118,7 @@
             font-family: 'Unbounded', sans-serif;
             font-size: 1.3rem;
             margin-bottom: 10px;
+            color: #fff;
         }
 
         .card .price {
@@ -178,19 +168,41 @@
             margin-bottom: 10px;
         }
 
-        /* --- СЛАЙД 3 --- */
-        .slide-3 h2 {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 3rem;
-            margin-bottom: 20px;
+        /* ЭКРАН 2: О НАС (появляется при скролле) */
+        .scene-2 {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 10%;
+            background: #050510;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: 0.8s;
         }
 
-        .slide-3 p {
-            font-size: 1.2rem;
-            color: #aaa;
-            max-width: 600px;
-            line-height: 1.6;
+        .scene-2.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .about-content {
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .about h2 {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 3rem;
             margin-bottom: 30px;
+            color: #fff;
+        }
+
+        .about p {
+            font-size: 1.2rem;
+            color: #ccc;
+            line-height: 1.8;
+            margin-bottom: 20px;
         }
 
         .btn {
@@ -204,54 +216,39 @@
             border-radius: 50px;
             text-decoration: none;
             transition: 0.3s;
+            margin-top: 30px;
         }
 
         .btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
         }
 
-        /* Точки навигации */
-        .dots {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 10;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .dot.active {
-            background: #fff;
-            transform: scale(1.2);
+        footer {
+            text-align: center;
+            padding: 50px 0;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
     </style>
 </head>
-<body>
+<body> <!-- Класс locked убран, блокировка через JS -->
 
     <div id="canvas-container"></div>
 
-    <div class="slides-container">
-        <!-- СЛАЙД 1 -->
-        <section class="slide slide-1 active" id="slide1">
-            <h1>HARVEST<br>PROJECT</h1>
-            <p>Создаю 3D-сайты и визитки</p>
-        </section>
+    <div class="content">
+        <section class="scene-1" id="scene1">
+            
+            <!-- Название (всегда на месте) -->
+            <div class="title-container">
+                <h1 id="main-title">HARVEST<br>PROJECT</h1>
+                <p id="subtitle">Создаю 3D-сайты и визитки</p>
+            </div>
 
-        <!-- СЛАЙД 2 -->
-        <section class="slide slide-2" id="slide2">
-            <div class="cards-row">
-                <div class="card">
+            <!-- Карточки -->
+            <div class="cards-container" id="cards-container">
+                <div class="card" id="card1">
                     <div class="card-front">
                         <h3>Сайт-визитка</h3>
                         <div class="price">1000 ₽</div>
@@ -259,11 +256,11 @@
                     </div>
                     <div class="explanation">
                         <strong>Зачем это нужно?</strong>
-                        Клиент видит цены и услуги. Это вызывает доверие и повышает продажи.
+                        Клиент видит цены и услуги. Это вызывает доверие.
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card" id="card2">
                     <div class="card-front">
                         <h3>Telegram-бот</h3>
                         <div class="price">2000 ₽</div>
@@ -275,7 +272,7 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card" id="card3">
                     <div class="card-front">
                         <h3>Сайт + Бот</h3>
                         <div class="price">2500 ₽</div>
@@ -287,24 +284,26 @@
                     </div>
                 </div>
             </div>
+
         </section>
 
-        <!-- СЛАЙД 3 -->
-        <section class="slide slide-3" id="slide3">
-            <h2>Обо мне</h2>
-            <p>Создаю сложные 3D-сайты и простые визитки для бизнеса. Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Обсудить проект</a>
+        <section class="scene-2" id="scene2">
+            <div class="about-content about">
+                <h2>Обо мне</h2>
+                <p>Harvest Project — это создание современных сайтов и Telegram-ботов для малого бизнеса.</p>
+                <p>Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
+                <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Обсудить проект</a>
+            </div>
         </section>
-    </div>
 
-    <!-- Точки навигации -->
-    <div class="dots">
-        <div class="dot active" data-slide="0"></div>
-        <div class="dot" data-slide="1"></div>
-        <div class="dot" data-slide="2"></div>
+        <footer>
+            <p>© 2026 Harvest Project</p>
+        </footer>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
     <script>
         // Космос
         const container = document.getElementById('canvas-container');
@@ -337,7 +336,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // 3D эффект карточек
+        // 3D наклон
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
@@ -359,62 +358,49 @@
             });
         });
 
-        // --- ЛОГИКА СЛАЙДОВ (ТОЛЬКО ВВЕРХ/ВНИЗ) ---
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const dots = document.querySelectorAll('.dot');
-        let isAnimating = false;
+        // --- БЛОКИРОВКА СКРОЛЛА ---
+        document.body.style.overflow = 'hidden';
 
-        function goToSlide(index) {
-            if (isAnimating || index === currentSlide || index < 0 || index >= slides.length) return;
-            
-            isAnimating = true;
-            
-            slides[currentSlide].classList.remove('active');
-            dots[currentSlide].classList.remove('active');
-            
-            currentSlide = index;
-            slides[currentSlide].classList.add('active');
-            dots[currentSlide].classList.add('active');
-
-            setTimeout(() => {
-                isAnimating = false;
-            }, 800);
-        }
-
-        // СКРОЛЛ ТОЛЬКО ВВЕРХ/ВНИЗ
-        window.addEventListener('wheel', (e) => {
-            if (isAnimating) return;
-            
-            if (e.deltaY > 0) {
-                goToSlide(currentSlide + 1);
-            } else if (e.deltaY < 0) {
-                goToSlide(currentSlide - 1);
-            }
-        }, { passive: false });
-
-        // Свайпы на телефоне
-        let touchStartY = 0;
-        window.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        });
-
-        window.addEventListener('touchend', (e) => {
-            const touchEndY = e.changedTouches[0].clientY;
-            const diff = touchStartY - touchEndY;
-
-            if (diff > 50) { 
-                goToSlide(currentSlide + 1);
-            } else if (diff < -50) { 
-                goToSlide(currentSlide - 1);
+        // --- СЦЕНАРИЙ АНИМАЦИИ ---
+        const tl = gsap.timeline({
+            onComplete: () => {
+                // Когда всё закончилось, разблокируем скролл
+                document.body.style.overflow = 'auto';
             }
         });
 
-        dots.forEach(dot => {
-            dot.addEventListener('click', () => {
-                const index = parseInt(dot.getAttribute('data-slide'));
-                goToSlide(index);
-            });
+        // 1. Появление названия
+        tl.to("#main-title", { duration: 1, opacity: 1, y: 0, ease: "power3.out" })
+          .to("#subtitle", { duration: 0.8, opacity: 1, y: 0, ease: "power3.out" }, "-=0.5")
+
+        // 2. Карточки вылетают с боков
+          .to("#card1", { duration: 1, x: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.3")
+          .to("#card2", { duration: 1, y: 0, z: 0, opacity: 1, ease: "power3.out" }, "-=0.8")
+          .to("#card3", { duration: 1, x: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.8")
+
+        // 3. Пауза 2 секунды (карточки висят)
+          .to({}, { duration: 2 })
+
+        // 4. Карточки улетают ВНИЗ
+          .to("#cards-container", { 
+              y: 800, 
+              opacity: 0, 
+              scale: 0.8,
+              duration: 1, 
+              ease: "power2.in" 
+          })
+
+        // 5. Появление блока "О нас" при скролле
+        // (Этот блок просто ждет, когда его прокрутят)
+        gsap.from("#scene2", {
+            scrollTrigger: {
+                trigger: "#scene2",
+                start: "top bottom",
+                end: "top center",
+                scrub: 1
+            },
+            y: 100,
+            opacity: 0
         });
     </script>
 </body>
