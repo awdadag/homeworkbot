@@ -157,7 +157,7 @@ async def fetch_page(session, query, page):
 async def find_leads(session, query, start_page):
     leads = []
     page = start_page
-    for _ in range(12):
+    for _ in range(5):
         items = await fetch_page(session, query, page)
         if not items:
             return leads, page, True
