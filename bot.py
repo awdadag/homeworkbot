@@ -12,7 +12,7 @@ if not TOKEN:
 bot = telebot.TeleBot(TOKEN)
 
 current_page = 1
-current_query = "Салоны красоты" # По умолчанию
+current_query = "Салоны красоты"
 region_id = 38 # Питер
 
 def main_menu():
@@ -49,15 +49,12 @@ def reset_search(message):
     current_page = 1
     bot.send_message(message.chat.id, f"Поиск по '{current_query}' сброшен.", reply_markup=main_menu())
 
-# Обработка выбора ниши
 @bot.message_handler(func=lambda m: m.text in ["💇 Салоны красоты", "✂️ Барбершопы", "🦷 Стоматологии", "🚗 Автосервисы", "☕ Кофейни", "🏋️ Фитнес-залы"])
 def set_niche(message):
     global current_query, current_page
-    current_query = message.text.split(" ", 1)[1] # Убираем эмодзи
+    current_query = message.text.split(" ", 1)[1]
     current_page = 1
-    bot.send_message(message.chat.id, f"Выбрано: {current_query}. Нажми «Найти», чтобы начать поиск.", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")))
-    
-    # Автоматически начинаем поиск сразу после выбора
+    bot.send_message(message.chat.id, f"Выбрано: {current_query}. Ищу...", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")))
     find_salons(message)
 
 @bot.message_handler(func=lambda m: m.text == "🔍 Найти")
@@ -84,7 +81,7 @@ def find_salons(message):
         data = response.json()
 
         if "result" not in data or "items" not in data["result"]:
-            bot.send_message(message.chat.id, "❌ Ошибка API или результаты закончились. Попробуй сбросить поиск.", reply_markup=main_menu())
+            bot.send_message(message.chat.id, "❌ Ошибка API или результаты закончились.", reply_markup=main_menu())
             current_page = 1
             return
 
@@ -102,46 +99,27 @@ def find_salons(message):
             if not has_site:
                 found_count += 1
                 
-                phone = "Нет телефона"
-                email = "Нет email"
-                vk_link = "Нет ВК"
-                tg_link = "Нет ТГ"
-                
-                contacts = item.get("contact_groups", [])
-                for group in contacts:
-                    if group.get("type") == "phone":
-                        phone_list = group.get("contacts", [])
-                        if phone_list: phone = phone_list[0].get("value", "Нет телефона")
-                    if group.get("type") == "email":
-                        email_list = group.get("contacts", [])
-                        if email_list: email = email_list[0].get("value", "Нет email")
-                    if group.get("type") == "social":
-                        for social in group.get("contacts", []):
-                            url_val = social.get("url", "")
-                            if "vk.com" in url_val: vk_link = url_val
-                            elif "t.me" in url_val: tg_link = url_val
-                
-                for ext in external:
-                    url_val = ext.get("url", "")
-                    if "vk.com" in url_val and vk_link == "Нет ВК": vk_link = url_val
-                    elif "t.me" in url_val and tg_link == "Нет ТГ": tg_link = url_val
+                # Достаем ID для ссылки
+                item_id = item.get("id", "")
+                # Ссылка на карточку в 2ГИС (Питер)
+                dgis_link = f"https://2gis.ru/spb/firm/{item_id}"
                 
                 address = item.get("address_name", "Адрес скрыт")
                 
-                text = f"🏢 **{name}**\n📞 {phone}\n📍 {address}"
-                if email != "Нет email": text += f"\n📧 {email}"
-                if vk_link != "Нет ВК": text += f"\n🔵 ВК: {vk_link}"
-                if tg_link != "Нет ТГ": text += f"\n✈️ ТГ: {tg_link}"
+                # Отправляем сообщение с кнопкой-ссылкой
+                text = f"🏢 **{name}**\n📍 {address}\n\n_Нажми на кнопку ниже, чтобы открыть контакты в 2ГИС_"
                 
-                bot.send_message(message.chat.id, text, parse_mode="Markdown", disable_web_page_preview=True)
+                markup = types.InlineKeyboardMarkup()
+                markup.add(types.InlineKeyboardButton("📞 Контакты в 2ГИС", url=dgis_link))
+                
+                bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=markup, disable_web_page_preview=True)
         
         if found_count == 0:
-            bot.send_message(message.chat.id, f"На странице {current_page} все {current_query.lower()} имеют сайты. Листаем дальше...")
+            bot.send_message(message.chat.id, f"На странице {current_page} все имеют сайты. Листаем дальше...")
             current_page += 1
-            # Автоматически ищем следующую страницу
-            find_salons(message)
+            find_salons(message) # Автоматически ищем дальше
         else:
-            bot.send_message(message.chat.id, f"✅ Найдено {found_count} на странице {current_page}. Нажми «Найти» для следующей страницы.", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")).add(types.KeyboardButton("🔍 Выбрать нишу")))
+            bot.send_message(message.chat.id, f"✅ Найдено {found_count} на странице {current_page}. Нажми «Найти» для следующей.", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")).add(types.KeyboardButton("🔍 Выбрать нишу")))
             current_page += 1
             
     except Exception as e:
