@@ -9,14 +9,17 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background: radial-gradient(circle at center, #1a0022 0%, #000000 100%);
+            /* Возвращаем темный фон */
+            background: #05000a;
+            background: radial-gradient(circle at center, #1a0022 0%, #05000a 100%);
             color: #fff; 
             font-family: 'Unbounded', sans-serif;
             overflow: hidden;
+            height: 100vh;
         }
 
         #canvas-container {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100vw;
@@ -46,7 +49,7 @@
 
         .ui-overlay .btn {
             position: absolute;
-            bottom: -150px;
+            bottom: -100px;
             left: 50%;
             transform: translateX(-50%);
             padding: 20px 60px;
@@ -77,50 +80,60 @@
 
     <div id="canvas-container"></div>
 
-    <!-- Скрипты -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 5);
+        camera.position.set(0, 0, 8);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // Свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        // --- СОЗДАЕМ 3D ОБЪЕКТ ИЗ КОДА ---
+        // Это будет светящийся кристалл (икосаэдр)
+        const geometry = new THREE.IcosahedronGeometry(2, 0); // Размер 2, граней 0
+        
+        // Материал с неоновой подсветкой
+        const material = new THREE.MeshStandardMaterial({ 
+            color: 0xff00cc, 
+            emissive: 0x3300aa, // Цвет свечения
+            roughness: 0.2,
+            metalness: 0.8,
+            wireframe: false
+        });
+        
+        const shape = new THREE.Mesh(geometry, material);
+        scene.add(shape);
+
+        // Добавим неоновую обводку (Wireframe)
+        const wireframe = new THREE.WireframeGeometry(geometry);
+        const line = new THREE.LineSegments(wireframe);
+        line.material.color.set(0xffffff); // Белая обводка
+        line.material.opacity = 0.2;
+        line.material.transparent = true;
+        line.scale.set(1.01, 1.01, 1.01); // Чуть больше основной фигуры
+        shape.add(line);
+
+        // --- СВЕТ ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xff00cc, 3); 
-        dirLight.position.set(5, 5, 5);
-        scene.add(dirLight);
+        // Розовый свет
+        const dirLight1 = new THREE.PointLight(0xff00cc, 5, 20);
+        dirLight1.position.set(5, 5, 5);
+        scene.add(dirLight1);
 
-        const dirLight2 = new THREE.DirectionalLight(0x3333ff, 3); 
-        dirLight2.position.set(-5, 5, -5);
+        // Синий свет
+        const dirLight2 = new THREE.PointLight(0x3333ff, 5, 20);
+        dirLight2.position.set(-5, -5, 5);
         scene.add(dirLight2);
 
-        // Модель банки (загружается напрямую из интернета)
-        const loader = new THREE.GLTFLoader();
-        let model;
-
-        // Ссылка на бесплатную 3D-модель банки (надежный CDN)
-        const modelUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/can.glb';
-
-        loader.load(modelUrl, function (gltf) {
-            model = gltf.scene;
-            model.scale.set(1.5, 1.5, 1.5); 
-            scene.add(model);
-        }, undefined, function (error) {
-            console.error('Ошибка загрузки модели:', error);
-        });
-
-        // Мышка
+        // --- АНИМАЦИЯ ---
         let mouseX = 0;
         let mouseY = 0;
 
@@ -133,16 +146,22 @@
 
         function animate() {
             requestAnimationFrame(animate);
+            
             const elapsedTime = clock.getElapsedTime();
 
-            if (model) {
-                model.rotation.y = elapsedTime * 0.5; // Вращение
-                model.position.y = Math.sin(elapsedTime * 2) * 0.2; // Левитация
+            // Вращение
+            shape.rotation.y = elapsedTime * 0.3;
+            shape.rotation.x = elapsedTime * 0.2;
 
-                // Наклон за мышкой
-                model.rotation.x += (mouseY * 0.5 - model.rotation.x) * 0.1;
-                model.rotation.z += (mouseX * 0.5 - model.rotation.z) * 0.1;
-            }
+            // Левитация (вверх-вниз)
+            shape.position.y = Math.sin(elapsedTime * 1.5) * 0.3;
+
+            // Реакция на мышку (наклон)
+            shape.rotation.z += (mouseX * 0.5 - shape.rotation.z) * 0.1;
+
+            // Меняем свет, чтобы он пульсировал
+            dirLight1.intensity = 3 + Math.sin(elapsedTime * 3) * 2;
+
             renderer.render(scene, camera);
         }
         animate();
