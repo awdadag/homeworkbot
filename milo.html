@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #050510; /* Возвращаем темный фон */
+            background-color: #050510; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
@@ -23,13 +23,13 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 0; /* Космос на 0-м слое */
+            z-index: 0; 
             pointer-events: none;
         }
 
         .content {
             position: relative;
-            z-index: 1; /* Контент поверх космоса */
+            z-index: 1;
         }
 
         /* --- СЕКЦИЯ 1: ИНТРО --- */
@@ -82,8 +82,8 @@
         .card-intro {
             width: 260px;
             height: 380px;
-            background: rgba(20, 20, 35, 0.4); /* Полупрозрачный темный фон */
-            backdrop-filter: blur(15px); /* Размытие фона */
+            background: rgba(20, 20, 35, 0.4); 
+            backdrop-filter: blur(15px); 
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1); 
             border-radius: 24px;
@@ -173,7 +173,7 @@
             align-items: center;
             justify-content: center;
             padding: 100px 20px;
-            background: transparent; /* Прозрачный фон, чтобы видеть космос */
+            background: transparent; 
             border-top: 1px solid rgba(255,255,255,0.05);
         }
 
@@ -195,8 +195,8 @@
         .card-price {
             width: 280px;
             height: 380px;
-            background: rgba(20, 20, 35, 0.4); /* Полупрозрачный фон */
-            backdrop-filter: blur(15px); /* Размытие космоса внутри карточки */
+            background: rgba(20, 20, 35, 0.4); 
+            backdrop-filter: blur(15px); 
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1); 
             border-radius: 24px;
@@ -305,6 +305,8 @@
             <div class="about-content" id="about-content">
                 <h2>Обо мне</h2>
                 <p>Harvest Project — это создание современных сайтов и Telegram-ботов для малого бизнеса.</p>
+                <!-- ДОБАВИЛ ПРО PYTHON -->
+                <p>Пишу сложную логику и ботов <strong>исключительно на Python</strong>.</p>
                 <p>Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
                 <p style="font-weight: 700; color: #fff;">⏱ Срок выполнения проекта — от 10 часов.</p>
                 
