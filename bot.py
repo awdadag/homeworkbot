@@ -70,7 +70,8 @@ def find_salons(message):
     params = {
         "q": current_query,
         "region_id": region_id, 
-        "fields": "items.contact_groups,items.external_content,items.full_name,items.address_name,items.point", 
+        # Добавили все возможные поля для контактов
+        "fields": "items.contact_groups,items.external_content,items.full_name,items.address_name,items.point,items.links", 
         "page": current_page,
         "page_size": 10,
         "key": DG_API_KEY
@@ -89,24 +90,38 @@ def find_salons(message):
         for item in data["result"]["items"]:
             name = item.get("full_name", "Без названия")
             
+            # --- ТЩАТЕЛЬНАЯ ПРОВЕРКА НА САЙТ ---
             has_site = False
+            
+            # 1. Проверяем external_content
             external = item.get("external_content", [])
             for ext in external:
                 if ext.get("type") == "website":
                     has_site = True
                     break
             
+            # 2. Проверяем links
+            links = item.get("links", [])
+            for link in links:
+                if link.get("type") == "website":
+                    has_site = True
+                    break
+                    
+            # 3. Проверяем contact_groups (иногда сайт лежит там)
+            contacts = item.get("contact_groups", [])
+            for group in contacts:
+                if group.get("type") == "website":
+                    has_site = True
+                    break
+                    
+            # Если сайта нет нигде - обрабатываем
             if not has_site:
                 found_count += 1
                 
-                # Достаем ID для ссылки
                 item_id = item.get("id", "")
-                # Ссылка на карточку в 2ГИС (Питер)
                 dgis_link = f"https://2gis.ru/spb/firm/{item_id}"
-                
                 address = item.get("address_name", "Адрес скрыт")
                 
-                # Отправляем сообщение с кнопкой-ссылкой
                 text = f"🏢 **{name}**\n📍 {address}\n\n_Нажми на кнопку ниже, чтобы открыть контакты в 2ГИС_"
                 
                 markup = types.InlineKeyboardMarkup()
