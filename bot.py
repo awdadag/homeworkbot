@@ -138,9 +138,8 @@ async def fetch_page(session, query, page):
         "type": "branch",
         "fields": FIELDS,
     }
-    timeout = aiohttp.ClientTimeout(total=20)
-    async with session.get(API_URL, params=params,
-                           timeout=timeout) as r:
+    timeout = aiohttp.ClientTimeout(total=40)
+    async with session.get(API_URL, params=params, timeout=timeout) as r:
         data = await r.json(content_type=None)
 
     meta = data.get("meta", {})
@@ -160,6 +159,13 @@ async def find_leads(session, query, start_page):
     # Максимум 5 страниц по 10 штук = 50 компаний
     for _ in range(5):
         items = await fetch_page(session, query, page)
+        
+        # --- ДИАГНОСТИКА ---
+        print(f"\n=== ПОЛУЧЕНО СТРАНИЦ: {len(items)} ===")
+        for it in items:
+            print(it.get("name"), "| Сайт:", it.get("contact_groups"))
+        # -------------------
+        
         if not items:
             return leads, page, True # Больше страниц нет
         
@@ -275,7 +281,8 @@ async def run_search(bot, chat_id, user_id):
         wait = await bot.send_message(
             chat_id, "Ищу, подождите немного...")
         try:
-            async with aiohttp.ClientSession() as http:
+            timeout = aiohttp.ClientTimeout(total=40)
+            async with aiohttp.ClientSession(timeout=timeout) as http:
                 res = await find_leads(http, st["q"], st["page"])
             leads, st["page"], st["done"] = res
         except ApiError as e:
