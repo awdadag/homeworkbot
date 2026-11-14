@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Car Explode</title>
+    <title>3D Car Assembly</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -110,7 +110,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
@@ -121,7 +120,7 @@
         const scene = new THREE.Scene();
         
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(5, 3, 8);
+        camera.position.set(8, 5, 10);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -129,56 +128,62 @@
         container.appendChild(renderer.domElement);
 
         // Свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xff00cc, 2);
+        const dirLight = new THREE.DirectionalLight(0xff00cc, 3);
         dirLight.position.set(5, 10, 7);
         scene.add(dirLight);
 
-        const dirLight2 = new THREE.DirectionalLight(0x3333ff, 2);
+        const dirLight2 = new THREE.DirectionalLight(0x3333ff, 3);
         dirLight2.position.set(-5, -5, 5);
         scene.add(dirLight2);
 
-        // --- ЗАГРУЗКА МАШИНЫ (РАЗОБРАННОЙ НА ДЕТАЛИ) ---
-        let carModel = null;
-        const partData = []; // Сюда сохраним изначальные позиции деталей
+        // --- ГЕНЕРАЦИЯ "МАШИНЫ" ИЗ БЛОКОВ ---
+        const carGroup = new THREE.Group();
+        const parts = [];
 
-        const loader = new THREE.GLTFLoader();
-        
-        // Ссылка на модель машины, которая уже разбита на куски
-        const modelUrl = 'https://raw.githubusercontent.com/z2586300277/three-cesium-examples/master/public/files/model/car.glb';
-
-        loader.load(modelUrl, function (gltf) {
-            carModel = gltf.scene;
-            
-            // Центрируем и масштабируем
-            const box = new THREE.Box3().setFromObject(carModel);
-            const center = new THREE.Vector3();
-            box.getCenter(center);
-            carModel.position.sub(center);
-            carModel.scale.set(0.8, 0.8, 0.8);
-            
-            scene.add(carModel);
-
-            // Проходимся по всем деталям и запоминаем их позиции
-            carModel.traverse((child) => {
-                if (child.isMesh) {
-                    partData.push({
-                        mesh: child,
-                        originalPos: child.position.clone()
-                    });
-                }
+        // Функция для создания блока (кубика)
+        function createBlock(x, y, z, w, h, d, color) {
+            const geom = new THREE.BoxGeometry(w, h, d);
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: color,
+                roughness: 0.1,
+                metalness: 0.9,
+                emissive: 0x220033 // Легкое свечение
             });
-
-            console.log('Загружено деталей:', partData.length);
+            const mesh = new THREE.Mesh(geom, mat);
+            mesh.position.set(x, y, z);
             
-            // Запускаем анимацию, когда модель загрузилась
-            initScrollAnimation();
+            // Сохраняем изначальную позицию для сборки
+            mesh.userData.originalPos = new THREE.Vector3(x, y, z);
+            mesh.userData.explodeDir = new THREE.Vector3(
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15
+            );
 
-        }, undefined, function (error) {
-            console.error('Ошибка загрузки модели:', error);
-        });
+            carGroup.add(mesh);
+            parts.push(mesh);
+        }
+
+        // Собираем силуэт спорткара из блоков
+        // Кузов
+        createBlock(0, 0.5, 0, 4, 0.6, 2, 0xff00cc); 
+        // Капот
+        createBlock(1.5, 0.3, 0, 1.5, 0.4, 1.8, 0x3333ff);
+        // Крыша
+        createBlock(-0.5, 1.0, 0, 2, 0.6, 1.6, 0x111111);
+        // Заднее крыло
+        createBlock(-2, 0.6, 0, 0.8, 0.8, 2, 0xff00cc);
+        // Колеса (слева)
+        createBlock(1.2, -0.2, 1.1, 1, 1, 0.3, 0x000000);
+        createBlock(-1.2, -0.2, 1.1, 1, 1, 0.3, 0x000000);
+        // Колеса (справа)
+        createBlock(1.2, -0.2, -1.1, 1, 1, 0.3, 0x000000);
+        createBlock(-1.2, -0.2, -1.1, 1, 1, 0.3, 0x000000);
+
+        scene.add(carGroup);
 
         // Вращение в простое
         const clock = new THREE.Clock();
@@ -186,98 +191,94 @@
             requestAnimationFrame(animate);
             const elapsedTime = clock.getElapsedTime();
 
-            if (carModel && window.scrollY < 100) {
-                // Если мы в самом начале, машина медленно вращается
-                carModel.rotation.y = elapsedTime * 0.2;
+            if (window.scrollY < 100) {
+                carGroup.rotation.y = elapsedTime * 0.5;
             }
 
             renderer.render(scene, camera);
         }
         animate();
 
-        // --- АНИМАЦИЯ РАЗБОРКИ И СБОРКИ ПРИ СКРОЛЛЕ ---
-        function initScrollAnimation() {
-            
-            // 1. Разлетаем детали
-            const explodeTween = gsap.to(partData.map(p => p.mesh.position), {
-                scrollTrigger: {
-                    trigger: ".section:nth-child(1)",
-                    start: "top top",
-                    end: "bottom top",
-                    scrub: 1
-                },
-                x: (i) => (Math.random() - 0.5) * 8,
-                y: (i) => (Math.random() - 0.5) * 8,
-                z: (i) => (Math.random() - 0.5) * 8,
-                rotationX: () => Math.random() * Math.PI * 2,
-                rotationY: () => Math.random() * Math.PI * 2,
-                ease: "power2.inOut"
-            });
+        // --- АНИМАЦИЯ РАЗБОРКИ ---
+        // 1. Разлетаем детали
+        gsap.to(parts.map(p => p.position), {
+            scrollTrigger: {
+                trigger: ".section:nth-child(1)",
+                start: "top top",
+                end: "bottom top",
+                scrub: 1
+            },
+            x: (i) => parts[i].userData.explodeDir.x,
+            y: (i) => parts[i].userData.explodeDir.y,
+            z: (i) => parts[i].userData.explodeDir.z,
+            rotationX: () => Math.random() * Math.PI * 2,
+            rotationY: () => Math.random() * Math.PI * 2,
+            ease: "power2.inOut"
+        });
 
-            // Вращение машины при разборке
-            gsap.to(carModel.rotation, {
-                scrollTrigger: {
-                    trigger: ".section:nth-child(1)",
-                    start: "top top",
-                    end: "bottom top",
-                    scrub: 1
-                },
-                y: Math.PI * 2,
-                ease: "power2.inOut"
-            });
+        // Вращение машины при разборке
+        gsap.to(carGroup.rotation, {
+            scrollTrigger: {
+                trigger: ".section:nth-child(1)",
+                start: "top top",
+                end: "bottom top",
+                scrub: 1
+            },
+            y: Math.PI * 2,
+            ease: "power2.inOut"
+        });
 
-            // Появление текста 1
-            gsap.to("#text-1", {
-                scrollTrigger: {
-                    trigger: ".section:nth-child(1)",
-                    start: "top center",
-                    end: "bottom center",
-                    scrub: true
-                },
-                opacity: 1,
-                y: 0
-            });
+        // Появление текста 1
+        gsap.to("#text-1", {
+            scrollTrigger: {
+                trigger: ".section:nth-child(1)",
+                start: "top center",
+                end: "bottom center",
+                scrub: true
+            },
+            opacity: 1,
+            y: 0
+        });
 
-            // 2. Собираем детали обратно
-            gsap.to(partData.map(p => p.mesh.position), {
-                scrollTrigger: {
-                    trigger: ".section:nth-child(2)",
-                    start: "top center",
-                    end: "bottom top",
-                    scrub: 1
-                },
-                x: (i) => partData[i].originalPos.x,
-                y: (i) => partData[i].originalPos.y,
-                z: (i) => partData[i].originalPos.z,
-                rotationX: 0,
-                rotationY: 0,
-                ease: "power2.inOut"
-            });
+        // 2. Собираем детали обратно
+        gsap.to(parts.map(p => p.position), {
+            scrollTrigger: {
+                trigger: ".section:nth-child(2)",
+                start: "top center",
+                end: "bottom top",
+                scrub: 1
+            },
+            x: (i) => parts[i].userData.originalPos.x,
+            y: (i) => parts[i].userData.originalPos.y,
+            z: (i) => parts[i].userData.originalPos.z,
+            rotationX: 0,
+            rotationY: 0,
+            ease: "power2.inOut"
+        });
 
-            // Появление текста 2
-            gsap.to("#text-2", {
-                scrollTrigger: {
-                    trigger: ".section:nth-child(2)",
-                    start: "top center",
-                    end: "bottom center",
-                    scrub: true
-                },
-                opacity: 1,
-                y: 0
-            });
+        // Появление текста 2
+        gsap.to("#text-2", {
+            scrollTrigger: {
+                trigger: ".section:nth-child(2)",
+                start: "top center",
+                end: "bottom center",
+                scrub: true
+            },
+            opacity: 1,
+            y: 0
+        });
 
-            // Появление текста 3
-            gsap.to("#text-3", {
-                scrollTrigger: {
-                    trigger: ".section:nth-child(3)",
-                    start: "top center",
-                    end: "bottom center",
-                    scrub: true
-                },
-                opacity: 1,
-                y: 0
-            });
-        }
+        // Текст 3
+        gsap.to("#text-3", {
+            scrollTrigger: {
+                trigger: ".section:nth-child(3)",
+                start: "top center",
+                end: "bottom center",
+                scrub: true
+            },
+            opacity: 1,
+            y: 0
+        });
 
         // Ресайз
         window.addEventListener('resize', () => {
