@@ -161,7 +161,46 @@
             box-shadow: 0 0 60px rgba(255, 0, 204, 0.8);
         }
 
-        /* --- СЕКЦИЯ 2: НАШИ УСЛУГИ (С ЦЕНАМИ И ПОЯСНЕНИЯМИ) --- */
+        /* Блок с телефоном и подсказкой */
+        .phone-container {
+            margin-top: 30px;
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .phone-text {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .phone-number {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.8rem;
+            color: #fff;
+            text-decoration: none;
+            letter-spacing: 2px;
+            transition: 0.3s;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .phone-number:hover {
+            color: #ff00cc;
+            text-shadow: 0 0 20px rgba(255, 0, 204, 0.5);
+        }
+
+        .phone-subtext {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* --- СЕКЦИЯ 2: НАШИ УСЛУГИ --- */
         .prices-section {
             min-height: 100vh;
             display: flex;
@@ -187,7 +226,6 @@
             gap: 30px;
         }
 
-        /* Карточки с ценами и пояснениями */
         .card-price {
             width: 260px;
             height: 380px;
@@ -216,7 +254,6 @@
         }
         .card-price p.short-desc { color: #aaa; font-size: 0.85rem; line-height: 1.4; }
 
-        /* Пояснение при наведении */
         .explanation {
             position: absolute;
             top: 0;
@@ -247,74 +284,6 @@
             font-size: 1rem;
             color: #ff00cc;
             margin-bottom: 10px;
-        }
-
-        /* --- СЕКЦИЯ 3: КОНТАКТЫ --- */
-        .contacts-section {
-            min-height: 50vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 100px 20px;
-            background: rgba(0, 0, 0, 0.6);
-            border-top: 1px solid rgba(255, 0, 204, 0.2);
-            text-align: center;
-            position: relative;
-            z-index: 5;
-        }
-
-        .contacts-section h2 {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: #fff;
-        }
-
-        .contacts-section p {
-            font-size: 1.1rem;
-            color: #aaa;
-            margin-bottom: 20px;
-            max-width: 600px;
-        }
-
-        .contact-links {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .contact-link {
-            display: inline-block;
-            padding: 15px 30px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50px;
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-
-        .contact-link:hover {
-            background: rgba(255, 0, 204, 0.2);
-            border-color: #ff00cc;
-        }
-
-        .phone-number {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 1.5rem;
-            color: #fff;
-            text-decoration: none;
-            margin-top: 10px;
-            display: block;
-            letter-spacing: 2px;
-        }
-
-        .phone-number:hover {
-            color: #ff00cc;
         }
 
         footer {
@@ -356,11 +325,22 @@
                 </div>
             </div>
 
+            <!-- БЛОК "ОБО МНЕ" -->
             <div class="about-content" id="about-content">
                 <h2>Обо мне</h2>
                 <p>Harvest Project — это создание современных сайтов и Telegram-ботов для малого бизнеса.</p>
                 <p>Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
+                <!-- ДОБАВИЛ СРОКИ -->
+                <p style="font-weight: 700; color: #fff;">⏱ Срок выполнения проекта — от 10 часов.</p>
+                
                 <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Обсудить проект</a>
+
+                <!-- БЛОК С ТЕЛЕФОНОМ -->
+                <div class="phone-container">
+                    <p class="phone-text">Если не получилось в Telegram — звоните или пишите в любое время:</p>
+                    <a href="tel:+79217588685" class="phone-number">+7 (921) 758-86-85</a>
+                    <p class="phone-subtext">По этому номеру вы можете написать в MAX или ВКонтакте</p>
+                </div>
             </div>
         </section>
 
@@ -401,19 +381,6 @@
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- СЕКЦИЯ 3: КОНТАКТЫ -->
-        <section class="contacts-section" id="contacts-section">
-            <h2>Не получилось?</h2>
-            <p>Если у вас не получилось связаться через Telegram, напишите мне в MAX или ВКонтакте, либо позвоните.</p>
-            
-            <div class="contact-links">
-                <a href="https://max.ru" class="contact-link" target="_blank">Написать в MAX</a>
-                <a href="https://vk.com" class="contact-link" target="_blank">Написать в ВК</a>
-            </div>
-
-            <a href="tel:+79217588685" class="phone-number">+7 (921) 758-86-85</a>
         </section>
 
         <footer>
