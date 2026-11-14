@@ -9,21 +9,21 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #050510; /* Цвет для тех, у кого не прогрузится 3D */
+            background-color: #050510; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
             perspective: 1500px;
         }
 
-        /* Космос */
+        /* Космос на фоне */
         #canvas-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1; /* Теперь космос ЗА контентом */
+            z-index: 0;
             pointer-events: none;
         }
 
@@ -34,14 +34,13 @@
 
         /* --- СЕКЦИЯ 1: ИНТРО --- */
         .hero {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
+            justify-content: flex-start;
+            padding-top: 100px;
             position: relative;
-            overflow: hidden;
         }
 
         .main-title { 
@@ -54,10 +53,10 @@
             -webkit-text-fill-color: transparent;
             text-align: center;
             z-index: 5;
-            margin-bottom: 20px;
             opacity: 0;
             transform: translateY(-30px);
             filter: drop-shadow(0 0 20px rgba(255, 0, 204, 0.4));
+            margin-bottom: 20px;
         }
 
         .subtitle {
@@ -66,23 +65,29 @@
             letter-spacing: 3px;
             text-align: center;
             z-index: 5;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
             opacity: 0;
         }
 
         .cards-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             gap: 30px;
-            z-index: 2;
+            z-index: 10;
             transform-style: preserve-3d;
         }
 
-        /* Карточки в интро */
+        /* Карточки в интро (ЭФФЕКТ СТЕКЛА) */
         .card-intro {
             width: 260px;
             height: 380px;
-            background: rgba(20, 20, 35, 0.8);
-            border: 1px solid rgba(255, 0, 204, 0.3);
+            background: rgba(20, 20, 35, 0.3); /* Прозрачный фон */
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 0, 204, 0.5); 
             border-radius: 24px;
             padding: 30px;
             text-align: center;
@@ -90,26 +95,27 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(255, 0, 204, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 0, 204, 0.2);
             opacity: 0; 
         }
 
         .card-intro h3 { font-family: 'Unbounded', sans-serif; font-size: 1.5rem; color: #fff; margin-bottom: 10px; }
         .card-intro .icon { font-size: 4rem; margin-bottom: 20px; }
-        .card-intro p { color: #aaa; font-size: 0.9rem; }
+        .card-intro p { color: #ddd; font-size: 0.9rem; }
 
         /* Блок "Обо мне" */
         .about-content {
             position: absolute;
-            top: 55%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             max-width: 800px;
             width: 90%;
             text-align: center;
-            z-index: 3;
+            z-index: 5;
             opacity: 0; 
             pointer-events: none;
+            margin-top: 50px;
         }
 
         .about-content h2 {
@@ -164,7 +170,7 @@
         .phone-number:hover { color: #ff00cc; }
         .phone-subtext { font-size: 0.8rem; color: #888; }
 
-        /* --- СЕКЦИЯ 2: НАШИ УСЛУГИ (ИСПРАВЛЕННЫЕ КАРТОЧКИ) --- */
+        /* --- СЕКЦИЯ 2: НАШИ УСЛУГИ --- */
         .prices-section {
             min-height: 100vh;
             display: flex;
@@ -172,10 +178,8 @@
             align-items: center;
             justify-content: center;
             padding: 100px 20px;
-            /* УБРАЛ ФОН, чтобы космос был виден */
-            background: transparent; 
-            position: relative;
-            z-index: 2;
+            background: transparent; /* Прозрачный фон для секции */
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
 
         .prices-section h2 {
@@ -194,12 +198,14 @@
             flex-wrap: wrap;
         }
 
-        /* КАРТОЧКИ С ЦЕНАМИ (СДЕЛАЛ НОРМАЛЬНЫЙ РАЗМЕР И РАСПОЛОЖЕНИЕ) */
+        /* КАРТОЧКИ С ЦЕНАМИ (ТЕПЕРЬ ТОЖЕ ПРОЗРАЧНЫЕ) */
         .card-price {
             width: 280px;
-            height: 380px; /* Фиксированная высота */
-            background: rgba(15, 15, 25, 0.9);
-            border: 1px solid rgba(255, 0, 204, 0.3);
+            height: 380px;
+            background: rgba(15, 15, 25, 0.3); /* ПРОЗРАЧНЫЙ ФОН */
+            backdrop-filter: blur(15px); /* РАЗМЫТИЕ */
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 0, 204, 0.3); 
             border-radius: 24px;
             padding: 30px;
             display: flex;
@@ -217,15 +223,10 @@
         .card-price:hover {
             transform: translateY(-10px);
             box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 30px rgba(255, 0, 204, 0.4);
+            border-color: #ff00cc;
         }
 
-        .card-price h3 { 
-            font-family: 'Unbounded', sans-serif; 
-            font-size: 1.2rem; 
-            margin-bottom: 10px; 
-            text-align: center;
-        }
-        
+        .card-price h3 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; margin-bottom: 10px; text-align: center; color: #fff; }
         .card-price .price { 
             font-family: 'Unbounded', sans-serif; 
             font-size: 2.8rem; 
@@ -235,13 +236,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        .card-price p.short-desc { 
-            color: #aaa; 
-            font-size: 0.85rem; 
-            line-height: 1.4; 
-            text-align: center;
-        }
+        .card-price p.short-desc { color: #aaa; font-size: 0.85rem; text-align: center; }
 
         /* Пояснение */
         .explanation {
@@ -250,7 +245,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 10, 15, 0.98);
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 24px;
             padding: 30px;
             display: flex;
@@ -264,9 +260,7 @@
             pointer-events: auto;
         }
 
-        .card-price:hover .explanation {
-            transform: translateY(0);
-        }
+        .card-price:hover .explanation { transform: translateY(0); }
 
         .explanation strong {
             display: block;
@@ -391,11 +385,11 @@
         container.appendChild(renderer.domElement);
 
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 2000;
+        const particlesCount = 2500;
         const posArray = new Float32Array(particlesCount * 3);
-        for(let i = 0; i < particlesCount * 3; i++) { posArray[i] = (Math.random() - 0.5) * 50; }
+        for(let i = 0; i < particlesCount * 3; i++) { posArray[i] = (Math.random() - 0.5) * 60; }
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.06, color: 0xffffff, transparent: true, opacity: 0.5 });
+        const particlesMaterial = new THREE.PointsMaterial({ size: 0.08, color: 0xffffff, transparent: true, opacity: 0.6 });
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
         camera.position.z = 5;
