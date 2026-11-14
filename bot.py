@@ -70,7 +70,6 @@ def find_salons(message):
     params = {
         "q": current_query,
         "region_id": region_id, 
-        # Добавили все возможные поля для контактов
         "fields": "items.contact_groups,items.external_content,items.full_name,items.address_name,items.point,items.links", 
         "page": current_page,
         "page_size": 10,
@@ -90,31 +89,32 @@ def find_salons(message):
         for item in data["result"]["items"]:
             name = item.get("full_name", "Без названия")
             
-            # --- ТЩАТЕЛЬНАЯ ПРОВЕРКА НА САЙТ ---
             has_site = False
             
-            # 1. Проверяем external_content
+            # 1. Проверка external_content (с защитой от строк)
             external = item.get("external_content", [])
-            for ext in external:
-                if ext.get("type") == "website":
-                    has_site = True
-                    break
+            if isinstance(external, list):
+                for ext in external:
+                    if isinstance(ext, dict) and ext.get("type") == "website":
+                        has_site = True
+                        break
             
-            # 2. Проверяем links
+            # 2. Проверка links (с защитой от строк)
             links = item.get("links", [])
-            for link in links:
-                if link.get("type") == "website":
-                    has_site = True
-                    break
+            if isinstance(links, list):
+                for link in links:
+                    if isinstance(link, dict) and link.get("type") == "website":
+                        has_site = True
+                        break
                     
-            # 3. Проверяем contact_groups (иногда сайт лежит там)
+            # 3. Проверка contact_groups (с защитой от строк)
             contacts = item.get("contact_groups", [])
-            for group in contacts:
-                if group.get("type") == "website":
-                    has_site = True
-                    break
+            if isinstance(contacts, list):
+                for group in contacts:
+                    if isinstance(group, dict) and group.get("type") == "website":
+                        has_site = True
+                        break
                     
-            # Если сайта нет нигде - обрабатываем
             if not has_site:
                 found_count += 1
                 
@@ -132,7 +132,7 @@ def find_salons(message):
         if found_count == 0:
             bot.send_message(message.chat.id, f"На странице {current_page} все имеют сайты. Листаем дальше...")
             current_page += 1
-            find_salons(message) # Автоматически ищем дальше
+            find_salons(message)
         else:
             bot.send_message(message.chat.id, f"✅ Найдено {found_count} на странице {current_page}. Нажми «Найти» для следующей.", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")).add(types.KeyboardButton("🔍 Выбрать нишу")))
             current_page += 1
