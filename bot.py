@@ -278,10 +278,7 @@ async def fetch_page(session, query, page):
 
     timeout = aiohttp.ClientTimeout(total=20)
 
-    async with session.get(API_URL, params=params,
-
-    
-01:53
+      async with session.get(API_URL, params=params,
                       timeout=timeout) as r:
 
         data = await r.json(content_type=None)
