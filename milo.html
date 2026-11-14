@@ -12,12 +12,12 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Запрет скролла до окончания анимации */
+            overflow: hidden; /* Блокируем скролл */
             perspective: 1500px;
         }
 
-        /* Снимаем блокировку скролла после анимации */
-        body.unlock {
+        /* Разблокируем скролл после анимации */
+        body.unlocked {
             overflow-y: auto;
             overflow-x: hidden;
         }
@@ -37,101 +37,84 @@
             z-index: 1;
         }
 
-        /* ЭКРАН 1: СЦЕНА С КАРТОЧКАМИ */
+        /* СЦЕНА 1 */
         .scene-1 {
             height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             position: relative;
             overflow: hidden;
         }
 
-        /* Название (остается на месте) */
-        .title-container {
-            text-align: center;
-            z-index: 1; 
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-        }
-
-        .title-container h1 {
+        /* Название на фоне */
+        .main-title {
             font-family: 'Unbounded', sans-serif;
-            font-size: clamp(4rem, 12vw, 10rem);
+            font-size: clamp(3rem, 8vw, 7rem);
             text-transform: uppercase;
-            color: #fff;
-            line-height: 0.9;
-            opacity: 0; /* Появится в анимации */
-            transform: translateY(50px);
-        }
-
-        .title-container p {
-            font-size: 1.2rem;
-            color: #aaa;
-            margin-top: 20px;
-            letter-spacing: 5px;
+            position: absolute;
+            text-align: center;
+            z-index: 1;
             opacity: 0;
+            transform: translateY(30px);
+            color: #fff;
         }
 
         /* Карточки */
         .cards-container {
             display: flex;
-            gap: 40px;
+            gap: 20px;
             transform-style: preserve-3d;
             z-index: 2;
+            pointer-events: none;
         }
 
         .card {
-            width: 300px;
-            height: 420px;
+            width: 220px; /* Уменьшили размер */
+            height: 320px;
             background: rgba(20, 20, 35, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 30px;
-            padding: 35px;
+            border-radius: 20px;
+            padding: 25px;
             text-align: center;
             position: relative;
             transform-style: preserve-3d;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            cursor: crosshair;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
             overflow: hidden;
             opacity: 0;
+            pointer-events: auto;
         }
 
-        /* Начальные позиции карточек (за экраном) */
-        #card1 { transform: translateX(-800px) translateZ(-500px) rotateY(45deg); }
-        #card2 { transform: translateY(800px) translateZ(-500px); }
-        #card3 { transform: translateX(800px) translateZ(-500px) rotateY(-45deg); }
+        /* Начальные позиции карточек (с боков) */
+        #card1 { transform: translateX(-500px) translateZ(-500px) rotateY(45deg); }
+        #card2 { transform: translateY(500px) translateZ(-500px); }
+        #card3 { transform: translateX(500px) translateZ(-500px) rotateY(-45deg); }
 
         .card-front {
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             height: 100%;
-            transform: translateZ(30px);
-            pointer-events: none;
+            transform: translateZ(20px);
         }
 
         .card h3 {
             font-family: 'Unbounded', sans-serif;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             margin-bottom: 10px;
             color: #fff;
         }
 
         .card .price {
             font-family: 'Unbounded', sans-serif;
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 900;
             color: #fff; 
-            margin-bottom: 15px;
         }
 
         .card p.short-desc {
             color: #888;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             line-height: 1.4;
         }
 
@@ -143,13 +126,13 @@
             width: 100%;
             height: 100%;
             background: rgba(10, 10, 15, 0.98);
-            border-radius: 24px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             text-align: left;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             line-height: 1.5;
             transform: translateY(100%);
             transition: transform 0.4s ease;
@@ -163,12 +146,12 @@
         .explanation strong {
             display: block;
             font-family: 'Unbounded', sans-serif;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        /* ЭКРАН 2: О НАС (появляется при скролле) */
+        /* СЦЕНА 2 */
         .scene-2 {
             min-height: 100vh;
             display: flex;
@@ -176,14 +159,6 @@
             justify-content: center;
             padding: 100px 10%;
             background: #050510;
-            opacity: 0;
-            transform: translateY(50px);
-            transition: 0.8s;
-        }
-
-        .scene-2.visible {
-            opacity: 1;
-            transform: translateY(0);
         }
 
         .about-content {
@@ -194,29 +169,29 @@
         .about h2 {
             font-family: 'Unbounded', sans-serif;
             font-size: 3rem;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             color: #fff;
         }
 
         .about p {
             font-size: 1.2rem;
             color: #ccc;
-            line-height: 1.8;
+            line-height: 1.6;
             margin-bottom: 20px;
         }
 
         .btn {
             display: inline-block;
-            padding: 20px 60px;
+            padding: 20px 50px;
             font-family: 'Unbounded', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 900;
             color: #000;
             background: #fff;
             border-radius: 50px;
             text-decoration: none;
             transition: 0.3s;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .btn:hover {
@@ -233,18 +208,15 @@
         }
     </style>
 </head>
-<body> <!-- Класс locked убран, блокировка через JS -->
+<body>
 
     <div id="canvas-container"></div>
 
     <div class="content">
         <section class="scene-1" id="scene1">
             
-            <!-- Название (всегда на месте) -->
-            <div class="title-container">
-                <h1 id="main-title">HARVEST<br>PROJECT</h1>
-                <p id="subtitle">Создаю 3D-сайты и визитки</p>
-            </div>
+            <!-- Название -->
+            <h1 class="main-title" id="main-title">HARVEST<br>PROJECT</h1>
 
             <!-- Карточки -->
             <div class="cards-container" id="cards-container">
@@ -287,6 +259,7 @@
 
         </section>
 
+        <!-- Экран 2 (появляется при скролле) -->
         <section class="scene-2" id="scene2">
             <div class="about-content about">
                 <h2>Обо мне</h2>
@@ -314,7 +287,7 @@
         container.appendChild(renderer.domElement);
 
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 3000;
+        const particlesCount = 2000;
         const posArray = new Float32Array(particlesCount * 3);
         for(let i = 0; i < particlesCount * 3; i++) { posArray[i] = (Math.random() - 0.5) * 50; }
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
@@ -336,7 +309,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // 3D наклон
+        // 3D наклон карточек
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
@@ -358,40 +331,37 @@
             });
         });
 
-        // --- БЛОКИРОВКА СКРОЛЛА ---
-        document.body.style.overflow = 'hidden';
+        // --- СЦЕНАРИЙ ---
+        document.body.style.overflow = 'hidden'; // Блокируем скролл
 
-        // --- СЦЕНАРИЙ АНИМАЦИИ ---
         const tl = gsap.timeline({
             onComplete: () => {
-                // Когда всё закончилось, разблокируем скролл
+                document.body.classList.add('unlocked'); // Разблокируем скролл
                 document.body.style.overflow = 'auto';
             }
         });
 
         // 1. Появление названия
         tl.to("#main-title", { duration: 1, opacity: 1, y: 0, ease: "power3.out" })
-          .to("#subtitle", { duration: 0.8, opacity: 1, y: 0, ease: "power3.out" }, "-=0.5")
 
-        // 2. Карточки вылетают с боков
-          .to("#card1", { duration: 1, x: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.3")
-          .to("#card2", { duration: 1, y: 0, z: 0, opacity: 1, ease: "power3.out" }, "-=0.8")
-          .to("#card3", { duration: 1, x: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.8")
+        // 2. Карточки вылетают
+          .to("#card1", { duration: 0.8, x: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.3")
+          .to("#card2", { duration: 0.8, y: 0, z: 0, opacity: 1, ease: "power3.out" }, "-=0.6")
+          .to("#card3", { duration: 0.8, x: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.6")
 
-        // 3. Пауза 2 секунды (карточки висят)
+        // 3. Пауза 2 секунды
           .to({}, { duration: 2 })
 
-        // 4. Карточки улетают ВНИЗ
+        // 4. Улет вниз
           .to("#cards-container", { 
-              y: 800, 
+              y: 600, 
               opacity: 0, 
               scale: 0.8,
               duration: 1, 
               ease: "power2.in" 
-          })
+          });
 
-        // 5. Появление блока "О нас" при скролле
-        // (Этот блок просто ждет, когда его прокрутят)
+        // Анимация при скролле до "О нас"
         gsap.from("#scene2", {
             scrollTrigger: {
                 trigger: "#scene2",
