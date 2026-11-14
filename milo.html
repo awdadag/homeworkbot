@@ -12,11 +12,11 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Блокируем скролл */
+            overflow: hidden; /* Блокируем скролл на время интро */
             perspective: 1500px;
         }
 
-        /* Разблокируем скролл после анимации */
+        /* Разблокировка скролла */
         body.unlocked {
             overflow-y: auto;
             overflow-x: hidden;
@@ -37,7 +37,7 @@
             z-index: 1;
         }
 
-        /* СЦЕНА 1 */
+        /* ЭКРАН 1: ИНТРО */
         .scene-1 {
             height: 100vh;
             display: flex;
@@ -47,20 +47,20 @@
             overflow: hidden;
         }
 
-        /* Название на фоне */
+        /* Название (теперь z-index: 0, чтобы было ЗА карточками) */
         .main-title {
             font-family: 'Unbounded', sans-serif;
             font-size: clamp(3rem, 8vw, 7rem);
             text-transform: uppercase;
             position: absolute;
             text-align: center;
-            z-index: 1;
+            z-index: 0; 
+            color: rgba(255, 255, 255, 0.1); /* Полупрозрачное, чтобы не мешало */
             opacity: 0;
             transform: translateY(30px);
-            color: #fff;
         }
 
-        /* Карточки */
+        /* Карточки (z-index: 2, чтобы быть ПОВЕРХ текста) */
         .cards-container {
             display: flex;
             gap: 20px;
@@ -70,9 +70,9 @@
         }
 
         .card {
-            width: 220px; /* Уменьшили размер */
+            width: 220px; 
             height: 320px;
-            background: rgba(20, 20, 35, 0.9);
+            background: rgba(20, 20, 35, 0.95); /* Плотный фон, чтобы не просвечивало */
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px;
             padding: 25px;
@@ -85,7 +85,7 @@
             pointer-events: auto;
         }
 
-        /* Начальные позиции карточек (с боков) */
+        /* Начальные позиции */
         #card1 { transform: translateX(-500px) translateZ(-500px) rotateY(45deg); }
         #card2 { transform: translateY(500px) translateZ(-500px); }
         #card3 { transform: translateX(500px) translateZ(-500px) rotateY(-45deg); }
@@ -151,7 +151,7 @@
             margin-bottom: 8px;
         }
 
-        /* СЦЕНА 2 */
+        /* ЭКРАН 2: О НАС */
         .scene-2 {
             min-height: 100vh;
             display: flex;
@@ -159,6 +159,8 @@
             justify-content: center;
             padding: 100px 10%;
             background: #050510;
+            position: relative;
+            z-index: 5; /* Поверх всего, чтобы не перекрывалось улетающими карточками */
         }
 
         .about-content {
@@ -205,6 +207,9 @@
             color: #666;
             font-size: 0.9rem;
             border-top: 1px solid rgba(255,255,255,0.05);
+            background: #050510;
+            position: relative;
+            z-index: 5;
         }
     </style>
 </head>
@@ -214,8 +219,7 @@
 
     <div class="content">
         <section class="scene-1" id="scene1">
-            
-            <!-- Название -->
+            <!-- Название на фоне -->
             <h1 class="main-title" id="main-title">HARVEST<br>PROJECT</h1>
 
             <!-- Карточки -->
@@ -256,10 +260,9 @@
                     </div>
                 </div>
             </div>
-
         </section>
 
-        <!-- Экран 2 (появляется при скролле) -->
+        <!-- Экран 2 -->
         <section class="scene-2" id="scene2">
             <div class="about-content about">
                 <h2>Обо мне</h2>
@@ -309,7 +312,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // 3D наклон карточек
+        // 3D наклон
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
@@ -360,18 +363,6 @@
               duration: 1, 
               ease: "power2.in" 
           });
-
-        // Анимация при скролле до "О нас"
-        gsap.from("#scene2", {
-            scrollTrigger: {
-                trigger: "#scene2",
-                start: "top bottom",
-                end: "top center",
-                scrub: 1
-            },
-            y: 100,
-            opacity: 0
-        });
     </script>
 </body>
 </html>
