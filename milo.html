@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebDev | Сайты и Telegram-боты</title>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>WebDev | 3D Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -13,8 +13,10 @@
             color: #fff; 
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            perspective: 1500px;
         }
 
+        /* Космический фон */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -38,155 +40,112 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 0 20px;
+            transform-style: preserve-3d;
         }
 
         .hero h1 {
             font-family: 'Unbounded', sans-serif;
-            font-size: clamp(3rem, 10vw, 7rem);
+            font-size: clamp(4rem, 15vw, 12rem);
+            line-height: 0.8;
             text-transform: uppercase;
             background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
+            filter: drop-shadow(0 0 30px rgba(255, 0, 204, 0.3));
+            transform: translateZ(100px);
         }
 
         .hero p {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             color: #aaa;
-            max-width: 600px;
-            margin-bottom: 40px;
-            line-height: 1.6;
+            margin-top: 20px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            transform: translateZ(80px);
         }
 
+        /* Карточки, которые летают */
+        .floating-cards {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transform-style: preserve-3d;
+        }
+
+        .f-card {
+            position: absolute;
+            width: 280px;
+            height: 380px;
+            background: rgba(20, 20, 35, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transform-style: preserve-3d;
+            pointer-events: auto;
+        }
+
+        /* Позиции летающих карточек */
+        .f-card:nth-child(1) { top: 20%; left: 10%; transform: rotateY(15deg) rotateX(10deg) translateZ(50px); }
+        .f-card:nth-child(2) { top: 60%; right: 10%; transform: rotateY(-15deg) rotateX(-10deg) translateZ(80px); }
+        .f-card:nth-child(3) { bottom: 10%; left: 30%; transform: rotateY(5deg) rotateX(-5deg) translateZ(30px); }
+
+        .f-card h3 { font-family: 'Unbounded', sans-serif; font-size: 1.3rem; margin-bottom: 10px; }
+        .f-card .price { font-family: 'Unbounded', sans-serif; font-size: 3.5rem; font-weight: 900; color: #ff00cc; }
+        .f-card p { color: #aaa; font-size: 0.9rem; line-height: 1.5; }
+
+        /* Секция, которая появляется при скролле */
+        .services-section {
+            min-height: 100vh;
+            padding: 100px 5%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            background: #050510;
+        }
+
+        .service-card {
+            width: 350px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .service-card h3 { font-family: 'Unbounded', sans-serif; font-size: 1.8rem; margin-bottom: 15px; }
+        .service-card .price { font-family: 'Unbounded', sans-serif; font-size: 3rem; font-weight: 900; color: #ff00cc; margin-bottom: 20px; }
+        .service-card p { color: #aaa; font-size: 0.9rem; line-height: 1.6; }
+
+        /* Кнопка */
         .btn {
+            position: absolute;
+            bottom: 40px;
             padding: 20px 60px;
             font-family: 'Unbounded', sans-serif;
             font-size: 1.2rem;
             font-weight: 900;
-            color: #fff;
-            background: linear-gradient(90deg, #ff00cc, #3333ff);
+            color: #000;
+            background: #fff;
             border-radius: 50px;
             text-decoration: none;
-            box-shadow: 0 0 40px rgba(255, 0, 204, 0.4);
             transition: 0.3s;
+            transform: translateZ(100px);
+            pointer-events: auto;
         }
 
         .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 80px rgba(255, 0, 204, 0.8);
-        }
-
-        /* Секция услуг */
-        .services {
-            min-height: 100vh;
-            padding: 100px 5%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .services h2 {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 2.5rem;
-            margin-bottom: 60px;
-            text-align: center;
-        }
-
-        .grid {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 1200px;
-        }
-
-        .card {
-            width: 320px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px 30px;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            border-color: #ff00cc;
-            box-shadow: 0 20px 50px rgba(255, 0, 204, 0.2);
-        }
-
-        .card h3 {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #fff;
-        }
-
-        .card .price {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #ff00cc;
-            margin-bottom: 20px;
-        }
-
-        .card p {
-            color: #aaa;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        /* Портфолио */
-        .portfolio {
-            min-height: 100vh;
-            padding: 100px 5%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .portfolio h2 {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 2.5rem;
-            margin-bottom: 40px;
-        }
-
-        .portfolio-links {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .portfolio-link {
-            display: block;
-            padding: 30px 50px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            text-decoration: none;
-            color: #fff;
-            font-family: 'Unbounded', sans-serif;
-            font-size: 1.2rem;
-            transition: 0.3s;
-        }
-
-        .portfolio-link:hover {
-            background: rgba(255, 0, 204, 0.1);
-            border-color: #ff00cc;
-        }
-
-        footer {
-            text-align: center;
-            padding: 50px 0;
-            color: #666;
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            transform: translateZ(120px) scale(1.05);
+            box-shadow: 0 0 50px rgba(255,255,255,0.5);
         }
     </style>
 </head>
@@ -195,48 +154,66 @@
     <div id="canvas-container"></div>
 
     <div class="content">
-        <!-- Главный экран -->
-        <section class="hero">
-            <h1>WebDev</h1>
-            <p>Создаю современные сайты и Telegram-ботов для бизнеса. Быстро, красиво, недорого.</p>
-            <!-- Ссылка на твой бот для связи -->
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Связаться со мной</a>
-        </section>
+        <section class="hero" id="hero-section">
+            <h1>WEB DEV</h1>
+            <p>Сайты и боты под ключ</p>
 
-        <!-- Услуги -->
-        <section class="services">
-            <h2>Что я делаю</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Сайт-визитка</h3>
+            <!-- Летающие карточки -->
+            <div class="floating-cards">
+                <div class="f-card">
+                    <div>
+                        <h3>Сайт-визитка</h3>
+                        <p>Красивый одностраничник с вашими услугами.</p>
+                    </div>
                     <div class="price">1000 ₽</div>
-                    <p>Современный одностраничный сайт с вашими услугами, ценами и контактами. Адаптив под телефон.</p>
                 </div>
-                <div class="card">
-                    <h3>Сайт + Бот</h3>
+                <div class="f-card">
+                    <div>
+                        <h3>Telegram-бот</h3>
+                        <p>Автоматическая запись клиентов.</p>
+                    </div>
                     <div class="price">2000 ₽</div>
-                    <p>Красивый сайт + Telegram-бот для записи. Клиенты записываются сами, заявки падают вам в личку.</p>
+                </div>
+                <div class="f-card">
+                    <div>
+                        <h3>Сайт + Бот</h3>
+                        <p>Полный комплект для бизнеса.</p>
+                    </div>
+                    <div class="price">2500 ₽</div>
                 </div>
             </div>
+
+            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Обсудить проект</a>
         </section>
 
-        <!-- Портфолио -->
-        <section class="portfolio">
-            <h2>Мои работы</h2>
-            <div class="portfolio-links">
-                <a href="https://awdadag.github.io/homeworkbot/" class="portfolio-link" target="_blank">Пример сайта</a>
-                <a href="https://t.me/HomeworkHelper_1bot" class="portfolio-link" target="_blank">Пример бота</a>
+        <!-- Секция с нормальными карточками (появляется при скролле) -->
+        <section class="services-section" id="services-section">
+            <div class="service-card">
+                <h3>Сайт-визитка</h3>
+                <div class="price">1000 ₽</div>
+                <p>Современный лендинг с вашими услугами, ценами и контактами. Адаптив под телефон.</p>
+            </div>
+            <div class="service-card">
+                <h3>Telegram-бот</h3>
+                <div class="price">2000 ₽</div>
+                <p>Бот для записи клиентов. Клиенты выбирают время, а вам приходит уведомление в личку.</p>
+            </div>
+            <div class="service-card">
+                <h3>Сайт + Бот</h3>
+                <div class="price">2500 ₽</div>
+                <p>Полный комплект: красивый сайт + бот для автоматизации записи. Под ключ.</p>
             </div>
         </section>
-
-        <footer>
-            <p>© 2026 WebDev. Сайты и боты под ключ.</p>
-        </footer>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <script>
-        // Космический фон
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- КОСМОС ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -245,7 +222,7 @@
         container.appendChild(renderer.domElement);
 
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 4000;
+        const particlesCount = 3000;
         const posArray = new Float32Array(particlesCount * 3);
 
         for(let i = 0; i < particlesCount * 3; i++) {
@@ -281,6 +258,20 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- АНИМАЦИЯ ПРИ СКРОЛЛЕ ---
+        // При скролле главный экран улетает вглубь
+        gsap.to("#hero-section", {
+            scrollTrigger: {
+                trigger: "#hero-section",
+                start: "top top",
+                end: "bottom top",
+                scrub: 1
+            },
+            scale: 0.5,
+            opacity: 0,
+            y: -200
         });
     </script>
 </body>
