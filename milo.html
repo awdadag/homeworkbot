@@ -9,22 +9,24 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #050510; 
+            /* Убираем черный фон, чтобы космос был виден */
+            background-color: transparent; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
             perspective: 1500px;
         }
 
-        /* Космос на фоне */
+        /* Космос (теперь на самом нижнем слое) */
         #canvas-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 0;
+            z-index: -1; /* Космос ЗА всем контентом */
             pointer-events: none;
+            background-color: #050510; /* Черный фон для canvas */
         }
 
         .content {
@@ -48,15 +50,13 @@
             font-size: clamp(2.5rem, 8vw, 6rem); 
             line-height: 0.9;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff; 
             text-align: center;
             z-index: 5;
             opacity: 0;
             transform: translateY(-30px);
-            filter: drop-shadow(0 0 20px rgba(255, 0, 204, 0.4));
             margin-bottom: 20px;
+            letter-spacing: -2px;
         }
 
         .subtitle {
@@ -80,14 +80,14 @@
             transform-style: preserve-3d;
         }
 
-        /* Карточки в интро (ЭФФЕКТ СТЕКЛА) */
+        /* Карточки в интро (Эффект матового стекла) */
         .card-intro {
             width: 260px;
             height: 380px;
-            background: rgba(20, 20, 35, 0.3); /* Прозрачный фон */
-            backdrop-filter: blur(15px); 
+            background: rgba(20, 20, 35, 0.4); /* Полупрозрачный темный фон */
+            backdrop-filter: blur(15px); /* Размытие, чтобы звезды не мешали читать текст */
             -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 0, 204, 0.5); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
             border-radius: 24px;
             padding: 30px;
             text-align: center;
@@ -95,13 +95,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 0, 204, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             opacity: 0; 
         }
 
         .card-intro h3 { font-family: 'Unbounded', sans-serif; font-size: 1.5rem; color: #fff; margin-bottom: 10px; }
         .card-intro .icon { font-size: 4rem; margin-bottom: 20px; }
-        .card-intro p { color: #ddd; font-size: 0.9rem; }
+        .card-intro p { color: #aaa; font-size: 0.9rem; }
 
         /* Блок "Обо мне" */
         .about-content {
@@ -122,9 +122,7 @@
             font-family: 'Unbounded', sans-serif;
             font-size: 3rem;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff;
         }
 
         .about-content p {
@@ -139,26 +137,25 @@
             padding: 15px 50px;
             font-family: 'Unbounded', sans-serif;
             font-size: 1.1rem;
-            font-weight: 900;
-            color: #fff;
-            background: linear-gradient(90deg, #ff00cc, #3333ff);
+            font-weight: 700;
+            color: #000;
+            background: #fff;
             border-radius: 50px;
             text-decoration: none;
             transition: 0.3s;
             pointer-events: auto;
-            box-shadow: 0 0 20px rgba(255, 0, 204, 0.5);
             margin-top: 15px;
         }
 
         .btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 60px rgba(255, 0, 204, 0.8);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
         }
 
         .phone-container {
             margin-top: 25px;
             pointer-events: auto;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 20px;
@@ -167,8 +164,8 @@
 
         .phone-text { font-size: 0.9rem; color: #aaa; margin-bottom: 5px; }
         .phone-number { font-family: 'Unbounded', sans-serif; font-size: 1.6rem; color: #fff; text-decoration: none; display: block; margin-bottom: 5px; }
-        .phone-number:hover { color: #ff00cc; }
-        .phone-subtext { font-size: 0.8rem; color: #888; }
+        .phone-number:hover { color: #ccc; }
+        .phone-subtext { font-size: 0.8rem; color: #666; }
 
         /* --- СЕКЦИЯ 2: НАШИ УСЛУГИ --- */
         .prices-section {
@@ -178,7 +175,7 @@
             align-items: center;
             justify-content: center;
             padding: 100px 20px;
-            background: transparent; /* Прозрачный фон для секции */
+            background: transparent; /* Прозрачный фон, чтобы видеть космос */
             border-top: 1px solid rgba(255,255,255,0.05);
         }
 
@@ -186,9 +183,7 @@
             font-family: 'Unbounded', sans-serif;
             font-size: 3rem;
             margin-bottom: 50px;
-            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff;
         }
 
         .prices-cards {
@@ -198,14 +193,14 @@
             flex-wrap: wrap;
         }
 
-        /* КАРТОЧКИ С ЦЕНАМИ (ТЕПЕРЬ ТОЖЕ ПРОЗРАЧНЫЕ) */
+        /* КАРТОЧКИ С ЦЕНАМИ (Эффект матового стекла) */
         .card-price {
             width: 280px;
             height: 380px;
-            background: rgba(15, 15, 25, 0.3); /* ПРОЗРАЧНЫЙ ФОН */
-            backdrop-filter: blur(15px); /* РАЗМЫТИЕ */
+            background: rgba(20, 20, 35, 0.4); /* Полупрозрачный темный фон */
+            backdrop-filter: blur(15px); 
             -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 0, 204, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
             border-radius: 24px;
             padding: 30px;
             display: flex;
@@ -215,27 +210,27 @@
             position: relative;
             overflow: hidden;
             transform-style: preserve-3d;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             cursor: crosshair;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
         }
 
         .card-price:hover {
             transform: translateY(-10px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 30px rgba(255, 0, 204, 0.4);
-            border-color: #ff00cc;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            border-color: rgba(255, 255, 255, 0.3); 
         }
 
         .card-price h3 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; margin-bottom: 10px; text-align: center; color: #fff; }
+        
         .card-price .price { 
             font-family: 'Unbounded', sans-serif; 
             font-size: 2.8rem; 
             font-weight: 900; 
             margin-bottom: 15px;
-            background: linear-gradient(135deg, #ff00cc, #3333ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff; 
         }
+        
         .card-price p.short-desc { color: #aaa; font-size: 0.85rem; text-align: center; }
 
         /* Пояснение */
@@ -266,7 +261,7 @@
             display: block;
             font-family: 'Unbounded', sans-serif;
             font-size: 1rem;
-            color: #ff00cc;
+            color: #fff;
             margin-bottom: 10px;
         }
 
