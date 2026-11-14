@@ -521,6 +521,7 @@
     const torso = new THREE.Mesh(new RoundedBoxGeometry(1.1, 0.75, 0.8, 6, 0.28), white);
     torso.position.y = -1.15;
     botBody.add(torso);
+    
     const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.04, 24), eyeMat);
     chest.rotation.x = Math.PI / 2;
     chest.position.set(0, -1.1, 0.41);
@@ -633,10 +634,14 @@
         brRig.scale.setScalar(0.5);
       } else {
         camera.position.z = 9;
-        botRig.position.set(2.4, 0, 0);
-        botRig.scale.setScalar(1);
-        brRig.position.set(-2.2, 0.5, -1);
-        brRig.scale.setScalar(0.9);
+        
+        // РОБОТ СПРАВА
+        botRig.position.set(3.5, -0.5, -1);
+        botRig.scale.setScalar(0.8);
+        
+        // ОКНО БРАУЗЕРА СЛЕВА ВНИЗУ
+        brRig.position.set(-2.5, -1.5, -2);
+        brRig.scale.setScalar(0.8);
       }
       camera.updateProjectionMatrix();
     }
@@ -653,17 +658,15 @@
       const t = clock.getElapsedTime();
 
       // МИЛОЕ ПАРЕНИЕ
-      bot.position.x = 2.4 + Math.sin(t * 0.8) * 0.3;
-      bot.position.y = Math.sin(t * 1.5) * 0.15;
-      bot.position.z = Math.cos(t * 0.5) * 0.1;
+      bot.position.x = 3.5 + Math.sin(t * 0.8) * 0.2;
+      bot.position.y = -0.5 + Math.sin(t * 1.5) * 0.15;
+      bot.position.z = -1 + Math.cos(t * 0.5) * 0.1;
 
       bot.rotation.y = Math.sin(t * 0.5) * 0.1 + mouse.x * 0.4;
       bot.rotation.x = Math.cos(t * 0.3) * 0.05 - mouse.y * 0.15;
       
-      // Наклон головы
       head.rotation.z = Math.sin(t * 0.7) * 0.05 + mouse.x * 0.1;
 
-      // МОРГАНИЕ
       blinkTimer += 0.016;
       if (blinkTimer > 3.5 + Math.random() * 2) {
         blinkTimer = 0;
@@ -675,7 +678,6 @@
         }, 150);
       }
 
-      // РЕАКЦИЯ НА КЛИК
       if (isHappy) {
         bot.position.y += Math.sin(t * 30) * 0.08;
         bot.rotation.z = Math.sin(t * 20) * 0.15;
@@ -685,14 +687,12 @@
         tip.scale.setScalar(1);
       }
 
-      // Окно браузера
       br.rotation.y = Math.sin(t * 0.4) * 0.15 + mouse.x * 0.1;
       br.rotation.x = Math.cos(t * 0.3) * 0.05 - mouse.y * 0.05;
-      br.position.y = Math.sin(t * 1.2 + 1) * 0.15;
+      br.position.y = -1.5 + Math.sin(t * 1.2 + 1) * 0.1;
 
       halo.rotation.z += 0.01;
 
-      // Фигуры и звезды
       floaters.forEach((m) => {
         m.rotation.x += 0.01 * m.userData.sp;
         m.rotation.y += 0.015 * m.userData.sp;
