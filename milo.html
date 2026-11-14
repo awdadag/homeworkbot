@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Sports Car</title>
+    <title>3D Car Presentation</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -15,6 +15,7 @@
             overflow-x: hidden;
         }
 
+        /* Канвас с машиной */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -24,14 +25,16 @@
             z-index: 1;
         }
 
+        /* Текст поверх канваса */
         .content {
             position: relative;
             z-index: 2;
             pointer-events: none;
         }
 
-        .section {
-            height: 200vh; /* Высокие секции для плавного скролла */
+        /* Каждая секция = один экран (слайд) */
+        .slide {
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -40,26 +43,25 @@
             padding: 0 20px;
         }
 
-        .section h1 {
+        .slide h1 {
             font-family: 'Unbounded', sans-serif;
             font-size: clamp(3rem, 10vw, 8rem);
             text-transform: uppercase;
             background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
         }
 
-        .section p {
+        .slide p {
             font-size: 1.5rem;
             color: #ff00cc;
             letter-spacing: 5px;
-            margin-top: 20px;
             text-transform: uppercase;
             font-weight: 700;
-            opacity: 0;
-            transform: translateY(30px);
         }
 
+        /* Кнопка */
         .btn {
             position: fixed;
             bottom: 40px;
@@ -87,26 +89,29 @@
 </head>
 <body>
 
-    <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
-
     <div id="canvas-container"></div>
 
     <div class="content">
-        <section class="section">
-            <h1>CAR</h1>
-            <p id="text-1">Разборка</p>
+        <!-- Слайд 1 -->
+        <section class="slide" id="slide-1">
+            <h1>SPORTS CAR</h1>
+            <p>Premium Experience</p>
         </section>
 
-        <section class="section">
-            <h1>DETAILS</h1>
-            <p id="text-2">Каждая деталь</p>
+        <!-- Слайд 2 -->
+        <section class="slide" id="slide-2">
+            <h1>РАЗБОРКА</h1>
+            <p>Каждая деталь важна</p>
         </section>
 
-        <section class="section">
-            <h1>ASSEMBLY</h1>
-            <p id="text-3">Сборка</p>
+        <!-- Слайд 3 -->
+        <section class="slide" id="slide-3">
+            <h1>СБОРКА</h1>
+            <p>Идеальная архитектура</p>
         </section>
     </div>
+
+    <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -118,17 +123,17 @@
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         
-        // Камера смотрит чуть сверху и сбоку, чтобы машина была видна
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(6, 3, 8);
+        camera.position.set(5, 2.5, 6); 
+        camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // Свет (чтобы машина блестела)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        // Свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
 
         const dirLight = new THREE.DirectionalLight(0xff00cc, 3);
@@ -139,23 +144,19 @@
         dirLight2.position.set(-5, 5, 5);
         scene.add(dirLight2);
 
-        // --- СОЗДАЕМ МАШИНУ (СПОРТКАР) ИЗ ГЛАДКИХ 3D-ФОРМ ---
+        // --- СОЗДАЕМ МАШИНУ ---
         const carGroup = new THREE.Group();
         const parts = [];
 
-        // Функция для создания детали машины
         function createPart(geometry, color, x, y, z, rx = 0, ry = 0, rz = 0) {
             const mat = new THREE.MeshStandardMaterial({
                 color: color,
                 roughness: 0.1,
                 metalness: 0.9,
-                envMapIntensity: 1
             });
             const mesh = new THREE.Mesh(geometry, mat);
             mesh.position.set(x, y, z);
             mesh.rotation.set(rx, ry, rz);
-            
-            // Сохраняем начальную позицию для сборки
             mesh.userData.originalPos = new THREE.Vector3(x, y, z);
             
             carGroup.add(mesh);
@@ -163,12 +164,11 @@
             return mesh;
         }
 
-        // 1. Основной корпус (гладкий вытянутый куб)
+        // Корпус
         createPart(new THREE.BoxGeometry(4, 0.6, 2), 0xff00cc, 0, 0.5, 0);
 
-        // 2. Кабина (трапеция сверху)
+        // Кабина
         const cabinGeom = new THREE.BoxGeometry(2, 0.6, 1.6);
-        // Слегка скашиваем верх
         const posAttribute = cabinGeom.attributes.position;
         for (let i = 0; i < posAttribute.count; i++) {
             if (posAttribute.getY(i) > 0) {
@@ -179,25 +179,20 @@
         cabinGeom.computeVertexNormals();
         createPart(cabinGeom, 0x111111, -0.5, 1.05, 0);
 
-        // 3. Капот (скошенный)
+        // Капот
         const hoodGeom = new THREE.BoxGeometry(1.5, 0.2, 1.8);
         createPart(hoodGeom, 0x3333ff, 1.8, 0.8, 0, 0, 0, -0.1);
 
-        // 4. Колеса (цилиндры)
+        // Колеса
         const wheelGeom = new THREE.CylinderGeometry(0.5, 0.5, 0.4, 32);
-        
-        // Левое переднее
         createPart(wheelGeom, 0x000000, 1.2, 0, 1.1, Math.PI/2, 0, 0);
-        // Правое переднее
         createPart(wheelGeom, 0x000000, 1.2, 0, -1.1, Math.PI/2, 0, 0);
-        // Левое заднее
         createPart(wheelGeom, 0x000000, -1.2, 0, 1.1, Math.PI/2, 0, 0);
-        // Правое заднее
         createPart(wheelGeom, 0x000000, -1.2, 0, -1.1, Math.PI/2, 0, 0);
 
+        carGroup.position.y = -0.5; 
         scene.add(carGroup);
 
-        // Вращение машины (когда скролл в самом верху)
         const clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
@@ -211,87 +206,53 @@
         }
         animate();
 
-        // --- АНИМАЦИЯ СКРОЛЛА (ТУДА-ОБРАТНО) ---
+        // --- ПРЕЗЕНТАЦИЯ (SCROLL SNAP) ---
         
-        // 1. Разлетаем детали
-        gsap.to(parts.map(p => p.position), {
+        // Таймлайн для анимаций скролла
+        const tl = gsap.timeline({
             scrollTrigger: {
-                trigger: ".section:nth-child(1)",
+                trigger: ".content",
                 start: "top top",
-                end: "bottom top",
-                scrub: 1 // Привязка к скроллу
-            },
+                end: "bottom bottom",
+                scrub: 1,
+                snap: {
+                    snapTo: 1 / 2, // Привязка к 2 секциям (0, 0.5, 1)
+                    duration: { min: 0.2, max: 0.6 },
+                    delay: 0.1,
+                    ease: "power2.inOut"
+                }
+            }
+        });
+
+        // 1. Разборка
+        tl.to(parts.map(p => p.position), {
             x: (i) => parts[i].position.x * 2.5 + (Math.random() - 0.5) * 2,
             y: (i) => parts[i].position.y * 2.5 + (Math.random() - 0.5) * 2,
             z: (i) => parts[i].position.z * 2.5 + (Math.random() - 0.5) * 2,
             rotationX: () => Math.random() * Math.PI,
             rotationY: () => Math.random() * Math.PI,
             ease: "power2.inOut"
-        });
-
-        // Вращение машины при разборке
-        gsap.to(carGroup.rotation, {
-            scrollTrigger: {
-                trigger: ".section:nth-child(1)",
-                start: "top top",
-                end: "bottom top",
-                scrub: 1
-            },
+        }, 0)
+        
+        // Вращение
+        .to(carGroup.rotation, {
             y: Math.PI * 2,
             ease: "power2.inOut"
-        });
+        }, 0)
 
-        // Текст 1
-        gsap.to("#text-1", {
-            scrollTrigger: {
-                trigger: ".section:nth-child(1)",
-                start: "top center",
-                end: "bottom center",
-                scrub: true
-            },
-            opacity: 1,
-            y: 0
-        });
-
-        // 2. Сборка деталей обратно
-        gsap.to(parts.map(p => p.position), {
-            scrollTrigger: {
-                trigger: ".section:nth-child(2)",
-                start: "top center",
-                end: "bottom top",
-                scrub: 1
-            },
+        // 2. Сборка обратно
+        .to(parts.map(p => p.position), {
             x: (i) => parts[i].userData.originalPos.x,
             y: (i) => parts[i].userData.originalPos.y,
             z: (i) => parts[i].userData.originalPos.z,
             rotationX: 0,
             rotationY: 0,
             ease: "power2.inOut"
-        });
-
-        // Текст 2
-        gsap.to("#text-2", {
-            scrollTrigger: {
-                trigger: ".section:nth-child(2)",
-                start: "top center",
-                end: "bottom center",
-                scrub: true
-            },
-            opacity: 1,
-            y: 0
-        });
-
-        // Текст 3
-        gsap.to("#text-3", {
-            scrollTrigger: {
-                trigger: ".section:nth-child(3)",
-                start: "top center",
-                end: "bottom center",
-                scrub: true
-            },
-            opacity: 1,
-            y: 0
-        });
+        }, 1)
+        .to(carGroup.rotation, {
+            y: Math.PI * 4,
+            ease: "power2.inOut"
+        }, 1);
 
         // Ресайз
         window.addEventListener('resize', () => {
