@@ -157,19 +157,24 @@ async def fetch_page(session, query, page):
 async def find_leads(session, query, start_page):
     leads = []
     page = start_page
+    # Максимум 5 страниц по 10 штук = 50 компаний
     for _ in range(5):
         items = await fetch_page(session, query, page)
         if not items:
-            return leads, page, True
+            return leads, page, True # Больше страниц нет
+        
         for it in items:
             lead = parse_item(it)
             if lead:
                 leads.append(lead)
+        
         page += 1
+        # Если набрали 10 подходящих — останавливаемся
         if len(leads) >= 10:
             return leads, page, False
+            
         await asyncio.sleep(0.3)
-    return leads, page, False
+    return leads, page, True
 
 
 db = sqlite3.connect(DB_PATH)
@@ -276,10 +281,10 @@ async def run_search(bot, chat_id, user_id):
         except ApiError as e:
             await wait.edit_text("Ошибка 2ГИС: " + escape(str(e)))
             return
-        except Exception:
+        except Exception as e:
             log.exception("search failed")
             await wait.edit_text(
-                "Не удалось связаться с 2ГИС. Попробуйте позже.")
+                "Ошибка поиска: " + escape(str(e)))
             return
 
         fresh = [x for x in leads if is_new(user_id, x.firm_id)]
