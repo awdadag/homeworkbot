@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebDev | 3D Intro</title>
+    <title>Harvest Project | Сайты и Боты</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,11 +14,6 @@
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
             perspective: 1500px;
-        }
-
-        /* Блокируем скролл, пока идет анимация */
-        body.locked {
-            overflow: hidden;
         }
 
         #canvas-container {
@@ -36,34 +31,66 @@
             z-index: 1;
         }
 
-        /* ЭКРАН 1: КАРТОЧКИ (Сцена интро) */
+        /* ЭКРАН 1: НАЗВАНИЕ И КАРТОЧКИ */
         .scene-1 {
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Название проекта */
+        .title-container {
+            text-align: center;
+            z-index: 2;
+            margin-bottom: 50px;
+        }
+
+        .title-container h1 {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(3rem, 10vw, 8rem);
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff 0%, #ff00cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+
+        .title-container p {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-top: 20px;
+            letter-spacing: 3px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Карточки */
+        .cards-container {
+            display: flex;
             gap: 40px;
             transform-style: preserve-3d;
-            overflow: hidden;
-            position: relative;
+            z-index: 3;
         }
 
         .card {
-            width: 340px;
-            height: 460px;
+            width: 300px;
+            height: 420px;
             background: rgba(20, 20, 35, 0.8);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 30px;
-            padding: 40px;
+            padding: 35px;
             text-align: center;
             position: relative;
             transform-style: preserve-3d;
             box-shadow: 0 30px 60px rgba(0,0,0,0.5);
             cursor: crosshair;
-            
-            /* Начальное состояние */
-            opacity: 0;
         }
 
         .card-front {
@@ -77,13 +104,13 @@
 
         .card h3 {
             font-family: 'Unbounded', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             margin-bottom: 15px;
         }
 
         .card .price {
             font-family: 'Unbounded', sans-serif;
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: 900;
             color: #ff00cc;
             margin-bottom: 20px;
@@ -103,7 +130,7 @@
             background: rgba(10, 10, 15, 0.95);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 0, 204, 0.3);
-            padding: 30px;
+            padding: 25px;
             transform: translateY(100%);
             transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             text-align: left;
@@ -183,69 +210,81 @@
         }
     </style>
 </head>
-<body class="locked"> <!-- Блокируем скролл при загрузке -->
+<body>
 
     <div id="canvas-container"></div>
 
     <div class="content">
-        <!-- СЦЕНА 1 -->
         <section class="scene-1" id="scene1">
-            <div class="card" id="card1">
-                <div class="card-front">
-                    <h3>Сайт-визитка</h3>
-                    <div class="price">1000 ₽</div>
-                    <p class="short-desc">Красивый одностраничник.</p>
+            
+            <!-- Название -->
+            <div class="title-container">
+                <h1 id="main-title">HARVEST<br>PROJECT</h1>
+                <p id="subtitle">Создаю сложные 3D-сайты и простые визитки</p>
+            </div>
+
+            <!-- Карточки -->
+            <div class="cards-container" id="cards-container">
+                <div class="card" id="card1">
+                    <div class="card-front">
+                        <h3>Сайт-визитка</h3>
+                        <div class="price">1000 ₽</div>
+                        <p class="short-desc">Красивый одностраничник.</p>
+                    </div>
+                    <div class="explanation">
+                        <strong>Зачем это нужно?</strong>
+                        Клиент видит цены и услуги. Это вызывает доверие.
+                    </div>
                 </div>
-                <div class="explanation">
-                    <strong>Зачем это нужно?</strong>
-                    Клиент видит цены и услуги. Это вызывает доверие.
+
+                <div class="card" id="card2">
+                    <div class="card-front">
+                        <h3>Telegram-бот</h3>
+                        <div class="price">2000 ₽</div>
+                        <p class="short-desc">Автоматизация записи.</p>
+                    </div>
+                    <div class="explanation">
+                        <strong>Что он умеет?</strong>
+                        Записывает 24/7 и присылает уведомления вам в личку.
+                    </div>
+                </div>
+
+                <div class="card" id="card3">
+                    <div class="card-front">
+                        <h3>Сайт + Бот</h3>
+                        <div class="price">2500 ₽</div>
+                        <p class="short-desc">Полный комплект.</p>
+                    </div>
+                    <div class="explanation">
+                        <strong>Почему выгодно?</strong>
+                        Сайт приводит клиентов, а бот их записывает.
+                    </div>
                 </div>
             </div>
 
-            <div class="card" id="card2">
-                <div class="card-front">
-                    <h3>Telegram-бот</h3>
-                    <div class="price">2000 ₽</div>
-                    <p class="short-desc">Автоматизация записи.</p>
-                </div>
-                <div class="explanation">
-                    <strong>Что он умеет?</strong>
-                    Записывает 24/7 и присылает уведомления вам в личку.
-                </div>
-            </div>
-
-            <div class="card" id="card3">
-                <div class="card-front">
-                    <h3>Сайт + Бот</h3>
-                    <div class="price">2500 ₽</div>
-                    <p class="short-desc">Полный комплект.</p>
-                </div>
-                <div class="explanation">
-                    <strong>Почему выгодно?</strong>
-                    Сайт приводит клиентов, а бот их записывает.
-                </div>
-            </div>
         </section>
 
-        <!-- СЦЕНА 2 -->
         <section class="scene-2" id="scene2">
             <div class="about-content about">
                 <h2>Обо мне</h2>
-                <p>Создаю как сложные 3D-сайты, так и простые визитки для бизнеса.</p>
+                <p>Harvest Project — это создание современных сайтов и Telegram-ботов для малого бизнеса.</p>
                 <p>Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
                 <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Обсудить проект</a>
             </div>
         </section>
 
         <footer>
-            <p>© 2026 WebDev</p>
+            <p>© 2026 Harvest Project</p>
         </footer>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <script>
+        gsap.registerPlugin(ScrollTrigger);
+
         // Космос
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
@@ -277,7 +316,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // 3D ЭФФЕКТ ДЛЯ КАРТОЧЕК
+        // 3D эффект
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
@@ -299,41 +338,53 @@
             });
         });
 
-        // --- СЦЕНАРИЙ: ВЫЛЕТ, ПАУЗА, УЛЕТ ---
-        const tl = gsap.timeline({
-            onComplete: () => {
-                // Когда всё улетело, включаем скролл
-                document.body.classList.remove('locked');
-            }
-        });
+        // --- АНИМАЦИЯ ---
+        
+        // Начальное состояние (карточки с боков, невидимы)
+        gsap.set("#card1", { x: -600, opacity: 0, rotationY: 45 });
+        gsap.set("#card2", { x: 0, y: 100, opacity: 0, rotationY: 0 }); // Центральная чуть снизу
+        gsap.set("#card3", { x: 600, opacity: 0, rotationY: -45 });
 
-        // 1. Начальное состояние (карточки далеко и невидимы)
-        gsap.set("#card1", { x: -800, y: -400, z: -1000, opacity: 0, rotationY: 45, rotationX: 20 });
-        gsap.set("#card2", { x: 0, y: 800, z: -1000, opacity: 0, rotationY: 0, rotationX: 20 });
-        gsap.set("#card3", { x: 800, y: -400, z: -1000, opacity: 0, rotationY: -45, rotationX: 20 });
+        const tl = gsap.timeline();
 
-        // 2. Вылет карточек (1 секунда)
-        tl.to("#card1", { duration: 1, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, rotationX: 0, ease: "power3.out" })
-          .to("#card2", { duration: 1, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, rotationX: 0, ease: "power3.out" }, "-=0.8")
-          .to("#card3", { duration: 1, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, rotationX: 0, ease: "power3.out" }, "-=0.8")
+        // 1. Появляется название
+        tl.to("#main-title", { duration: 1, opacity: 1, y: 0, ease: "power3.out" })
+          .to("#subtitle", { duration: 0.8, opacity: 1, y: 0, ease: "power3.out" }, "-=0.5")
 
-        // 3. Пауза (2 секунды) — карточки висят, можно покрутить мышкой
+        // 2. Вылетают карточки с боков
+          .to("#card1", { duration: 0.8, x: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.3")
+          .to("#card2", { duration: 0.8, y: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.6")
+          .to("#card3", { duration: 0.8, x: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.6")
+
+        // 3. Пауза (2 секунды) — любуемся
           .to({}, { duration: 2 })
 
-        // 4. Улет вниз (1 секунда)
-          .to(".scene-1", { 
-              y: 800,        // Улетает вниз
-              opacity: 0,    // Растворяется
-              scale: 0.8,    // Чуть уменьшается
+        // 4. Карточки УЛЕТАЮТ ВНИЗ вместе с текстом
+          .to("#cards-container", { 
+              y: 800, 
+              opacity: 0, 
+              scale: 0.8,
               duration: 1, 
               ease: "power2.in" 
           })
-          
-        // 5. Плавно показываем блок "О нас" (0.5 сек)
-          .to("#scene2", { 
-              opacity: 1, 
-              duration: 0.5 
-          }, "-=0.5"); // Начинает появляться, пока карточки еще улетают
+          .to(".title-container", {
+              y: -200,
+              opacity: 0,
+              duration: 1,
+              ease: "power2.in"
+          }, "-=0.8"); // Название улетает одновременно
+
+        // 5. При скролле показываем "О нас"
+        gsap.from("#scene2", {
+            scrollTrigger: {
+                trigger: "#scene2",
+                start: "top bottom",
+                end: "top center",
+                scrub: 1
+            },
+            y: 100,
+            opacity: 0
+        });
     </script>
 </body>
 </html>
