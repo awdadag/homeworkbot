@@ -1,381 +1,1245 @@
 <!DOCTYPE html>
+
 <html lang="ru">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Studio | Cinematic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;500&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            background-color: #050510; 
-            color: #fff; 
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
 
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0; 
-            pointer-events: none;
-        }
+  <meta charset="utf-8">
 
-        .content {
-            position: relative;
-            z-index: 1;
-        }
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        /* --- СЦЕНА 1 --- */
-        .hero-scene {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            perspective: 1500px;
-            position: relative;
-            overflow: hidden;
-        }
+  <title>Сайты и телеграм-боты</title>
 
-        .text-container {
-            position: absolute;
-            text-align: center;
-            z-index: 1; 
-            top: 45%;
-            transform: translateY(-50%);
-        }
+  <meta name="description" content="Делаю сайты и телеграм-боты. Напишите мне в Max или ВК по номеру +7 921 758-86-85, расскажите задачу, я отвечу, что и за сколько могу сделать.">
 
-        .word {
-            display: block;
-            font-family: 'Unbounded', sans-serif;
-            line-height: 0.9;
-            text-transform: uppercase;
-            opacity: 0; 
-            transform: translateZ(-800px) scale(0.5); 
-        }
+  <meta property="og:title" content="Сайты и телеграм-боты">
 
-        .word-nail { font-size: clamp(4rem, 12vw, 10rem); color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,0.8); }
-        .word-studio { font-size: clamp(4rem, 12vw, 10rem); color: rgba(255,255,255,0.2); -webkit-text-stroke: 0; }
-        .word-super { font-size: clamp(1.5rem, 4vw, 3rem); color: #ff9a9e; letter-spacing: 10px; margin-top: 20px; text-shadow: 0 0 20px rgba(255,154,158,0.5); }
-        .word-premium { font-size: clamp(1.5rem, 4vw, 3rem); color: #fff; letter-spacing: 10px; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+  <meta property="og:description" content="Делаю сайты и телеграм-боты. Связь: Max, ВК, телефон.">
 
-        /* Блок с кнопкой и телефоном */
-        .action-block {
-            position: absolute;
-            bottom: 10%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 5;
-            opacity: 0;
-            transform: translateY(20px);
-        }
+  <meta name="theme-color" content="#06070d">
 
-        .btn {
-            padding: 20px 60px;
-            font-family: 'Unbounded', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #000;
-            background: #fff;
-            border-radius: 50px;
-            text-decoration: none;
-            transition: all 0.3s;
-            box-shadow: 0 0 30px rgba(255,255,255,0.2);
-            margin-bottom: 20px;
-        }
-        
-        .btn:hover {
-            transform: scale(1.05) translateY(-5px);
-            box-shadow: 0 20px 40px rgba(255,255,255,0.4);
-        }
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2306070d'/%3E%3Crect x='12' y='16' width='40' height='30' rx='10' fill='%23f2f4fb'/%3E%3Crect x='17' y='22' width='30' height='18' rx='6' fill='%230a0c18'/%3E%3Ccircle cx='26' cy='31' r='3' fill='%235ee7ff'/%3E%3Ccircle cx='38' cy='31' r='3' fill='%235ee7ff'/%3E%3Ccircle cx='32' cy='10' r='3' fill='%23ff5a36'/%3E%3C/svg%3E">
 
-        /* ТЕЛЕФОН ПОД КНОПКОЙ */
-        .phone-link {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            text-decoration: none;
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px rgba(255,255,255,0.5);
-            transition: color 0.3s;
-        }
 
-        .phone-link:hover {
-            color: #ff9a9e;
-        }
 
-        /* Контейнер с карточками */
-        .spin-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            z-index: 2; 
-            opacity: 0; 
-        }
+  <style>
 
-        .rotator {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            animation: spin 4s linear infinite;
-        }
+    :root {
 
-        .floating-card {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 260px;
-            height: 340px;
-            margin-top: -170px; 
-            margin-left: -130px;
-            background: rgba(20, 20, 35, 0.6); 
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            backface-visibility: hidden; 
-        }
+      --bg: #06070d;
 
-        .floating-card:nth-child(1) { transform: rotateY(0deg) translateZ(350px); }
-        .floating-card:nth-child(2) { transform: rotateY(120deg) translateZ(350px); }
-        .floating-card:nth-child(3) { transform: rotateY(240deg) translateZ(350px); }
+      --text: #eef0fa;
 
-        .floating-card h2 { font-family: 'Unbounded', sans-serif; font-size: 1.3rem; color: #fff; white-space: nowrap;}
-        
-        .price { 
-            font-family: 'Unbounded', sans-serif; 
-            font-size: 3.5rem; 
-            font-weight: 900; 
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 154, 158, 0.6));
-            line-height: 1;
-        }
+      --muted: #98a0c3;
 
-        @keyframes spin {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(360deg); }
-        }
+      --coral: #ff5a36;
 
-        /* --- СЦЕНА 2 --- */
-        .services {
-            min-height: 100vh;
-            padding: 100px 5%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            flex-wrap: wrap;
-            max-width: 1300px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 3;
-            background: rgba(5, 5, 16, 0.8);
-        }
+      --amber: #ffb14d;
 
-        .card {
-            width: 320px;
-            height: 400px;
-            background: rgba(20, 20, 35, 0.9); 
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 30px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.3s, border-color 0.3s;
-        }
+      --cyan: #5ee7ff;
 
-        .card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
+      --panel: rgba(12, 14, 28, .62);
 
-        .card h2 { font-family: 'Unbounded', sans-serif; font-size: 1.5rem; white-space: nowrap; margin-bottom: 10px;}
-        .card p { color: #ccc; font-size: 0.85rem; line-height: 1.5; }
+      --line: rgba(255, 255, 255, .09);
 
-        footer {
-            text-align: center;
-            padding: 50px 0;
-            color: #ccc;
-            font-size: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            background: rgba(0,0,0,0.9); 
-            position: relative;
-            z-index: 3;
-        }
+    }
 
-        footer p {
-            margin-bottom: 10px;
-        }
-    </style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+
+      background:
+
+        radial-gradient(1100px 700px at 85% 8%, rgba(94, 231, 255, .10), transparent 60%),
+
+        radial-gradient(900px 700px at 8% 95%, rgba(255, 90, 54, .12), transparent 60%),
+
+        var(--bg);
+
+      background-attachment: fixed;
+
+      color: var(--text);
+
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+      font-size: 18px; line-height: 1.6;
+
+      -webkit-font-smoothing: antialiased;
+
+      overflow-x: hidden;
+
+    }
+
+    ::selection { background: var(--coral); color: #fff; }
+
+    a { color: inherit; text-decoration: none; }
+
+    #scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
+
+    main, header.nav { position: relative; z-index: 1; }
+
+    .wrap { width: min(1180px, 100% - 48px); margin-inline: auto; }
+
+
+
+    /* навигация */
+
+    header.nav {
+
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10; height: 68px;
+
+      background: linear-gradient(to bottom, rgba(6, 7, 13, .85), rgba(6, 7, 13, 0));
+
+    }
+
+    .nav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+
+    .brand { font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 10px; }
+
+    .brand i { width: 10px; height: 10px; border-radius: 50%; background: var(--coral); box-shadow: 0 0 14px var(--coral); }
+
+    .nav ul { display: flex; gap: 28px; list-style: none; font-size: 15px; color: var(--muted); }
+
+    .nav ul a:hover { color: var(--text); }
+
+
+
+    /* кнопки */
+
+    .btn {
+
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+
+      padding: 14px 24px; border-radius: 999px; font: inherit; font-size: 16px; font-weight: 700;
+
+      color: var(--text); background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .16);
+
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+
+      cursor: pointer; transition: transform .2s, background .2s, box-shadow .2s, border-color .2s;
+
+    }
+
+    .btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, .11); border-color: rgba(255, 255, 255, .3); }
+
+    .btn.primary { background: linear-gradient(100deg, var(--coral), #ff8a3d); border-color: transparent; color: #fff; box-shadow: 0 10px 32px rgba(255, 90, 54, .35); }
+
+    .btn.primary:hover { box-shadow: 0 14px 40px rgba(255, 90, 54, .5); }
+
+    .btn.sm { padding: 10px 18px; font-size: 15px; }
+
+    .btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-v
+20:31
+isible, summary:focus-visible {
+
+      outline: 2px solid var(--cyan); outline-offset: 3px;
+
+    }
+
+    .link-btn { background: none; border: 0; color: var(--muted); font: inherit; font-size: 15px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+
+    .link-btn:hover { color: var(--text); }
+
+
+
+    /* секции */
+
+    section { min-height: 100vh; display: flex; align-items: center; padding: 110px 0 70px; }
+
+    section.short { min-height: 0; }
+
+    .col { width: min(580px, 100%); }
+
+    .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); display: block; margin-bottom: 18px; }
+
+    h1 { font-size: clamp(2.7rem, 6.4vw, 5rem); line-height: 1.02; letter-spacing: -.04em; font-weight: 800; }
+
+    h2 { font-size: clamp(2rem, 4.6vw, 3.3rem); line-height: 1.08; letter-spacing: -.035em; font-weight: 800; margin-bottom: 30px; }
+
+    .grad { background: linear-gradient(100deg, var(--coral), var(--amber)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .lead { color: var(--muted); font-size: 1.2rem; margin: 24px 0 34px; max-width: 30em; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+    .hint { margin-top: 30px; font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+
+    .hint::before { content: ""; width: 34px; height: 1px; background: var(--muted); }
+
+
+
+    .panel {
+
+      background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 26px 28px;
+
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+
+    }
+
+    .panel + .panel { margin-top: 14px; }
+
+    .panel h3 { font-size: 1.4rem; letter-spacing: -.02em; margin-bottom: 6px; }
+
+    .panel p { color: var(--muted); font-size: 1rem; }
+
+    .panel ul { list-style: none; margin-top: 14px; display: grid; gap: 8px; font-size: 1rem; }
+
+    .panel li { padding-left: 22px; position: relative; }
+
+    .panel li::before { content: ""; position: absolute; left: 0; top: .6em; width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+
+
+
+    .step { display: grid; grid-template-columns: 52px 1fr; gap: 6px; align-items: start; }
+
+    .step b { font-size: 1.6rem; font-weight: 800; background: linear-gradient(100deg, var(--coral), var(--amber)); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1.2; }
+
+    .step h3 { font-size: 1.2rem; margin: 2px 0 2px; }
+
+
+
+    /* форма */
+
+    .field { margin-bottom: 16px; }
+
+    label { display: block; font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+
+    input, select, textarea {
+
+      width: 100%; padding: 13px 15px; border-radius: 14px; border: 1px solid var(--line);
+
+      background: rgba(255, 255, 255, .05); color: var(--text); font: inherit; font-size: 16px;
+
+    }
+
+    select option { color: #111; }
+
+    textarea { resize: vertical; min-height: 110px; }
+
+    .preview textarea { min-height: 190px; resize: none; background: rgba(0, 0, 0, .25); line-height: 1.5; }
+
+    .note-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+    .small { color: var(--muted); font-size: 14px; margin-top: 12px; }
+
+
+
+    /* вопросы */
+
+    details { border-top: 1px solid var(--line); padding: 18px 2px; }
+
+    details:last-of-type { border-bottom: 1px solid var(--line); }
+
+    summary { cursor: pointer; font-size: 1.15rem; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 16px; letter-spacing: -.01em; }
+
+    summary::-webkit-details-marker { display: none; }
+
+    summary::after { content: "+"; color: var(--coral); font-size: 1.5rem; line-height: 1; transition: transform .2s; }
+
+    details[open] summary::after { transform: rotate(45deg); }
+
+    details p { margin-top: 10px; color: var(--muted); font-size: 1rem; }
+
+
+
+    /* контакты *
+20:31
+/
+
+    .phone { display: inline-block; font-size: clamp(2.1rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: -.035em; line-height: 1.1; margin: 4px 0 18px; }
+
+    .phone:hover { color: var(--coral); }
+
+    .contact p { color: var(--muted); max-width: 28em; margin-bottom: 28px; }
+
+
+
+    footer { position: relative; z-index: 1; padding: 26px 0 36px; font-size: 14px; color: var(--muted); }
+
+    footer .wrap { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 20px; flex-wrap: wrap; gap: 10px; }
+
+
+
+    .toast {
+
+      position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140px); z-index: 20;
+
+      background: rgba(20, 22, 40, .95); border: 1px solid var(--coral); color: var(--text);
+
+      padding: 14px 22px; border-radius: 14px; font-size: 15px; text-align: center;
+
+      max-width: calc(100% - 32px); transition: transform .3s; backdrop-filter: blur(10px);
+
+    }
+
+    .toast.show { transform: translate(-50%, 0); }
+
+
+
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .8s, transform .8s; }
+
+    .reveal.in { opacity: 1; transform: none; }
+
+
+
+    @media (max-width: 899px) {
+
+      body { font-size: 17px; }
+
+      .nav ul { display: none; }
+
+      section { padding: 90px 0 50px; min-height: 0; }
+
+      #hero { min-height: 100svh; align-items: flex-end; padding-bottom: 40px; }
+
+      .panel { background: rgba(8, 10, 22, .78); padding: 22px; }
+
+      .actions .btn.wide { flex: 1 1 100%; }
+
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      html { scroll-behavior: auto; }
+
+      .reveal { opacity: 1; transform: none; transition: none; }
+
+    }
+
+  </style>
+
+
+
+  <script type="importmap">
+
+  {
+
+    "imports": {
+
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+
+    }
+
+  }
+
+  </script>
+
 </head>
+
 <body>
 
-    <div id="canvas-container"></div>
 
-    <div class="content">
-        
-        <section class="hero-scene" id="hero-scene">
-            <div class="text-container" id="text-container">
-                <span class="word word-nail" id="w1">NAIL</span>
-                <span class="word word-studio" id="w2">STUDIO</span>
-                <span class="word word-super" id="w3">SUPER</span>
-                <span class="word word-premium" id="w4">PREMIUM</span>
-            </div>
-            
-            <div class="spin-container" id="spin-container">
-                <div class="rotator" id="rotator">
-                    <div class="floating-card">
-                        <div><h2>Маникюр</h2></div>
-                        <div class="price">2 000</div>
-                    </div>
-                    <div class="floating-card">
-                        <div><h2>Наращивание</h2></div>
-                        <div class="price">3 500</div>
-                    </div>
-                    <div class="floating-card">
-                        <div><h2>Дизайн</h2></div>
-                        <div class="price">150</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Возвращаем блок с кнопкой и телефоном -->
-            <div class="action-block" id="action-block">
-                <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">ЗАПИСАТЬСЯ</a>
-                <a href="tel:+79991234567" class="phone-link">+7 (999) 123-45-67</a>
-            </div>
-        </section>
+<canvas id="scene" aria-hidden="true"></canvas>
 
-        <section class="services" id="services-scene">
-            <div class="card">
-                <div>
-                    <h2>Маникюр</h2>
-                    <p>Аппаратный и комбинированный маникюр с премиальным покрытием.</p>
-                </div>
-                <div class="price">2 000</div>
-            </div>
-            
-            <div class="card">
-                <div>
-                    <h2>Наращивание</h2>
-                    <p>Моделирование любой формы и длины. Идеальная архитектура.</p>
-                </div>
-                <div class="price">3 500</div>
-            </div>
 
-            <div class="card">
-                <div>
-                    <h2>Дизайн</h2>
-                    <p>Сложная роспись, инкрустация камнями и модные эффекты.</p>
-                </div>
-                <div class="price">150</div>
-            </div>
-        </section>
 
-        <footer>
-            <p style="font-family: 'Unbounded', sans-serif; font-size: 1.2rem; color: #fff;">+7 (999) 123-45-67</p>
-            <p style="margin-top: 10px; font-size: 0.8rem;">МОСКВА | 2026</p>
-        </footer>
+<header class="nav">
+
+  <div class="wrap">
+
+    <a href="#hero" class="brand"><i></i>сайты / боты</a>
+
+    <ul>
+
+      <li><a href="#what">Что делаю</a></li>
+
+      <li><a href="#how">Как работаю</a></li>
+
+      <li><a href="#write">Написать</a></li>
+
+      <li><a href="#faq">Вопросы</a></li>
+
+    </ul>
+
+    <a href="#contact" class="btn primary sm">Контакты</a>
+
+  </div>
+
+</header>
+
+
+
+<main>
+
+
+
+  <section id="hero" data-state="0">
+
+    <div class="wrap">
+
+      <div class="col">
+
+        <span class="eyebrow">сайты · телеграм-боты</span>
+
+        <h1>Делаю сайты и <span class="grad">телеграм-боты</span></h1>
+
+        <p class="lead">Расскажите, что нужно. Я отвечу, что можно сделать, за сколько и как быстро. Если всё устраивает, берусь за работу.</p>
+
+        <div class="actions">
+
+          <a class="btn primary wide" data-channel="max" href="#contact">Написать в Max</a>
+
+          <a class="btn wide" data-channel="vk" href="#contact">Написать в ВК</a>
+
+          <a class="btn wide" href="tel:+79217588685">+7 921 758-86-85</a>
+
+        </div>
+
+        <p class="hint">Кликните по роботу, он обрадуется</p>
+
+      </div>
 
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  </section>
 
-    <script>
-        document.body.style.overflow = 'hidden';
 
-        // --- КОСМОС ---
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
 
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 4000;
-        const posArray = new Float32Array(particlesCount * 3);
+  <section id="what" data-state="1">
 
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 50;
-        }
+    <div class="wrap">
 
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.06, color: 0xffffff, transparent: true, opacity: 0.8
-        });
+      <div class="col">
 
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-        camera.position.z = 5;
+        <span class="eyebrow">что делаю</span>
 
-        function animate() {
-            requestAnimationFrame(animate);
-            particlesMesh.rotation.y += 0.001;
-            renderer.render(scene, camera);
-        }
-        animate();
+        <h2>Сайты и боты, которые хорошо работают вместе</h2>
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        <div class="panel reveal">
 
-        // --- ТАЙМЛАЙН ---
-        const tl = gsap.timeline();
+          <h3>Сайты</h3>
 
-        // 1. Вылетают слова
-        tl.to("#w1", { duration: 1.2, opacity: 1, z: 0, scale: 1, ease: "power3.out" })
-          .to("#w2", { duration: 1.2, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.9")
-          .to("#w3", { duration: 1.2, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.9")
-          .to("#w4", { duration: 1.2, opacity: 1, z: 0, scale: 1, ease: "power3.out" }, "-=0.9")
+          <p>Чтобы о вас можно было узнать в интернете и связаться с вами. Нормально выглядят и на телефоне, и на компьютере.</p>
 
-        // 2. Пауза
-          .to({}, { duration: 0.5 })
+          <ul>
 
-        // 3. Появление карточек
-          .to("#spin-container", { duration: 0.8, opacity: 1 }, "+=0.2")
-          
-        // 4. Появление кнопки и ТЕЛЕФОНА
-          .to("#action-block", { duration: 0.5, opacity: 1, y: 0 }, "-=0.3")
+            <li>Сайт-визитка или одностраничник</li>
 
-        // 5. Пауза для вращения
-          .to({}, { duration: 2.0 }) 
+            <li>Сайт из нескольких страниц</li>
 
-        // 6. Улет вниз
-          .to("#spin-container", {
-              y: 1200,
-              z: -500,
-              rotationX: 90,
-              rotationZ: 45,
-              scale: 0.1,
-              opacity: 0,
-              duration: 1.2,
-              ease: "power4.in",
-              onComplete: () => {
-                  document.getElementById('spin-container').style.display = 'none';
-                  document.body.style.overflow = 'auto';
-              }
-          }, "-=0.5");
-    </script>
-</body>
-</html>
+            <li>Форма заявки, калькулятор, карта</li>
+
+            <li>Подключение своего домена</li>
+
+          </ul>
+
+        </div>
+
+        <div class="panel reveal">
+
+          <h3>Телеграм-боты</h3>
+
+          <p>Бот принимает заявки, отвечает на одни и те же вопросы и сообщает вам, когда пришёл клиент.</p>
+
+          <ul>
+
+     
+toast.show
+Top 10 nhà cái uy tín Việt Nam - Đăng ký chính chủ +100K
+Top 10 nhà cái uy tín nhất tại Việt Nam: Vsbet, 6686, FB88, 188bet, fun88, w88, hi88, bk8, thabet, 1xbet, go88... Tham gia nhà cái tặng tiền thưởng 100K đăng.
+20:31
+      <li>Приём заявок и записи</li>
+
+            <li>Каталог, меню, ответы на вопросы</li>
+
+            <li>Рассылки и уведомления</li>
+
+            <li>Связка с сайтом или таблицей</li>
+
+          </ul>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <section id="how" data-state="2">
+
+    <div class="wrap">
+
+      <div class="col">
+
+        <span class="eyebrow">как работаю</span>
+
+        <h2>Без лишних шагов</h2>
+
+        <div class="panel reveal step"><b>01</b><div><h3>Вы пишете</h3><p>Рассказываете, что нужно. Если сами пока не знаете, разберёмся вместе.</p></div></div>
+
+        <div class="panel reveal step"><b>02</b><div><h3>Договариваемся</h3><p>Я называю цену и срок до начала работы. Что обсудили, то и делаю.</p></div></div>
+
+        <div class="panel reveal step"><b>03</b><div><h3>Делаю и показываю</h3><p>Не пропадаю. Показываю, что получается, и вы говорите, что поменять.</p></div></div>
+
+        <div class="panel reveal step"><b>04</b><div><h3>Запускаю</h3><p>Выкладываю в интернет и объясняю, как всем пользоваться.</p></div></div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <section id="write" data-state="3">
+
+    <div class="wrap">
+
+      <div class="col">
+
+        <span class="eyebrow">написать мне</span>
+
+        <h2>Не знаете, с чего начать? Соберите сообщение</h2>
+
+        <form class="panel reveal" onsubmit="return false" autocomplete="off">
+
+          <div class="field">
+
+            <label for="fType">Что нужно</label>
+
+            <select id="fType">
+
+              <option>сайт</option>
+
+              <option>телеграм-бот</option>
+
+              <option>сайт и телеграм-бот</option>
+
+              <option>пока не знаю, хочу посоветоваться</option>
+
+            </select>
+
+          </div>
+
+          <div class="field">
+
+            <label for="fName">Как вас зовут</label>
+
+            <input id="fName" type="text" maxlength="60" placeholder="Анна">
+
+          </div>
+
+          <div class="field">
+
+            <label for="fDeadline">Когда нужно</label>
+
+            <select id="fDeadline">
+
+              <option>срок не важен</option>
+
+              <option>как можно скорее</option>
+
+              <option>в течение недели</option>
+
+              <option>в течение месяца</option>
+
+            </select>
+
+          </div>
+
+          <div class="field" style="margin-bottom:0">
+
+            <label for="fDesc">Что хотите получить</label>
+
+            <textarea id="fDesc" maxlength="1000" placeholder="Чем занимаетесь, что должен уметь сайт или бот. Если есть примеры, которые нравятся, напишите."></textarea>
+
+          </div>
+
+        </form>
+
+        <div class="panel preview reveal">
+
+          <label for="fPreview">Готовое сообщение</label>
+
+          <textarea id="fPreview" readonly></textarea>
+
+          <div class="note-actions">
+
+            <button class="btn sm" id="copyBtn" type="button">Скопировать</button>
+
+            <a class="btn primary sm" data-channel="max" href="#contact">В Max</a>
+
+            <a class="btn sm" data-channel="vk" href="#contact">В ВК</a>
+
+          </div>
+
+          <p class="small">Кнопки мессенджеров тоже копируют текст. Останется вставить его в чат.</p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <section id="faq" class="short" data-state="2">
+
+    <div class="wrap">
+
+      <div class="col">
+
+        <span class="eyebrow">вопросы</span>
+
+        <h2>Что обычно спрашивают</h2>
+
+        <details>
+
+          <summary>Сколько это стоит?</summary>
+
+          <p>Зависит от задачи: сколько страниц, какие функции, к какому сроку. Расскажите, что нужно, и я назову цену до того, как начну работу.</p>
+
+        </details>
+
+        <details>
+
+          <summary>Что мне нужно подготовить?</summary>
+
+          <p>Достаточно рассказать, чем вы занимаетесь. Если есть тексты, фотографии, логотип или сайты, которые нравятся, пришлите. Если нет, подскажу, как лучше.</p>
+
+        </details>
+
+        <details>
+
+          <summary>Сколько ждать?</summary>
+
+          <p>П
+20:31
+ростой сайт или бот делается быстрее, сложный дольше. Конкретный срок скажу, когда пойму задачу.</p>
+
+        </details>
+
+        <details>
+
+          <summary>Что будет после запуска?</summary>
+
+          <p>Объясню, как всем пользоваться. Если потом понадобится что-то поправить или добавить, пишите.</p>
+
+        </details>
+
+        <details>
+
+          <summary>Где вам писать?</summary>
+
+          <p>В Max или ВК, найдите меня по номеру +7 921 758-86-85. Можно позвонить.</p>
+
+        </details>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <section id="contact" class="contact" data-state="4">
+
+    <div class="wrap">
+
+      <div class="col">
+
+        <span class="eyebrow">контакты</span>
+
+        <h2>Напишите мне</h2>
+
+        <a class="phone" href="tel:+79217588685">+7 921 758-86-85</a>
+
+        <p>Найдите меня по этому номеру в Max или ВК и напишите пару слов о задаче. Я отвечу и скажу, что можно сделать.</p>
+
+        <div class="actions">
+
+          <a class="btn primary wide" data-channel="max" href="#contact">Написать в Max</a>
+
+          <a class="btn wide" data-channel="vk" href="#contact">Написать в ВК</a>
+
+          <a class="btn wide" href="tel:+79217588685">Позвонить</a>
+
+          <button class="link-btn" id="copyPhone" type="button">скопировать номер</button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+</main>
+
+
+
+<footer>
+
+  <div class="wrap">
+
+    <span>© <span id="year">2026</span></span>
+
+    <a href="#hero">наверх ↑</a>
+
+  </div>
+
+</footer>
+
+
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+
+<!-- Обычный скрипт: форма, кнопки, анимации. Работает, даже если 3D не загрузится. -->
+
+<script>
+
+  /* Настройки. Вставьте ссылки на свои профили, и кнопки будут открывать чат напрямую.
+
+     Пока пусто: кнопка копирует номер и подсказывает искать вас по номеру. */
+
+  const CONFIG = {
+
+    phone: '+79217588685',
+
+    phoneView: '+7 921 758-86-85',
+
+    maxLink: '',   // например: 'https://max.ru/...'
+
+    vkLink: ''     // например: 'https://vk.com/ваш_id'
+
+  };
+
+
+
+  const $ = (s, r = document) => r.querySelector(s);
+
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+
+
+  let toastTimer;
+
+  function toast(text) {
+
+    const t = $('#toast');
+
+    t.textContent = text;
+
+    t.classList.add('show');
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3400);
+
+  }
+
+
+
+  async function copyText(text) {
+
+    try { await navigator.clipboard.writeText(text); return true; }
+
+    catch (e) {
+
+      try {
+
+        const ta = document.createElement('textarea');
+
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+
+        document.body.appendChild(ta); ta.select();
+
+        const ok = document.execCommand('copy');
+
+        ta.remove();
+
+        return ok;
+
+      } catch (e2) { return false; }
+
+    }
+
+  }
+
+
+
+  /* сборщик сообщения */
+
+  const fType = $('#fType'), fName = $('#fName'), fDeadline = $('#fDeadline'), fDesc = $('#fDesc'), fPreview = $('#fPreview');
+
+  function buildMessage() {
+
+    const name = fName.value.trim();
+
+    const desc = fDesc.value.trim();
+
+    let msg = 'Здравствуйте!' + (name ? ' Меня зовут ' + name + '.' : '') + '\n';
+
+    msg += 'Мне нужно: ' + fType.value + '.\n';
+
+    msg += 'Срок: ' + fDeadline.value + '.\n';
+
+    msg += desc ? '\n' + desc + '\n' : '\nПодробности расскажу в переписке.\n';
+
+    msg += '\nСпасибо!';
+
+    return msg;
+
+  }
+
+  function updatePreview() { fPreview.value = buildMessage(); }
+
+  [fType, fName, fDeadline, fDesc].forEach(el => el.addEventListener('input', updatePreview));
+
+  updatePreview();
+
+
+
+  $('#copyBtn').addEventListener('click', async () => {
+
+    toast(await copyText(fPreview.value) ? 'Скопировано' : 'Не получилось, выделите текст и скопируйте вручную');
+
+  });
+
+
+
+  /* кнопки Max и ВК */
+
+  const links = { max: CONFIG.maxLink, vk: CONFIG.vkLink };
+
+  const names = { max: 'Max', vk: 'ВК' };
+
+  $$('[data-channel]').forEach(btn => {
+
+    const ch = btn.dataset.cha
+20:31
+nnel;
+
+    if (links[ch]) { btn.href = links[ch]; btn.target = '_blank'; btn.rel = 'noopener'; }
+
+    btn.addEventListener('click', async (e) => {
+
+      const fromForm = !!btn.closest('.note-actions');
+
+      if (fromForm) await copyText(fPreview.value);
+
+      if (links[ch]) {
+
+        if (fromForm) toast('Сообщение скопировано, вставьте его в чат');
+
+        return;
+
+      }
+
+      e.preventDefault();
+
+      await copyText(CONFIG.phone);
+
+      toast('Номер ' + CONFIG.phoneView + ' скопирован. Найдите меня в ' + names[ch] + (fromForm ? ' и вставьте сообщение' : ''));
+
+    });
+
+  });
+
+
+
+  $('#copyPhone').addEventListener('click', async () => {
+
+    toast(await copyText(CONFIG.phone) ? 'Номер скопирован' : CONFIG.phoneView);
+
+  });
+
+
+
+  $('#year').textContent = new Date().getFullYear();
+
+
+
+  /* плавное появление блоков */
+
+  if ('IntersectionObserver' in window) {
+
+    const rio = new IntersectionObserver((entries) => {
+
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rio.unobserve(e.target); } });
+
+    }, { threshold: .12 });
+
+    $$('.reveal').forEach(el => rio.observe(el));
+
+  } else {
+
+    $$('.reveal').forEach(el => el.classList.add('in'));
+
+  }
+
+</script>
+
+
+
+<!-- 3D-сцена: Three.js подгружается с CDN -->
+
+<script type="module">
+
+  import * as THREE from 'three';
+
+  import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+  import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+
+
+  const canvas = document.getElementById('scene');
+
+  const motion = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1;
+
+
+
+  let renderer = null;
+
+  try {
+
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+
+  } catch (err) {
+
+    console.warn('WebGL недоступен, сайт работает без 3D', err);
+
+  }
+
+  if (renderer) start(renderer);
+
+
+
+  function start(renderer) {
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+    renderer.toneMappingExposure = 1.0;
+
+    renderer.setClearColor(0x000000, 0);
+
+
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+
+    camera.position.set(0, 0, 9);
+
+
+
+    // отражения для глянца
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+
+
+    // свет
+
+    const key = new THREE.DirectionalLight(0xffffff, 2.0);
+
+    key.position.set(3, 5, 6);
+
+    scene.add(key);
+
+    const warm = new THREE.PointLight(0xff5a36, 60, 18, 2);
+
+    warm.position.set(-4, -2, 4);
+
+    scene.add(warm);
+
+    const cool = new THREE.PointLight(0x5ee7ff, 60, 18, 2);
+
+    cool.position.set(5, 3, -1);
+
+    scene.add(cool);
+
+
+
+    // материалы
+
+    const white = new THREE.MeshPhysicalMaterial({ color: 0xf2f4fb, roughness: 0.28, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.15, envMapIntensity: 0.9 });
+
+    const dark = new THREE.MeshPhysicalMaterial({ color: 0x0a0c18, roughness: 0.15, metalness: 0.3, clearcoat: 1, envMapIntensity: 0.6 });
+
+    const panelMat = new THREE.MeshPhysicalMaterial({ color: 0x12152b, roughness: 0.3, metalness: 0.4, clearcoat: 0.8, envMapIntensity: 0.7 });
+
+    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x5ee7ff });
+
+    const coralMat = new THREE.MeshBasicMaterial({ color: 0xff5a36 });
+
+
+
+    /* ========== РОБОТ ========== */
+
+    const botRig = new THREE.Group();
+
+    const bot = new THREE.Group();
+
+    botRig.add(bot);
+
+    const botBody = new THREE.Group();
+
+    botBody.position.y = 0.2;
+
+    bot.add(botBody);
+
+
+
+    const head = new THREE.Group();
+
+    botBody.add(head);
+
+    head.add(new THREE.Mesh(new RoundedBoxGeometry(1.7, 1.3, 1.3, 8, 0.38), white));
+
+
+
+    const face = new THREE.Mesh(new RoundedBoxGeometry(1.35, 0.85, 0.1, 6, 0.12), dark);
+
+    face.position.z = 0.62;
+
+    head.add(face);
+
+
+
+    const eyeGeo = new THREE.SphereG
+20:31
+eometry(0.09, 24, 24);
+
+    const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+
+    const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+
+    eyeL.position.set(-0.3, 0.06, 0.69);
+
+    eyeR.position.set(0.3, 0.06, 0.69);
+
+    eyeL.scale.set(1, 1.5, 0.4);
+
+    eyeR.scale.set(1, 1.5, 0.4);
+
+    head.add(eyeL, eyeR);
+
+
+
+    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.02, 10, 32, Math.PI), eyeMat);
+
+    smile.rotation.z = Math.PI;
+
+    smile.position.set(0, -0.12, 0.69);
+
+    head.add(smile);
+
+
+
+    for (const sx of [-1, 1]) {
+
+      const ear = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.16, 32), white);
+
+      ear.rotation.z = Math.PI / 2;
+
+      ear.position.set(sx * 0.93, 0, 0);
+
+      head.add(ear);
+
+      const earIn = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.2, 32), coralMat);
+
+      earIn.rotation.z = Math.PI / 2;
+
+      earIn.position.set(sx * 0.93, 0, 0);
+
+      head.add(earIn);
+
+    }
+
+
+
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.35, 12), dark);
+
+    stem.position.y = 0.82;
+
+    head.add(stem);
+
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.09, 20, 20), coralMat);
+
+    tip.position.y = 1.02;
+
+    head.add(tip);
+
+
+
+    const torso = new THREE.Mesh(new RoundedBoxGeometry(1.1, 0.75, 0.8, 6, 0.28), white);
+
+    torso.position.y = -1.15;
+
+    botBody.add(torso);
+
+    const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.04, 24), eyeMat);
+
+    chest.rotation.x = Math.PI / 2;
+
+    chest.position.set(0, -1.1, 0.41);
+
+    botBody.add(chest);
+
+    for (const sx of [-1, 1]) {
+
+      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 24), white);
+
+      hand.position.set(sx * 0.78, -1.15, 0);
+
+      botBody.add(hand);
+
+    }
+
+
+
+    const halo = new THREE.Mesh(
+
+      new THREE.TorusGeometry(1.95, 0.012, 12, 160),
+
+      new THREE.MeshBasicMaterial({ color: 0x5ee7ff, transparent: true, opacity: 0.5 })
+
+    );
+
+    halo.rotation.x = Math.PI / 2.3;
+
+    bot.add(halo);
+
+    scene.add(botRig);
+
+
+
+    /* ========== ОКНО БРАУЗЕРА ========== */
+
+    const brRig = new THREE.Group();
+
+    const br = new THREE.Group();
+
+    brRig.add(br);
+
+
+
+    br.add(new THREE.Mesh(new RoundedBoxGeometry(3.0, 1.95, 0.12, 6, 0.06), panelMat));
+
+    const bar = new THREE.Mesh(new RoundedBoxGeometry(3.0, 0.28, 0.14, 4, 0.05), new THREE.MeshPhysicalMaterial({ color: 0x1b2040, roughness: 0.3, metalness: 0.4 }));
+
+    bar.position.set(0, 0.835, 0.005);
+
+    br.add(bar);
+
+
+
+    [0xff5a36, 0xffc24d, 0x5ee7ff].forEach((c, i) => {
+
+      const d = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 16), new THREE.MeshBasicMaterial({ color: c }));
+
+      d.position.set(-1.3 + i * 0.14, 0.835, 0.085);
+
+      br.add(d);
+
+    });
+
+
+
+    function block(w, h, x, y, color, depth = 0.03) {
+
+      const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, depth, 3, Math.min(h, depth) * 0.45), new THREE.MeshBasicMaterial({ color }));
+
+      m.position.set(x, y, 0.08);
+
+      br.add(m);
+
+      return m;
+
+    }
+
+    block(1.5, 0.15, -0.6, 0.45, 0xeef0fa);
+
+    block(1.9, 0.07, -0.4, 0.2, 0x6b7396);
+
+    block(1.6, 0.07, -0.55, 0.05, 0x6b7396);
+
+    block(0.75, 0.24, -1.05, -0.3, 0xff5a36);
+
+    block(0.85, 0.85, 0.85, -0.05, 0x2a3170);
+
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 24), new THREE.MeshBasicMaterial({ color: 0x5ee7ff }));
+
+    orb.position.set(0.85, -0.05, 0.12);
+
+    br.add(orb);
+
+    block(0.8, 0.32, -1.0, -0.72, 0x1e2347);
+
+    block(0.8, 0.32, 0.0, -0.72, 0x1e2347);
+
+    block(0.8, 0.32, 1.0, -0.72, 0x1e2347);
+
+    scene.add(brRig);
+
+
+
+    /* ========== ПАРЯЩИЕ ФИГУРЫ И ЧАСТИЦЫ ========== */
+
+    const palette = [0xff5a36, 0x5ee7ff, 0xffc24d, 0xb7a6ff];
+
+    const geos = [
+
+      new THREE.OctahedronGeometry(0.22),
+
+      new THREE.IcosahedronGeometry(0.2, 0),
+
+      new THREE.TorusGeometry(0.17, 0.07, 16, 32),
+
+      new THREE.BoxGeometry(0.26, 0.26, 0.26)
+
+    ];
+
+    const floaters = [];
+
+    for (let i = 0; i < 14; i++) {
+
+      const m = new
+     THREE.Mesh(geos[i % geos.length], new THREE.MeshPhysicalMaterial({
+
+        color: palette[i % palette.length], roughness: 0.25, metalness: 0.6, clearcoat: 0.6
+
+      }));
+
+      m.position.set((Math.random() - 0.5) * 16, (Math.random() - 0.5) * 9, -1.5 - Math.random() * 7);
+
+      m.userData = { sp: 0.2 + Math.random() * 0.5, ph: Math.random() * 6.28, y0: m.position.y };
+
+      scene.add(m);
+
+      floaters.push(m);
+
+    }
+
+
+
+    const COUNT = 1100;
+
+    const pos = new Float32Array(COUNT * 3);
+
+    for (let i = 0; i < COUNT; i++) {
+
+      pos[i * 3] = (Math.random() - 0.5) * 30;
+
+      pos[     
