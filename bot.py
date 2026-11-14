@@ -12,37 +12,67 @@ if not TOKEN:
 bot = telebot.TeleBot(TOKEN)
 
 current_page = 1
-region_id = 38 # Для Питера
+current_query = "Салоны красоты" # По умолчанию
+region_id = 38 # Питер
 
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("🔍 Найти салоны без сайта"))
-    markup.add(types.KeyboardButton("🔄 Сбросить поиск"))
+    markup.add(types.KeyboardButton("🔍 Выбрать нишу"), types.KeyboardButton("🔄 Сбросить поиск"))
+    return markup
+
+def niches_menu():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("💇 Салоны красоты"), types.KeyboardButton("✂️ Барбершопы"))
+    markup.add(types.KeyboardButton("🦷 Стоматологии"), types.KeyboardButton("🚗 Автосервисы"))
+    markup.add(types.KeyboardButton("☕ Кофейни"), types.KeyboardButton("🏋️ Фитнес-залы"))
+    markup.add(types.KeyboardButton("🔙 Назад"))
     return markup
 
 @bot.message_handler(commands=["start"])
 def cmd_start(message):
-    global current_page
+    global current_page, current_query
     current_page = 1
-    bot.send_message(message.chat.id, "Привет! Я бот-разведчик. Нажми кнопку, чтобы найти салоны в Питере без сайтов.", reply_markup=main_menu())
+    current_query = "Салоны красоты"
+    bot.send_message(message.chat.id, "Привет! Я бот-разведчик. Выбери нишу, чтобы найти бизнесы без сайтов в Питере.", reply_markup=main_menu())
+
+@bot.message_handler(func=lambda m: m.text == "🔍 Выбрать нишу")
+def choose_niche(message):
+    bot.send_message(message.chat.id, "Выбери, кого искать:", reply_markup=niches_menu())
+
+@bot.message_handler(func=lambda m: m.text == "🔙 Назад")
+def back_to_main(message):
+    bot.send_message(message.chat.id, "Главное меню:", reply_markup=main_menu())
 
 @bot.message_handler(func=lambda m: m.text == "🔄 Сбросить поиск")
 def reset_search(message):
     global current_page
     current_page = 1
-    bot.send_message(message.chat.id, "Поиск сброшен.", reply_markup=main_menu())
+    bot.send_message(message.chat.id, f"Поиск по '{current_query}' сброшен.", reply_markup=main_menu())
 
-@bot.message_handler(func=lambda m: m.text == "🔍 Найти салоны без сайта")
-def find_salons(message):
-    global current_page
+# Обработка выбора ниши
+@bot.message_handler(func=lambda m: m.text in ["💇 Салоны красоты", "✂️ Барбершопы", "🦷 Стоматологии", "🚗 Автосервисы", "☕ Кофейни", "🏋️ Фитнес-залы"])
+def set_niche(message):
+    global current_query, current_page
+    current_query = message.text.split(" ", 1)[1] # Убираем эмодзи
+    current_page = 1
+    bot.send_message(message.chat.id, f"Выбрано: {current_query}. Нажми «Найти», чтобы начать поиск.", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")))
     
-    bot.send_message(message.chat.id, f"🔎 Ищу салоны в Санкт-Петербурге (страница {current_page})...")
+    # Автоматически начинаем поиск сразу после выбора
+    find_salons(message)
+
+@bot.message_handler(func=lambda m: m.text == "🔍 Найти")
+def find_salons_handler(message):
+    find_salons(message)
+
+def find_salons(message):
+    global current_page, current_query, region_id
+    
+    bot.send_message(message.chat.id, f"🔎 Ищу '{current_query}' в Санкт-Петербурге (страница {current_page})...")
     
     url = "https://catalog.api.2gis.com/3.0/items"
     params = {
-        "q": "Салоны красоты",
+        "q": current_query,
         "region_id": region_id, 
-        # ВАЖНО: Запрашиваем контакты и соцсети
         "fields": "items.contact_groups,items.external_content,items.full_name,items.address_name,items.point", 
         "page": current_page,
         "page_size": 10,
@@ -54,7 +84,7 @@ def find_salons(message):
         data = response.json()
 
         if "result" not in data or "items" not in data["result"]:
-            bot.send_message(message.chat.id, "❌ Ошибка API или салоны закончились.")
+            bot.send_message(message.chat.id, "❌ Ошибка API или результаты закончились. Попробуй сбросить поиск.", reply_markup=main_menu())
             current_page = 1
             return
 
@@ -62,7 +92,6 @@ def find_salons(message):
         for item in data["result"]["items"]:
             name = item.get("full_name", "Без названия")
             
-            # --- ПРОВЕРКА НА САЙТ ---
             has_site = False
             external = item.get("external_content", [])
             for ext in external:
@@ -73,44 +102,32 @@ def find_salons(message):
             if not has_site:
                 found_count += 1
                 
-                # --- ИЗВЛЕКАЕМ КОНТАКТЫ ---
                 phone = "Нет телефона"
                 email = "Нет email"
                 vk_link = "Нет ВК"
                 tg_link = "Нет ТГ"
                 
-                # Контакты (телефон, email)
                 contacts = item.get("contact_groups", [])
                 for group in contacts:
                     if group.get("type") == "phone":
                         phone_list = group.get("contacts", [])
-                        if phone_list:
-                            phone = phone_list[0].get("value", "Нет телефона")
+                        if phone_list: phone = phone_list[0].get("value", "Нет телефона")
                     if group.get("type") == "email":
                         email_list = group.get("contacts", [])
-                        if email_list:
-                            email = email_list[0].get("value", "Нет email")
-                    
-                    # Соцсети могут лежать в contact_groups или в external_content
+                        if email_list: email = email_list[0].get("value", "Нет email")
                     if group.get("type") == "social":
                         for social in group.get("contacts", []):
                             url_val = social.get("url", "")
-                            if "vk.com" in url_val:
-                                vk_link = url_val
-                            elif "t.me" in url_val:
-                                tg_link = url_val
+                            if "vk.com" in url_val: vk_link = url_val
+                            elif "t.me" in url_val: tg_link = url_val
                 
-                # Ищем соцсети в external_content (если их нет в contact_groups)
                 for ext in external:
                     url_val = ext.get("url", "")
-                    if "vk.com" in url_val and vk_link == "Нет ВК":
-                        vk_link = url_val
-                    elif "t.me" in url_val and tg_link == "Нет ТГ":
-                        tg_link = url_val
+                    if "vk.com" in url_val and vk_link == "Нет ВК": vk_link = url_val
+                    elif "t.me" in url_val and tg_link == "Нет ТГ": tg_link = url_val
                 
                 address = item.get("address_name", "Адрес скрыт")
                 
-                # Формируем сообщение
                 text = f"🏢 **{name}**\n📞 {phone}\n📍 {address}"
                 if email != "Нет email": text += f"\n📧 {email}"
                 if vk_link != "Нет ВК": text += f"\n🔵 ВК: {vk_link}"
@@ -119,14 +136,16 @@ def find_salons(message):
                 bot.send_message(message.chat.id, text, parse_mode="Markdown", disable_web_page_preview=True)
         
         if found_count == 0:
-            bot.send_message(message.chat.id, f"На странице {current_page} все салоны имеют сайты. Листаем дальше...")
+            bot.send_message(message.chat.id, f"На странице {current_page} все {current_query.lower()} имеют сайты. Листаем дальше...")
             current_page += 1
+            # Автоматически ищем следующую страницу
+            find_salons(message)
         else:
-            bot.send_message(message.chat.id, f"✅ Найдено {found_count} салонов на странице {current_page}. Нажми кнопку еще раз для следующей страницы.")
+            bot.send_message(message.chat.id, f"✅ Найдено {found_count} на странице {current_page}. Нажми «Найти» для следующей страницы.", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")).add(types.KeyboardButton("🔍 Выбрать нишу")))
             current_page += 1
             
     except Exception as e:
-        bot.send_message(message.chat.id, f"⚠️ Ошибка: {e}")
+        bot.send_message(message.chat.id, f"⚠️ Ошибка: {e}", reply_markup=main_menu())
 
 if __name__ == "__main__":
     print("Бот-разведчик запущен.")
