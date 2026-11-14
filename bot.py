@@ -1,145 +1,255 @@
+"""Телеграм-бот: ищет малый бизнес без сайта и показывает контакты. Один файл."""
+
+import asyncio
+
+import csv
+
+import io
+
+import logging
+
 import os
-import telebot
-import requests
-from telebot import types
 
-TOKEN = os.getenv("BOT_TOKEN")
-DG_API_KEY = "4f107268-001b-41d1-a84c-345fcded5ecb"
+import sqlite3
 
-if not TOKEN:
-    raise SystemExit("Не найден BOT_TOKEN.")
+from dataclasses import dataclass, field
 
-bot = telebot.TeleBot(TOKEN)
+from html import escape
 
-current_page = 1
-current_query = "Салоны красоты"
-region_id = 38 # Питер
+from urllib.parse import urlparse
 
-def main_menu():
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("🔍 Выбрать нишу"), types.KeyboardButton("🔄 Сбросить поиск"))
-    return markup
 
-def niches_menu():
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("💇 Салоны красоты"), types.KeyboardButton("✂️ Барбершопы"))
-    markup.add(types.KeyboardButton("🦷 Стоматологии"), types.KeyboardButton("🚗 Автосервисы"))
-    markup.add(types.KeyboardButton("☕ Кофейни"), types.KeyboardButton("🏋️ Фитнес-залы"))
-    markup.add(types.KeyboardButton("🔙 Назад"))
-    return markup
 
-@bot.message_handler(commands=["start"])
-def cmd_start(message):
-    global current_page, current_query
-    current_page = 1
-    current_query = "Салоны красоты"
-    bot.send_message(message.chat.id, "Привет! Я бот-разведчик. Выбери нишу, чтобы найти бизнесы без сайтов в Питере.", reply_markup=main_menu())
+import aiohttp
 
-@bot.message_handler(func=lambda m: m.text == "🔍 Выбрать нишу")
-def choose_niche(message):
-    bot.send_message(message.chat.id, "Выбери, кого искать:", reply_markup=niches_menu())
+from aiogram import Bot, Dispatcher, F
 
-@bot.message_handler(func=lambda m: m.text == "🔙 Назад")
-def back_to_main(message):
-    bot.send_message(message.chat.id, "Главное меню:", reply_markup=main_menu())
+from aiogram.client.default import DefaultBotProperties
 
-@bot.message_handler(func=lambda m: m.text == "🔄 Сбросить поиск")
-def reset_search(message):
-    global current_page
-    current_page = 1
-    bot.send_message(message.chat.id, f"Поиск по '{current_query}' сброшен.", reply_markup=main_menu())
+from aiogram.enums import ParseMode
 
-@bot.message_handler(func=lambda m: m.text in ["💇 Салоны красоты", "✂️ Барбершопы", "🦷 Стоматологии", "🚗 Автосервисы", "☕ Кофейни", "🏋️ Фитнес-залы"])
-def set_niche(message):
-    global current_query, current_page
-    current_query = message.text.split(" ", 1)[1]
-    current_page = 1
-    bot.send_message(message.chat.id, f"Выбрано: {current_query}. Ищу...", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")))
-    find_salons(message)
+from aiogram.filters import Command, CommandStart
 
-@bot.message_handler(func=lambda m: m.text == "🔍 Найти")
-def find_salons_handler(message):
-    find_salons(message)
+from aiogram.types import (BufferedInputFile, CallbackQuery, InlineKeyboardButton,
 
-def find_salons(message):
-    global current_page, current_query, region_id
-    
-    bot.send_message(message.chat.id, f"🔎 Ищу '{current_query}' в Санкт-Петербурге (страница {current_page})...")
-    
-    url = "https://catalog.api.2gis.com/3.0/items"
+                           InlineKeyboardMarkup, Message)
+
+
+
+# ---------- поиск через API 2ГИС ----------
+
+API_URL = "https://catalog.api.2gis.com/3.0/items"
+
+
+
+# Соцсети и агрегаторы не считаются «своим сайтом»
+
+NOT_OWN_SITE = {
+
+    "vk.com", "vk.ru", "m.vk.com", "t.me", "telegram.me", "instagram.com", "facebook.com",
+
+    "ok.ru", "youtube.com", "wa.me", "api.whatsapp.com", "linktr.ee", "taplink.cc",
+
+    "2gis.ru", "yandex.ru", "avito.ru", "profi.ru", "flamp.ru",
+
+}
+
+
+
+
+
+@dataclass
+
+class Lead:
+
+    firm_id: str
+
+    name: str
+
+    address: str
+
+    phones: list = field(default_factory=list)
+
+    socials: list = field(default_factory=list)
+
+    emails: list = field(default_factory=list)
+
+    rubric: str = ""
+
+
+
+    @property
+
+    def link_2gis(self) -> str:
+
+        return f"https://2gis.ru/firm/{self.firm_id}"
+
+
+
+
+
+class ApiError(Exception):
+
+    pass
+
+
+
+
+
+def _domain(url: str) -> str:
+
+    url = (url or "").strip()
+
+    if not url:
+
+        return ""
+
+    if "//" not in url:
+
+        url = "//" + url
+
+    host = (urlparse(url).netloc or "").lower()
+
+    return host[4:] if host.startswith("www.") else host
+
+
+
+
+
+def _is_social(url: str) -> bool:
+
+    d = _domain(url)
+
+    return any(d == s or d.endswith("." + s) for s in NOT_OWN_SITE)
+
+
+
+
+
+def parse_item(item: dict):
+
+    """Lead, если своего сайта нет и есть чем связаться, иначе None."""
+
+    contacts = []
+
+    for group in item.get("contact_groups") or []:
+
+        contacts.extend(group.get("contacts") or [])
+
+
+
+    phones, socials, emails, has_own_site = [], [], [], False
+
+    for c in contacts:
+
+        kind = c.get("type")
+
+        value = (c.get("value") or c.get("text") or "").strip()
+
+        if not value:
+
+            continue
+
+        if kind == "website":
+
+            if _is_social(value):
+
+                socials.append(value)
+
+            else:
+
+                has_own_site = True
+
+        elif kind == "phone":
+
+            phones.append(c.get("print_text") or c.get("text") or value)
+
+        elif kind == "email":
+
+            emails.append(value)
+
+        elif kind in ("vkontakte", "telegram", "instagram", "whatsapp", "viber", "facebook", "ok"):
+
+            socials.append(value)
+
+
+
+    if has_own_site:
+
+        return None
+
+    if not (phones or socials or emails):
+
+        return None
+
+
+
+    rubrics = item.get("rubrics") or []
+
+    return Lead(
+
+        firm_id=str(item.get("id", "")).split("_")[0],
+
+        name=item.get("name", "Без названия"),
+
+        address=item.get("address_name") or item.get("full_address_name") or "",
+
+        phones=list(dict.fromkeys(phones)),
+
+        socials=list(dict.fromkeys(socials)),
+
+        emails=list(dict.fromkeys(emails)),
+
+        rubric=rubrics[0].get("name", "") if rubrics else "",
+
+    )
+
+
+
+
+
+async def fetch_page(session, key, query, page, page_size=10):
+
     params = {
-        "q": current_query,
-        "region_id": region_id, 
-        "fields": "items.contact_groups,items.external_content,items.full_name,items.address_name,items.point,items.links", 
-        "page": current_page,
-        "page_size": 10,
-        "key": DG_API_KEY
+
+        "q": query, "key": key, "page": page, "page_size": page_size,
+
+        "locale": "ru_RU", "type": "branch",
+
+        "fields": "items.contact_groups,items.address_name,items.rubrics,items.full_address_name",
+
     }
 
-    try:
-        response = requests.get(url, params=params)
-        data = response.json()
+    async with session.get(API_URL, params=params, timeout=aiohttp.ClientTimeout(total=20)) as r:
 
-        if "result" not in data or "items" not in data["result"]:
-            bot.send_message(message.chat.id, "❌ Ошибка API или результаты закончились.", reply_markup=main_menu())
-            current_page = 1
-            return
+        data = await r.json(content_type=None)
 
-        found_count = 0
-        for item in data["result"]["items"]:
-            name = item.get("full_name", "Без названия")
-            
-            has_site = False
-            
-            # 1. Проверка external_content (с защитой от строк)
-            external = item.get("external_content", [])
-            if isinstance(external, list):
-                for ext in external:
-                    if isinstance(ext, dict) and ext.get("type") == "website":
-                        has_site = True
-                        break
-            
-            # 2. Проверка links (с защитой от строк)
-            links = item.get("links", [])
-            if isinstance(links, list):
-                for link in links:
-                    if isinstance(link, dict) and link.get("type") == "website":
-                        has_site = True
-                        break
-                    
-            # 3. Проверка contact_groups (с защитой от строк)
-            contacts = item.get("contact_groups", [])
-            if isinstance(contacts, list):
-                for group in contacts:
-                    if isinstance(group, dict) and group.get("type") == "website":
-                        has_site = True
-                        break
-                    
-            if not has_site:
-                found_count += 1
-                
-                item_id = item.get("id", "")
-                dgis_link = f"https://2gis.ru/spb/firm/{item_id}"
-                address = item.get("address_name", "Адрес скрыт")
-                
-                text = f"🏢 **{name}**\n📍 {address}\n\n_Нажми на кнопку ниже, чтобы открыть контакты в 2ГИС_"
-                
-                markup = types.InlineKeyboardMarkup()
-                markup.add(types.InlineKeyboardButton("📞 Контакты в 2ГИС", url=dgis_link))
-                
-                bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=markup, disable_web_page_preview=True)
-        
-        if found_count == 0:
-            bot.send_message(message.chat.id, f"На странице {current_page} все имеют сайты. Листаем дальше...")
-            current_page += 1
-            find_salons(message)
-        else:
-            bot.send_message(message.chat.id, f"✅ Найдено {found_count} на странице {current_page}. Нажми «Найти» для следующей.", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton("🔍 Найти")).add(types.KeyboardButton("🔍 Выбрать нишу")))
-            current_page += 1
-            
-    except Exception as e:
-        bot.send_message(message.chat.id, f"⚠️ Ошибка: {e}", reply_markup=main_menu())
 
-if __name__ == "__main__":
-    print("Бот-разведчик запущен.")
-    bot.infinity_polling(timeout=60, long_polling_timeout=30)
+
+    meta = data.get("meta", {})
+
+    code = meta.get("code", r.status)
+
+    if code == 404:                 # результатов больше нет
+
+        return [], 0
+
+    if code != 200:
+
+        msg = (meta.get("error") or {}).get("message") or f"ко
+01:46
+д {code}"
+
+        raise ApiError(msg)
+
+    result = data.get("result", {})
+
+    return result.get("items", []), result.get("total", 0)
+
+
+
+
+
+async def find_leads(session, key, query, start_page, want=10, max_pages=12, delay=0.3):
+
+    """Листает выдачу, пока не наберёт want бизнесов без сайта. -> (leads, next_page, finished)"""
