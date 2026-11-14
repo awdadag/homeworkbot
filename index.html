@@ -38,7 +38,9 @@
     a { color: inherit; text-decoration: none; }
     #scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
     main, header.nav { position: relative; z-index: 1; }
-    .wrap { width: min(1180px, 100% - 48px); margin-inline: auto; }
+    
+    /* ТЕКСТ СДВИНУТ ВЛЕВО */
+    .wrap { width: 100%; padding-left: 5%; padding-right: 5%; margin: 0; }
 
     header.nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 10; height: 68px;
@@ -630,13 +632,13 @@
         brRig.position.set(0, 3, -2);
         brRig.scale.setScalar(0.5);
       } else {
-        camera.position.z = 10; // Отдаляем камеру
+        camera.position.z = 10; 
         
-        // Робот справа (сдвинут ближе к центру, чтобы не улетал за экран)
-        botRig.position.set(2.2, -0.2, 0);
+        // РОБОТ ЧУТЬ ЛЕВЕЕ (1.8 вместо 2.2)
+        botRig.position.set(1.8, -0.2, 0);
         botRig.scale.setScalar(0.9);
         
-        // Окно браузера слева под текстом
+        // Окно браузера слева
         brRig.position.set(-2.5, 0, -1);
         brRig.scale.setScalar(0.8);
       }
@@ -654,8 +656,8 @@
 
       const t = clock.getElapsedTime();
 
-      // МИЛОЕ ПАРЕНИЕ РОБОТА (координата X = 2.2 как в resize)
-      bot.position.x = 2.2 + Math.sin(t * 0.8) * 0.2;
+      // ПАРЕНИЕ (X = 1.8)
+      bot.position.x = 1.8 + Math.sin(t * 0.8) * 0.2;
       bot.position.y = -0.2 + Math.sin(t * 1.5) * 0.15;
       bot.position.z = 0 + Math.cos(t * 0.5) * 0.1;
 
