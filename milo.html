@@ -12,7 +12,7 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Запрет скролла */
+            overflow-x: hidden;
             perspective: 1500px;
         }
 
@@ -29,44 +29,46 @@
         .content {
             position: relative;
             z-index: 1;
+        }
+
+        /* --- СЕКЦИЯ 1: НАЗВАНИЕ + КАРТОЧКИ --- */
+        .hero {
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Блок с названием (ВСЕГДА НА МЕСТЕ) */
-        .title-block {
-            text-align: center;
-            z-index: 5;
-            margin-bottom: 50px;
-            position: absolute;
-            top: 15%;
-        }
-
+        /* Название (Всегда на месте) */
         .main-title { 
             font-family: 'Unbounded', sans-serif;
             font-size: clamp(2.5rem, 8vw, 6rem); 
             line-height: 0.9;
             text-transform: uppercase;
             color: #fff;
+            text-align: center;
+            z-index: 5;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-30px);
         }
 
         .subtitle {
             font-size: 1.2rem;
             color: #aaa;
             letter-spacing: 3px;
-            margin-top: 10px;
+            text-align: center;
+            z-index: 5;
+            margin-bottom: 50px;
+            opacity: 0;
         }
 
-        /* Контейнер для карточек */
+        /* Карточки (Контейнер) */
         .cards-wrapper {
-            position: absolute;
-            top: 55%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             display: flex;
             gap: 30px;
             z-index: 2;
@@ -88,12 +90,12 @@
             opacity: 0; 
         }
 
-        .card h3 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; }
-        .card .price { font-family: 'Unbounded', sans-serif; font-size: 2.8rem; font-weight: 900; }
-        .card p { color: #888; font-size: 0.85rem; }
+        .card h3 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; margin-bottom: 10px; }
+        .card .price { font-family: 'Unbounded', sans-serif; font-size: 2.8rem; font-weight: 900; margin-bottom: 15px; }
+        .card p { color: #888; font-size: 0.85rem; line-height: 1.4; }
 
-        /* Блок "Обо мне" (появится на месте карточек) */
-        .about-block {
+        /* Блок "Обо мне" (изначально скрыт) */
+        .about-content {
             position: absolute;
             top: 55%;
             left: 50%;
@@ -106,17 +108,17 @@
             pointer-events: none;
         }
 
-        .about-block h2 {
+        .about-content h2 {
             font-family: 'Unbounded', sans-serif;
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 20px;
         }
 
-        .about-block p {
+        .about-content p {
             font-size: 1.2rem;
             color: #ccc;
             line-height: 1.6;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .btn {
@@ -130,12 +132,22 @@
             border-radius: 50px;
             text-decoration: none;
             transition: 0.3s;
-            pointer-events: auto;
         }
 
         .btn:hover {
             transform: scale(1.05);
             box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+        }
+
+        footer {
+            text-align: center;
+            padding: 50px 0;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            background: #050510;
+            position: relative;
+            z-index: 10;
         }
     </style>
 </head>
@@ -144,44 +156,49 @@
     <div id="canvas-container"></div>
 
     <div class="content">
-        <!-- Название (не исчезает) -->
-        <div class="title-block">
-            <h1 class="main-title">HARVEST PROJECT</h1>
-            <p class="subtitle">СОЗДАЮ 3D-САЙТЫ И ВИЗИТКИ</p>
-        </div>
+        <section class="hero" id="hero">
+            <!-- Название -->
+            <h1 class="main-title" id="main-title">HARVEST PROJECT</h1>
+            <p class="subtitle" id="subtitle">СОЗДАЮ 3D-САЙТЫ И ВИЗИТКИ</p>
+            
+            <!-- Карточки -->
+            <div class="cards-wrapper" id="cards-wrapper">
+                <div class="card" id="card1">
+                    <h3>Сайт-визитка</h3>
+                    <div class="price">1000 ₽</div>
+                    <p>Красивый одностраничник.</p>
+                </div>
+                <div class="card" id="card2">
+                    <h3>Telegram-бот</h3>
+                    <div class="price">2000 ₽</div>
+                    <p>Автоматизация записи.</p>
+                </div>
+                <div class="card" id="card3">
+                    <h3>Сайт + Бот</h3>
+                    <div class="price">2500 ₽</div>
+                    <p>Полный комплект.</p>
+                </div>
+            </div>
 
-        <!-- Карточки -->
-        <div class="cards-wrapper" id="cards-wrapper">
-            <div class="card" id="card1">
-                <h3>Сайт-визитка</h3>
-                <div class="price">1000 ₽</div>
-                <p>Красивый одностраничник.</p>
+            <!-- Блок "Обо мне" -->
+            <div class="about-content" id="about-content">
+                <h2>Обо мне</h2>
+                <p>Harvest Project — это создание современных сайтов и Telegram-ботов для малого бизнеса.</p>
+                <p>Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
+                <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Обсудить проект</a>
             </div>
-            <div class="card" id="card2">
-                <h3>Telegram-бот</h3>
-                <div class="price">2000 ₽</div>
-                <p>Автоматизация записи.</p>
-            </div>
-            <div class="card" id="card3">
-                <h3>Сайт + Бот</h3>
-                <div class="price">2500 ₽</div>
-                <p>Полный комплект.</p>
-            </div>
-        </div>
+        </section>
 
-        <!-- Блок "Обо мне" -->
-        <div class="about-block" id="about-block">
-            <h2>Обо мне</h2>
-            <p>Harvest Project — это создание современных сайтов и Telegram-ботов для малого бизнеса. Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
-            <a href="https://t.me/HomeworkHelper_1bot" class="btn" target="_blank">Обсудить проект</a>
-        </div>
+        <footer>
+            <p>© 2026 Harvest Project</p>
+        </footer>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
-        // Космос
+        // 1. КОСМОС
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -212,24 +229,34 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- СЦЕНАРИЙ ---
-        
-        // Начальные позиции карточек (с боков)
+        // 2. СЦЕНАРИЙ АНИМАЦИИ
+        document.body.style.overflow = 'hidden'; // Блокируем скролл
+
+        // Начальные позиции карточек
         gsap.set("#card1", { x: -500, y: 0, z: -500, rotationY: 45 });
         gsap.set("#card2", { x: 0, y: 500, z: -500 });
         gsap.set("#card3", { x: 500, y: 0, z: -500, rotationY: -45 });
 
-        const tl = gsap.timeline();
+        const tl = gsap.timeline({
+            onComplete: () => {
+                // Разблокируем скролл, когда всё улетело
+                document.body.style.overflow = 'auto';
+            }
+        });
 
-        // 1. Вылет карточек
-        tl.to("#card1", { duration: 0.8, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" })
+        // 1. Появление названия
+        tl.to("#main-title", { duration: 0.8, opacity: 1, y: 0, ease: "back.out(1.7)" })
+          .to("#subtitle", { duration: 0.8, opacity: 1, ease: "power2.out" }, "-=0.5")
+
+        // 2. Вылет карточек
+          .to("#card1", { duration: 0.8, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.3")
           .to("#card2", { duration: 0.8, y: 0, z: 0, opacity: 1, ease: "power3.out" }, "-=0.6")
           .to("#card3", { duration: 0.8, x: 0, y: 0, z: 0, opacity: 1, rotationY: 0, ease: "power3.out" }, "-=0.6")
 
-        // 2. Пауза (2 секунды)
+        // 3. Пауза 2 секунды (карточки висят)
           .to({}, { duration: 2 })
 
-        // 3. Карточки УЛЕТАЮТ ВНИЗ
+        // 4. Улет карточек вниз
           .to(".cards-wrapper", { 
               y: 800, 
               opacity: 0, 
@@ -238,8 +265,8 @@
               ease: "power2.in" 
           })
 
-        // 4. Появление блока "Обо мне" на месте карточек
-          .to("#about-block", {
+        // 5. Появление блока "Обо мне"
+          .to("#about-content", {
               opacity: 1,
               duration: 1,
               pointerEvents: 'auto'
