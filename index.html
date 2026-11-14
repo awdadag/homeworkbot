@@ -173,7 +173,6 @@
 </header>
 
 <main>
-
   <section id="hero" data-state="0">
     <div class="wrap">
       <div class="col">
@@ -324,7 +323,6 @@
       </div>
     </div>
   </section>
-
 </main>
 
 <footer>
@@ -336,13 +334,12 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- ЛОГИКА (Форма, кнопки, скролл) -->
 <script>
   const CONFIG = {
     phone: '+79217588685',
     phoneView: '+7 921 758-86-85',
-    maxLink: '',   // ВСТАВЬ ССЫЛКУ НА MAX, ЕСЛИ ЕСТЬ
-    vkLink: ''     // ВСТАВЬ ССЫЛКУ НА ВК, ЕСЛИ ЕСТЬ
+    maxLink: '',
+    vkLink: ''
   };
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -424,7 +421,7 @@
   }
 </script>
 
-<!-- 3D-СЦЕНА (Робот, окно браузера, фигуры, звезды) -->
+<!-- 3D-СЦЕНА -->
 <script type="module">
   import * as THREE from 'three';
   import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -633,14 +630,14 @@
         brRig.position.set(0, 3, -2);
         brRig.scale.setScalar(0.5);
       } else {
-        camera.position.z = 9;
+        camera.position.z = 10; // Отдаляем камеру
         
-        // РОБОТ СПРАВА
-        botRig.position.set(3.5, -0.5, -1);
-        botRig.scale.setScalar(0.8);
+        // Робот справа (сдвинут ближе к центру, чтобы не улетал за экран)
+        botRig.position.set(2.2, -0.2, 0);
+        botRig.scale.setScalar(0.9);
         
-        // ОКНО БРАУЗЕРА СЛЕВА ВНИЗУ
-        brRig.position.set(-2.5, -1.5, -2);
+        // Окно браузера слева под текстом
+        brRig.position.set(-2.5, 0, -1);
         brRig.scale.setScalar(0.8);
       }
       camera.updateProjectionMatrix();
@@ -657,10 +654,10 @@
 
       const t = clock.getElapsedTime();
 
-      // МИЛОЕ ПАРЕНИЕ
-      bot.position.x = 3.5 + Math.sin(t * 0.8) * 0.2;
-      bot.position.y = -0.5 + Math.sin(t * 1.5) * 0.15;
-      bot.position.z = -1 + Math.cos(t * 0.5) * 0.1;
+      // МИЛОЕ ПАРЕНИЕ РОБОТА (координата X = 2.2 как в resize)
+      bot.position.x = 2.2 + Math.sin(t * 0.8) * 0.2;
+      bot.position.y = -0.2 + Math.sin(t * 1.5) * 0.15;
+      bot.position.z = 0 + Math.cos(t * 0.5) * 0.1;
 
       bot.rotation.y = Math.sin(t * 0.5) * 0.1 + mouse.x * 0.4;
       bot.rotation.x = Math.cos(t * 0.3) * 0.05 - mouse.y * 0.15;
@@ -689,7 +686,7 @@
 
       br.rotation.y = Math.sin(t * 0.4) * 0.15 + mouse.x * 0.1;
       br.rotation.x = Math.cos(t * 0.3) * 0.05 - mouse.y * 0.05;
-      br.position.y = -1.5 + Math.sin(t * 1.2 + 1) * 0.1;
+      br.position.y = 0 + Math.sin(t * 1.2 + 1) * 0.15;
 
       halo.rotation.z += 0.01;
 
