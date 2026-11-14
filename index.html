@@ -521,7 +521,7 @@
     const torso = new THREE.Mesh(new RoundedBoxGeometry(1.1, 0.75, 0.8, 6, 0.28), white);
     torso.position.y = -1.15;
     botBody.add(torso);
-    const chest = new THREE.Mesh(new THREE
+    const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.04, 24), eyeMat);
     chest.rotation.x = Math.PI / 2;
     chest.position.set(0, -1.1, 0.41);
     botBody.add(chest);
