@@ -12,7 +12,7 @@
             background-color: #050510; 
             color: #fff; 
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Запрещаем обычный скролл */
+            overflow: hidden; /* Запрет обычного скролла */
             perspective: 1500px;
         }
 
@@ -31,6 +31,7 @@
             z-index: 1;
             height: 100vh;
             width: 100vw;
+            overflow: hidden;
         }
 
         /* Каждый слайд — на весь экран */
@@ -48,16 +49,18 @@
             padding: 20px;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            transform: translateY(50px); /* Сдвиг для анимации появления */
+            transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
         }
 
         /* Активный слайд */
         .slide.active {
             opacity: 1;
             visibility: visible;
+            transform: translateY(0);
         }
 
-        /* --- СЛАЙД 1: ТОЛЬКО НАЗВАНИЕ --- */
+        /* --- СЛАЙД 1 --- */
         .slide-1 h1 {
             font-family: 'Unbounded', sans-serif;
             font-size: clamp(3rem, 12vw, 10rem);
@@ -73,7 +76,7 @@
             margin-top: 20px;
         }
 
-        /* --- СЛАЙД 2: ЦЕНЫ --- */
+        /* --- СЛАЙД 2: КАРТОЧКИ --- */
         .cards-row {
             display: flex;
             gap: 30px;
@@ -93,6 +96,24 @@
             transform-style: preserve-3d;
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             cursor: crosshair;
+            
+            /* Начальное состояние для вылета */
+            opacity: 0;
+            transform: translateY(100px) rotateY(20deg);
+        }
+
+        /* Класс, который добавляет анимацию */
+        .slide.active .card {
+            animation: flyIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .slide.active .card:nth-child(1) { animation-delay: 0.1s; }
+        .slide.active .card:nth-child(2) { animation-delay: 0.3s; }
+        .slide.active .card:nth-child(3) { animation-delay: 0.5s; }
+
+        @keyframes flyIn {
+            0% { opacity: 0; transform: translateY(100px) rotateY(20deg); }
+            100% { opacity: 1; transform: translateY(0) rotateY(0deg); }
         }
 
         .card-front {
@@ -124,7 +145,7 @@
             line-height: 1.4;
         }
 
-        /* Пояснение при наведении */
+        /* Пояснение */
         .explanation {
             position: absolute;
             top: 0;
@@ -157,7 +178,7 @@
             margin-bottom: 10px;
         }
 
-        /* --- СЛАЙД 3: ОБО МНЕ --- */
+        /* --- СЛАЙД 3 --- */
         .slide-3 h2 {
             font-family: 'Unbounded', sans-serif;
             font-size: 3rem;
@@ -190,7 +211,7 @@
             box-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
         }
 
-        /* Индикатор слайдов (точки внизу) */
+        /* Точки навигации */
         .dots {
             position: fixed;
             bottom: 30px;
@@ -214,7 +235,6 @@
             background: #fff;
             transform: scale(1.2);
         }
-
     </style>
 </head>
 <body>
@@ -222,13 +242,13 @@
     <div id="canvas-container"></div>
 
     <div class="slides-container">
-        <!-- СЛАЙД 1: НАЗВАНИЕ -->
+        <!-- СЛАЙД 1 -->
         <section class="slide slide-1 active" id="slide1">
             <h1>HARVEST<br>PROJECT</h1>
             <p>Создаю 3D-сайты и визитки</p>
         </section>
 
-        <!-- СЛАЙД 2: ЦЕНЫ -->
+        <!-- СЛАЙД 2 -->
         <section class="slide slide-2" id="slide2">
             <div class="cards-row">
                 <div class="card">
@@ -269,7 +289,7 @@
             </div>
         </section>
 
-        <!-- СЛАЙД 3: ОБО МНЕ -->
+        <!-- СЛАЙД 3 -->
         <section class="slide slide-3" id="slide3">
             <h2>Обо мне</h2>
             <p>Создаю сложные 3D-сайты и простые визитки для бизнеса. Мои проекты решают проблемы: автоматизируют запись, собирают заявки и экономят ваше время.</p>
@@ -339,7 +359,7 @@
             });
         });
 
-        // --- ЛОГИКА СЛАЙДОВ ---
+        // --- ЛОГИКА СЛАЙДОВ (ТОЛЬКО ВВЕРХ/ВНИЗ) ---
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
         const dots = document.querySelectorAll('.dot');
@@ -350,22 +370,19 @@
             
             isAnimating = true;
             
-            // Скрываем текущий слайд
             slides[currentSlide].classList.remove('active');
             dots[currentSlide].classList.remove('active');
             
-            // Показываем новый
             currentSlide = index;
             slides[currentSlide].classList.add('active');
             dots[currentSlide].classList.add('active');
 
-            // Разблокируем через полсекунды (пока идет анимация)
             setTimeout(() => {
                 isAnimating = false;
-            }, 600);
+            }, 800);
         }
 
-        // Обработка колесика мыши
+        // СКРОЛЛ ТОЛЬКО ВВЕРХ/ВНИЗ
         window.addEventListener('wheel', (e) => {
             if (isAnimating) return;
             
@@ -374,9 +391,9 @@
             } else if (e.deltaY < 0) {
                 goToSlide(currentSlide - 1);
             }
-        });
+        }, { passive: false });
 
-        // Обработка свайпов на телефоне
+        // Свайпы на телефоне
         let touchStartY = 0;
         window.addEventListener('touchstart', (e) => {
             touchStartY = e.touches[0].clientY;
@@ -386,14 +403,13 @@
             const touchEndY = e.changedTouches[0].clientY;
             const diff = touchStartY - touchEndY;
 
-            if (diff > 50) { // Свайп вверх
+            if (diff > 50) { 
                 goToSlide(currentSlide + 1);
-            } else if (diff < -50) { // Свайп вниз
+            } else if (diff < -50) { 
                 goToSlide(currentSlide - 1);
             }
         });
 
-        // Клик по точкам
         dots.forEach(dot => {
             dot.addEventListener('click', () => {
                 const index = parseInt(dot.getAttribute('data-slide'));
