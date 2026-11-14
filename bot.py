@@ -91,34 +91,44 @@ def parse_item(item):
 
     phones, socials, emails = [], [], []
     has_own_site = False
+    
     for c in contacts:
         kind = c.get("type")
         value = (c.get("value") or c.get("text") or "").strip()
         if not value:
             continue
-        if kind == "website":
+            
+        # Проверка на сайты
+        if kind in ("website", "url", "site"):
             if is_social(value):
                 socials.append(value)
             else:
                 has_own_site = True
+                
         elif kind == "phone":
-            phones.append(c.get("print_text") or value)
+            # Очищаем номер от пробелов, скобок и дефисов
+            clean_phone = "".join(filter(str.isdigit, value))
+            # Проверяем, что номер российский (начинается с 7 или 8)
+            if clean_phone.startswith("7") or clean_phone.startswith("8"):
+                phones.append(c.get("print_text") or value)
+                
         elif kind == "email":
             emails.append(value)
         elif kind in SOCIAL_KINDS:
             socials.append(value)
 
+    # Если есть реальный сайт — выкидываем
     if has_own_site:
+        return None
+
+    # Если нет валидного телефона — выкидываем
+    if not phones:
         return None
 
     rubrics = item.get("rubrics") or []
     rubric = rubrics[0].get("name", "") if rubrics else ""
     address = item.get("address_name")
     address = address or item.get("full_address_name") or ""
-
-    # Разрешаем сохранять, если есть хотя бы адрес
-    if not (phones or socials or emails or address):
-        return None
 
     return Lead(
         firm_id=str(item.get("id", "")).split("_")[0],
