@@ -336,6 +336,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<!-- ЛОГИКА (Форма, кнопки, скролл) -->
 <script>
   const CONFIG = {
     phone: '+79217588685',
@@ -423,6 +424,7 @@
   }
 </script>
 
+<!-- 3D-СЦЕНА (Робот, окно браузера, фигуры, звезды) -->
 <script type="module">
   import * as THREE from 'three';
   import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -449,11 +451,9 @@
     const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
     camera.position.set(0, 0, 9);
 
-    // отражения для глянца
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-    // свет
     const key = new THREE.DirectionalLight(0xffffff, 2.0);
     key.position.set(3, 5, 6);
     scene.add(key);
@@ -464,14 +464,13 @@
     cool.position.set(5, 3, -1);
     scene.add(cool);
 
-    // материалы
     const white = new THREE.MeshPhysicalMaterial({ color: 0xf2f4fb, roughness: 0.28, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.15, envMapIntensity: 0.9 });
     const dark = new THREE.MeshPhysicalMaterial({ color: 0x0a0c18, roughness: 0.15, metalness: 0.3, clearcoat: 1, envMapIntensity: 0.6 });
     const panelMat = new THREE.MeshPhysicalMaterial({ color: 0x12152b, roughness: 0.3, metalness: 0.4, clearcoat: 0.8, envMapIntensity: 0.7 });
     const eyeMat = new THREE.MeshBasicMaterial({ color: 0x5ee7ff });
     const coralMat = new THREE.MeshBasicMaterial({ color: 0xff5a36 });
 
-    /* ========== РОБОТ ========== */
+    /* РОБОТ */
     const botRig = new THREE.Group();
     const bot = new THREE.Group();
     botRig.add(bot);
@@ -517,4 +516,7 @@
     head.add(stem);
     const tip = new THREE.Mesh(new THREE.SphereGeometry(0.09, 20, 20), coralMat);
     tip.position.y = 1.02;
-    head.add
+    head.add(tip);
+
+    const torso = new THREE.Mesh(new RoundedBoxGeometry(1.1, 0.75, 0.8, 6, 0.28), white);
+    torso.position.y =
