@@ -110,13 +110,16 @@ def parse_item(item):
 
     if has_own_site:
         return None
-    if not (phones or socials or emails):
-        return None
 
     rubrics = item.get("rubrics") or []
     rubric = rubrics[0].get("name", "") if rubrics else ""
     address = item.get("address_name")
     address = address or item.get("full_address_name") or ""
+
+    # Разрешаем сохранять, если есть хотя бы адрес
+    if not (phones or socials or emails or address):
+        return None
+
     return Lead(
         firm_id=str(item.get("id", "")).split("_")[0],
         name=item.get("name", "Без названия"),
@@ -156,18 +159,16 @@ async def fetch_page(session, query, page):
 async def find_leads(session, query, start_page):
     leads = []
     page = start_page
-    # Максимум 5 страниц по 10 штук = 50 компаний
     for _ in range(5):
         items = await fetch_page(session, query, page)
         
-        # --- ДИАГНОСТИКА ---
+        # ДИАГНОСТИКА (в консоль)
         print(f"\n=== ПОЛУЧЕНО СТРАНИЦ: {len(items)} ===")
         for it in items:
             print(it.get("name"), "| Сайт:", it.get("contact_groups"))
-        # -------------------
         
         if not items:
-            return leads, page, True # Больше страниц нет
+            return leads, page, True
         
         for it in items:
             lead = parse_item(it)
@@ -175,7 +176,6 @@ async def find_leads(session, query, start_page):
                 leads.append(lead)
         
         page += 1
-        # Если набрали 10 подходящих — останавливаемся
         if len(leads) >= 10:
             return leads, page, False
             
