@@ -542,7 +542,6 @@ async def run_search(bot, chat_id, user_id):
             leads, st["page"], st["done"] = res
 
         except ApiEr
-01:53
 ror as e:
 
             await wait.edit_text("Ошибка 2ГИС: " + escape(str(e)))
