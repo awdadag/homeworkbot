@@ -16,7 +16,6 @@
             perspective: 1500px;
         }
 
-        /* Космос (фиксированный на весь экран) */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -77,7 +76,8 @@
             transform-style: preserve-3d;
         }
 
-        .card {
+        /* Карточки в интро (БЕЗ ЦЕН) */
+        .card-intro {
             width: 260px;
             height: 380px;
             background: rgba(20, 20, 35, 0.8);
@@ -87,32 +87,31 @@
             text-align: center;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(255, 0, 204, 0.1);
             opacity: 0; 
-            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
         }
 
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 40px rgba(255, 0, 204, 0.4);
-            border-color: #ff00cc;
-        }
-
-        .card h3 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; margin-bottom: 10px; color: #fff;}
-        
-        .card .price { 
+        .card-intro h3 { 
             font-family: 'Unbounded', sans-serif; 
-            font-size: 2.8rem; 
-            font-weight: 900; 
-            margin-bottom: 15px; 
-            background: linear-gradient(135deg, #ff00cc, #3333ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 1.5rem; 
+            color: #fff;
+            margin-bottom: 10px;
         }
-        
-        .card p { color: #aaa; font-size: 0.85rem; line-height: 1.4; }
 
+        .card-intro .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .card-intro p {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Блок "Обо мне" (появляется после улета) */
         .about-content {
             position: absolute;
             top: 55%;
@@ -162,7 +161,7 @@
             box-shadow: 0 0 60px rgba(255, 0, 204, 0.8);
         }
 
-        /* --- СЕКЦИЯ 2: НАШИ УСЛУГИ --- */
+        /* --- СЕКЦИЯ 2: НАШИ УСЛУГИ (С ЦЕНАМИ И ПОЯСНЕНИЯМИ) --- */
         .prices-section {
             min-height: 100vh;
             display: flex;
@@ -170,7 +169,7 @@
             align-items: center;
             justify-content: center;
             padding: 100px 20px;
-            background: transparent; /* Прозрачный фон, чтобы видеть космос */
+            background: transparent; 
             border-top: 1px solid rgba(255,255,255,0.05);
         }
 
@@ -188,13 +187,145 @@
             gap: 30px;
         }
 
+        /* Карточки с ценами и пояснениями */
+        .card-price {
+            width: 260px;
+            height: 380px;
+            background: rgba(15, 15, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            cursor: crosshair;
+            opacity: 0; 
+        }
+
+        .card-price h3 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; margin-bottom: 10px; }
+        .card-price .price { 
+            font-family: 'Unbounded', sans-serif; 
+            font-size: 2.8rem; 
+            font-weight: 900; 
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ff00cc, #3333ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card-price p.short-desc { color: #aaa; font-size: 0.85rem; line-height: 1.4; }
+
+        /* Пояснение при наведении */
+        .explanation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.98);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+            pointer-events: auto;
+        }
+
+        .card-price:hover .explanation {
+            transform: translateY(0);
+        }
+
+        .explanation strong {
+            display: block;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1rem;
+            color: #ff00cc;
+            margin-bottom: 10px;
+        }
+
+        /* --- СЕКЦИЯ 3: КОНТАКТЫ --- */
+        .contacts-section {
+            min-height: 50vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-top: 1px solid rgba(255, 0, 204, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .contacts-section h2 {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .contacts-section p {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 20px;
+            max-width: 600px;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .contact-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .contact-link:hover {
+            background: rgba(255, 0, 204, 0.2);
+            border-color: #ff00cc;
+        }
+
+        .phone-number {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.5rem;
+            color: #fff;
+            text-decoration: none;
+            margin-top: 10px;
+            display: block;
+            letter-spacing: 2px;
+        }
+
+        .phone-number:hover {
+            color: #ff00cc;
+        }
+
         footer {
             text-align: center;
-            padding: 50px 0;
+            padding: 30px 0;
             color: #666;
             font-size: 0.9rem;
             border-top: 1px solid rgba(255,255,255,0.05);
             background: transparent;
+            position: relative;
+            z-index: 5;
         }
     </style>
 </head>
@@ -208,19 +339,19 @@
             <p class="subtitle" id="subtitle">СОЗДАЮ 3D-САЙТЫ И ВИЗИТКИ</p>
             
             <div class="cards-wrapper" id="cards-wrapper">
-                <div class="card" id="card1">
+                <div class="card-intro" id="card1">
+                    <div class="icon">🌐</div>
                     <h3>Сайт-визитка</h3>
-                    <div class="price">1000 ₽</div>
                     <p>Красивый одностраничник.</p>
                 </div>
-                <div class="card" id="card2">
+                <div class="card-intro" id="card2">
+                    <div class="icon">🤖</div>
                     <h3>Telegram-бот</h3>
-                    <div class="price">2000 ₽</div>
                     <p>Автоматизация записи.</p>
                 </div>
-                <div class="card" id="card3">
+                <div class="card-intro" id="card3">
+                    <div class="icon">🚀</div>
                     <h3>Сайт + Бот</h3>
-                    <div class="price">2500 ₽</div>
                     <p>Полный комплект.</p>
                 </div>
             </div>
@@ -233,26 +364,56 @@
             </div>
         </section>
 
-        <!-- БЛОК С ЦЕНАМИ -->
         <section class="prices-section" id="prices-section">
             <h2>Наши услуги</h2>
             <div class="prices-cards">
-                <div class="card">
-                    <h3>Сайт-визитка</h3>
-                    <div class="price">1000 ₽</div>
-                    <p>Красивый одностраничник.</p>
+                <div class="card-price">
+                    <div>
+                        <h3>Сайт-визитка</h3>
+                        <div class="price">1000 ₽</div>
+                        <p class="short-desc">Красивый одностраничник.</p>
+                    </div>
+                    <div class="explanation">
+                        <strong>Зачем это нужно?</strong>
+                        Клиент видит цены и услуги. Это вызывает доверие и повышает продажи.
+                    </div>
                 </div>
-                <div class="card">
-                    <h3>Telegram-бот</h3>
-                    <div class="price">2000 ₽</div>
-                    <p>Автоматизация записи.</p>
+                <div class="card-price">
+                    <div>
+                        <h3>Telegram-бот</h3>
+                        <div class="price">2000 ₽</div>
+                        <p class="short-desc">Автоматизация записи.</p>
+                    </div>
+                    <div class="explanation">
+                        <strong>Что он умеет?</strong>
+                        Записывает 24/7 и присылает уведомления вам в личку. Ни одна заявка не потеряется.
+                    </div>
                 </div>
-                <div class="card">
-                    <h3>Сайт + Бот</h3>
-                    <div class="price">2500 ₽</div>
-                    <p>Полный комплект.</p>
+                <div class="card-price">
+                    <div>
+                        <h3>Сайт + Бот</h3>
+                        <div class="price">2500 ₽</div>
+                        <p class="short-desc">Полный комплект.</p>
+                    </div>
+                    <div class="explanation">
+                        <strong>Почему выгодно?</strong>
+                        Сайт приводит клиентов, а бот их записывает. Вы экономите на администраторе.
+                    </div>
                 </div>
             </div>
+        </section>
+
+        <!-- СЕКЦИЯ 3: КОНТАКТЫ -->
+        <section class="contacts-section" id="contacts-section">
+            <h2>Не получилось?</h2>
+            <p>Если у вас не получилось связаться через Telegram, напишите мне в MAX или ВКонтакте, либо позвоните.</p>
+            
+            <div class="contact-links">
+                <a href="https://max.ru" class="contact-link" target="_blank">Написать в MAX</a>
+                <a href="https://vk.com" class="contact-link" target="_blank">Написать в ВК</a>
+            </div>
+
+            <a href="tel:+79217588685" class="phone-number">+7 (921) 758-86-85</a>
         </section>
 
         <footer>
@@ -320,22 +481,19 @@
           .to(".cards-wrapper", { y: 800, opacity: 0, scale: 0.8, duration: 1, ease: "power2.in" }) 
           .to("#about-content", { opacity: 1, duration: 1, pointerEvents: 'auto' }, "-=0.5");
 
-        // --- АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК В БЛОКЕ "НАШИ УСЛУГИ" ---
-        
-        // Делаем карточки невидимыми перед появлением
-        gsap.set(".prices-cards .card", { opacity: 0, y: 100 });
+        // --- АНИМАЦИЯ КАРТОЧЕК В БЛОКЕ "НАШИ УСЛУГИ" ---
+        gsap.set(".prices-cards .card-price", { opacity: 0, y: 100 });
 
-        // Появление при скролле
-        gsap.to(".prices-cards .card", {
+        gsap.to(".prices-cards .card-price", {
             scrollTrigger: {
                 trigger: ".prices-section",
                 start: "top 80%", 
                 end: "top 30%",
-                scrub: 1 // Плавная привязка к скроллу
+                scrub: 1 
             },
             opacity: 1,
             y: 0,
-            stagger: 0.2 // Появляются друг за другом
+            stagger: 0.2
         });
     </script>
 </body>
