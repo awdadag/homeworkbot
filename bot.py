@@ -92,6 +92,12 @@ def parse_item(item):
     phones, socials, emails = [], [], []
     has_own_site = False
     
+    # 1. ПРОВЕРКА САМОГО НАЗВАНИЯ (если в названии домен - выкидываем)
+    name_lower = str(item.get("name") or "").lower()
+    if any(ext in name_lower for ext in [".ru", ".com", ".net", ".org", ".рф", ".su", ".io", ".shop", ".biz"]):
+        return None
+
+    # 2. ПРОВЕРКА КОНТАКТОВ
     for c in contacts:
         kind = c.get("type")
         value = str(c.get("value") or c.get("text") or "").strip()
@@ -100,24 +106,21 @@ def parse_item(item):
         
         val_lower = value.lower()
             
-        # 1. Если это соцсеть - сохраняем
+        # Если это соцсеть - сохраняем
         if kind in SOCIAL_KINDS or is_social(val_lower):
             socials.append(value)
             continue
             
-        # 2. БРОНЕБОЙНАЯ ПРОВЕРКА: если есть домен - это сайт
+        # Если есть любой домен - это сайт
         if any(ext in val_lower for ext in [".ru", ".com", ".net", ".org", ".рф", ".su", ".io", ".shop", ".biz"]):
             has_own_site = True
             continue
 
-        # 3. Телефоны
         if kind == "phone":
             phones.append(value)
-        # 4. Почта
         elif kind == "email":
             emails.append(value)
 
-    # Если есть реальный сайт — ЖЕСТКО ВЫКИДЫВАЕМ
     if has_own_site:
         return None
 
@@ -414,4 +417,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
