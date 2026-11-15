@@ -98,18 +98,29 @@ def parse_item(item):
         if not value:
             continue
             
-        # Ищем сайты (Любые ссылки, которые не соцсети)
+        # 1. Проверяем на сайте (по типу)
         if kind in ("website", "url", "site"):
             if not is_social(value):
                 has_own_site = True
             else:
                 socials.append(value)
+            continue # Если это ссылка, дальше не проверяем
+
+        # 2. БРОНЕБОЙНАЯ ПРОВЕРКА: если в тексте есть точка и нет цифр в начале - это сайт
+        if "." in value and not any(char.isdigit() for char in value[:4]):
+            if not is_social(value):
+                has_own_site = True
+            continue
                 
+        # 3. Телефоны
         elif kind == "phone":
             phones.append(value)
-                
+            
+        # 4. Почта
         elif kind == "email":
             emails.append(value)
+            
+        # 5. Соцсети
         elif kind in SOCIAL_KINDS:
             socials.append(value)
 
@@ -122,7 +133,6 @@ def parse_item(item):
     address = item.get("address_name")
     address = address or item.get("full_address_name") or ""
 
-    # Сохраняем, если есть хоть что-то (телефон, соцсеть, почта или адрес)
     if not (phones or socials or emails or address):
         return None
 
@@ -165,7 +175,6 @@ async def fetch_page(session, query, page):
 async def find_leads(session, query, start_page):
     leads = []
     page = start_page
-    # Пролистываем до 5 страниц
     for _ in range(5):
         items = await fetch_page(session, query, page)
         
