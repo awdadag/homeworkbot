@@ -97,32 +97,25 @@ def parse_item(item):
         value = str(c.get("value") or c.get("text") or "").strip()
         if not value:
             continue
+        
+        val_lower = value.lower()
             
-        # 1. Проверяем на сайте (по типу)
-        if kind in ("website", "url", "site"):
-            if not is_social(value):
-                has_own_site = True
-            else:
-                socials.append(value)
-            continue # Если это ссылка, дальше не проверяем
-
-        # 2. БРОНЕБОЙНАЯ ПРОВЕРКА: если в тексте есть точка и нет цифр в начале - это сайт
-        if "." in value and not any(char.isdigit() for char in value[:4]):
-            if not is_social(value):
-                has_own_site = True
+        # 1. Если это соцсеть - сохраняем
+        if kind in SOCIAL_KINDS or is_social(val_lower):
+            socials.append(value)
             continue
-                
-        # 3. Телефоны
-        elif kind == "phone":
-            phones.append(value)
             
+        # 2. БРОНЕБОЙНАЯ ПРОВЕРКА: если есть домен - это сайт
+        if any(ext in val_lower for ext in [".ru", ".com", ".net", ".org", ".рф", ".su", ".io", ".shop", ".biz"]):
+            has_own_site = True
+            continue
+
+        # 3. Телефоны
+        if kind == "phone":
+            phones.append(value)
         # 4. Почта
         elif kind == "email":
             emails.append(value)
-            
-        # 5. Соцсети
-        elif kind in SOCIAL_KINDS:
-            socials.append(value)
 
     # Если есть реальный сайт — ЖЕСТКО ВЫКИДЫВАЕМ
     if has_own_site:
@@ -177,11 +170,6 @@ async def find_leads(session, query, start_page):
     page = start_page
     for _ in range(5):
         items = await fetch_page(session, query, page)
-        
-        # ДИАГНОСТИКА (в консоль)
-        print(f"\n=== ПОЛУЧЕНО СТРАНИЦ: {len(items)} ===")
-        for it in items:
-            print(it.get("name"), "| Сайт:", it.get("contact_groups"))
         
         if not items:
             return leads, page, True
@@ -426,3 +414,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+    
