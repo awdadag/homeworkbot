@@ -94,23 +94,25 @@ def parse_item(item):
     
     for c in contacts:
         kind = c.get("type")
-        value = (c.get("value") or c.get("text") or "").strip()
+        # Берем текст, если нет value
+        value = str(c.get("value") or c.get("text") or "").strip()
         if not value:
             continue
             
-        # Проверка на сайты
+        # Ищем сайты
         if kind in ("website", "url", "site"):
             if is_social(value):
                 socials.append(value)
             else:
                 has_own_site = True
                 
+        # Ищем телефоны
         elif kind == "phone":
-            # Очищаем номер от пробелов, скобок и дефисов
+            # Очищаем от скобок, пробелов и дефисов
             clean_phone = "".join(filter(str.isdigit, value))
-            # Проверяем, что номер российский (начинается с 7 или 8)
-            if clean_phone.startswith("7") or clean_phone.startswith("8"):
-                phones.append(c.get("print_text") or value)
+            # Если номер начинается с 7 или 8 и в нем больше 10 цифр - это телефон
+            if (clean_phone.startswith("7") or clean_phone.startswith("8")) and len(clean_phone) >= 10:
+                phones.append(value) # Сохраняем в красивом виде
                 
         elif kind == "email":
             emails.append(value)
@@ -121,14 +123,14 @@ def parse_item(item):
     if has_own_site:
         return None
 
-    # Если нет валидного телефона — выкидываем
-    if not phones:
-        return None
-
     rubrics = item.get("rubrics") or []
     rubric = rubrics[0].get("name", "") if rubrics else ""
     address = item.get("address_name")
     address = address or item.get("full_address_name") or ""
+
+    # Если телефона нет, но есть соцсети или почта — сохраняем!
+    if not (phones or socials or emails):
+        return None
 
     return Lead(
         firm_id=str(item.get("id", "")).split("_")[0],
