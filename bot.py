@@ -94,32 +94,26 @@ def parse_item(item):
     
     for c in contacts:
         kind = c.get("type")
-        # Берем текст, если нет value
         value = str(c.get("value") or c.get("text") or "").strip()
         if not value:
             continue
             
-        # Ищем сайты
+        # Ищем сайты (Любые ссылки, которые не соцсети)
         if kind in ("website", "url", "site"):
-            if is_social(value):
-                socials.append(value)
-            else:
+            if not is_social(value):
                 has_own_site = True
+            else:
+                socials.append(value)
                 
-        # Ищем телефоны
         elif kind == "phone":
-            # Очищаем от скобок, пробелов и дефисов
-            clean_phone = "".join(filter(str.isdigit, value))
-            # Если номер начинается с 7 или 8 и в нем больше 10 цифр - это телефон
-            if (clean_phone.startswith("7") or clean_phone.startswith("8")) and len(clean_phone) >= 10:
-                phones.append(value) # Сохраняем в красивом виде
+            phones.append(value)
                 
         elif kind == "email":
             emails.append(value)
         elif kind in SOCIAL_KINDS:
             socials.append(value)
 
-    # Если есть реальный сайт — выкидываем
+    # Если есть реальный сайт — ЖЕСТКО ВЫКИДЫВАЕМ
     if has_own_site:
         return None
 
@@ -128,8 +122,8 @@ def parse_item(item):
     address = item.get("address_name")
     address = address or item.get("full_address_name") or ""
 
-    # Если телефона нет, но есть соцсети или почта — сохраняем!
-    if not (phones or socials or emails):
+    # Сохраняем, если есть хоть что-то (телефон, соцсеть, почта или адрес)
+    if not (phones or socials or emails or address):
         return None
 
     return Lead(
@@ -171,6 +165,7 @@ async def fetch_page(session, query, page):
 async def find_leads(session, query, start_page):
     leads = []
     page = start_page
+    # Пролистываем до 5 страниц
     for _ in range(5):
         items = await fetch_page(session, query, page)
         
